@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.claude/worktrees/
+.claude/settings.local.json
+CLAUDE.local.md
+node_modules/
+.venv/
+__pycache__/
+.next/

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>BizSaathi How customers reach you</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#12201B}
+.c{background:#fff;border:1px solid #E1E8E4;border-radius:16px;padding:20px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;font:600 14px 'Plus Jakarta Sans',sans-serif;border:1px solid #CBD6D0;background:#fff;color:#12201B;cursor:pointer}
+.p{background:#0B6E5C;border-color:#0B6E5C;color:#fff}
+.s{background:#E4F1EC;border-color:#0B6E5C;color:#0B6E5C}
+.nv{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:10px;color:#42524B;font-weight:600;font-size:14px;text-decoration:none}
+.on{background:#E4F1EC;color:#0B6E5C}
+.t{font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:#EEF2F0;color:#42524B}
+.g{background:#E4F1EC;color:#0B6E5C}
+.st{display:flex;gap:14px}
+.rl{display:flex;flex-direction:column;align-items:center}
+.d{width:22px;height:22px;border-radius:50%;box-sizing:border-box;flex:none;display:grid;place-items:center}
+.dn{background:#0B6E5C}
+.cu{border:3px solid #B45309;background:#fff}
+.up{border:2px solid #CBD6D0;background:#fff}
+.ln{width:2px;flex:1;min-height:20px;background:#CBD6D0}
+.sx{padding-bottom:18px}
+.sx p:first-child{font-size:14px;font-weight:600}
+.sx p+p{font-size:12px;color:#5B6A64;margin-top:2px}
+label{display:block;font-size:13px;font-weight:600;color:#42524B;margin-bottom:6px}
+input{box-sizing:border-box;width:100%;min-height:44px;border:1px solid #CBD6D0;border-radius:10px;padding:0 12px;font:500 14px 'Plus Jakarta Sans',sans-serif;color:#12201B}
+h2{margin:0 0 14px;font-size:16px}
+p{margin:0}
+/*clean*/
+body{-webkit-font-smoothing:antialiased;line-height:1.5}
+h1{letter-spacing:-.02em;font-weight:700}
+h2{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:16px}
+.c{border:1px solid #E7EDEA;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,20,.04),0 6px 20px rgba(16,24,20,.03)}
+.b{border-color:#D5DFDA;transition:background .15s,border-color .15s,box-shadow .15s}
+.b:hover{background:#F1F6F3;border-color:#B9C9C1}
+.p:hover{background:#09594A;border-color:#09594A}
+.s:hover{background:#D8EBE4}
+.b:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0B6E5C;outline-offset:2px}
+.nv{transition:background .15s}
+.nv:hover{background:#F1F6F3}
+.on:hover{background:#E4F1EC}
+input,textarea{border-color:#D5DFDA!important}
+input:focus,textarea:focus{border-color:#0B6E5C!important}
+.t{letter-spacing:.01em}
+main{gap:28px!important}
+tbody tr:hover td{background:#F7FAF8}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></helmet>
+<div style="min-height:900px;background:#F5F8F6">
+<header style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:10px 40px;background:#fff;border-bottom:1px solid #E1E8E4">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-right:16px"><span style="width:32px;height:32px;border-radius:9px;background:#0B6E5C;color:#fff;display:grid;place-items:center;font-size:16px">B</span>BizSaathi</span>
+<nav aria-label="Main" style="display:flex;flex-wrap:wrap;gap:4px"><a class="nv" href="Main.dc.html">Home</a><a class="nv" href="PostStudio.dc.html">Posts</a><a class="nv" href="Catalog.dc.html">My Products</a><a class="nv on" href="Chats.dc.html">Messages</a><a class="nv" href="Orders.dc.html">Orders</a></nav></div>
+<div style="display:flex;align-items:center;gap:12px"><a class="b" href="ApprovalsDesk.dc.html" style="text-decoration:none">Approvals <span style="background:#B45309;color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px">{{ pending }}</span></a><div style="position:relative"><button aria-label="Account menu" aria-haspopup="true" aria-expanded="{{ menu }}" onClick="{{ toggleMenu }}" style="width:44px;height:44px;border-radius:50%;border:0;background:#E4F1EC;color:#0B6E5C;font:700 16px 'Plus Jakarta Sans',sans-serif;cursor:pointer">M</button><sc-if value="{{ menu }}" hint-placeholder-val="{{ false }}"><div role="menu" style="position:absolute;right:0;top:52px;z-index:40;min-width:230px;box-sizing:border-box;background:#fff;border:1px solid #E1E8E4;border-radius:14px;box-shadow:0 8px 28px rgba(16,24,20,.12);padding:8px"><div style="padding:8px 12px 10px;border-bottom:1px solid #EEF2F0;margin-bottom:6px"><b style="font-size:14px">Meera’s Handlooms</b><p style="font-size:12px;color:#0B6E5C;font-weight:600;margin:2px 0 0">✓ Verified Seller</p></div><a role="menuitem" class="nv" href="Trust.dc.html" style="display:flex;box-sizing:border-box">Trust and safety</a><a role="menuitem" class="nv" href="Channels.dc.html" style="display:flex;box-sizing:border-box">How customers reach you</a><a role="menuitem" class="nv" href="Models.dc.html" style="display:flex;box-sizing:border-box">Model settings</a></div></sc-if></div></div></header>
+<main style="box-sizing:border-box;max-width:1240px;margin:0 auto;padding:32px 40px;display:flex;flex-direction:column;gap:24px"><a href="Chats.dc.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;align-self:flex-start;color:#0B6E5C;font-weight:600;font-size:14px;text-decoration:none">← Messages</a><header><h1 style="margin:0;font-size:28px">How customers reach you</h1><p style="color:#5B6A64;margin-top:4px">One assistant, different doors. You answer from one inbox.</p></header><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="b {{ tc.web }}" onClick="{{ goWeb }}">Chat widget <span style="font-size:12px;font-weight:600">Live</span></button><button class="b {{ tc.wa }}" onClick="{{ goWa }}">WhatsApp <span style="font-size:12px;font-weight:600">Planned</span></button><button class="b {{ tc.ig }}" onClick="{{ goIg }}">Instagram <span style="font-size:12px;font-weight:600">Planned</span></button></div><div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start"><div style="flex:0 0 330px;display:flex;flex-direction:column;gap:12px"><div style="border:1px solid #CBD6D0;border-radius:28px;overflow:hidden;background:{{ chatBg }}"><div style="background:{{ hdBg }};color:{{ hdC }};padding:14px 16px;display:flex;gap:10px;align-items:center"><span style="width:36px;height:36px;border-radius:50%;background:#fff;color:#0B6E5C;display:grid;place-items:center;font-weight:700">M</span><div><b style="font-size:14px">Meera’s Handlooms</b><p style="font-size:12px;opacity:.85">{{ hdSub }}</p></div></div><div style="padding:14px;display:flex;flex-direction:column;gap:10px;min-height:380px"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><div style="max-width:88%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:{{ cb }};color:{{ cc }}">Chanderi dupatta ka price kya hai? Green mein hai?</div><p style="font-size:11px;color:#5B6A64">Anita, the customer</p></div><div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px"><div style="max-width:88%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:#fff;color:#12201B">Namaste! Chanderi dupatta ₹1,400 hai, marigold mein 8 piece. Green abhi stock mein nahi hai. Main Meera se restock date pooch rahi hoon. 🙏</div><p style="font-size:11px;color:#5B6A64">AI-generated · Asked the owner</p></div><div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px"><div style="max-width:88%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.5;background:#E4F1EC;color:#12201B">Green 20 tareekh tak aa jayega. Aap bata dein, hold kar dun?</div><p style="font-size:11px;color:#5B6A64">Meera, the owner</p></div></div></div></div><div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:20px"><section class="c"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px"><h2 style="margin:0">{{ chName }}</h2><span class="t" style="background:{{ stBg }};color:{{ stC }}">{{ stText }}</span></div><p style="font-size:14px;line-height:1.5;color:#42524B">{{ note }}</p></section><section class="c"><h2>What happens to each message</h2><div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Customer writes</p><p>{{ chName }}</p></div></div><div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Channel adapter</p><p>{{ adapter }}</p></div></div><div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Privacy filter</p><p>Names and phone numbers are hidden from the AI</p></div></div><div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Customer assistant</p><p>Answers only from your catalog and policies</p></div></div><div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Safety check</p><p>No invented prices, stock or offers</p></div></div><div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span></div><div class="sx" style="padding-bottom:0"><p>Reply sent, or sent to you</p><p>Anything it is unsure about waits for your OK</p></div></div></section><section class="c"><h2>What you see in BizSaathi</h2><div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;border:1px solid #E1E8E4;border-radius:12px;padding:12px 16px"><span class="t">Reply · Anita</span><span class="t" style="background:#FDEBD3;color:#8A4B08">via {{ chName }}</span><p style="font-size:14px;flex:1 1 160px">Green dupatta restock date</p><a class="b p" href="Chats.dc.html" style="text-decoration:none">Open in Messages</a></div><p style="font-size:13px;color:#5B6A64;margin-top:10px">Every channel shows up in the same inbox, with the same approval queue.</p></section></div></div></main></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1100}}'>
+class Component extends DCLogic {
+constructor(p){super(p);this.state={ch:'web'};}
+renderVals0(){const k=this.state.ch,go=c=>()=>this.setState({ch:c});
+const D={web:{n:'Chat widget',a:'Web widget adapter',st:'Live in the MVP',sb:'#E4F1EC',sc:'#0B6E5C',note:'A chat bubble on your website, or the full-page store link. Needs nothing from Meta or any app. This is what we demo.',hb:'#fff',hc:'#12201B',sub:'AI assistant · online',cb:'#0B6E5C',cc:'#fff',bg:'#F5F8F6'},
+wa:{n:'WhatsApp',a:'WhatsApp Business adapter',st:'Planned',sb:'#EEF2F0',sc:'#42524B',note:'Customers message your WhatsApp Business number and the same assistant answers. It needs a WhatsApp Business setup, and Meta has rules for automated and business-started messages. To be checked before launch.',hb:'#075E54',hc:'#fff',sub:'Business account',cb:'#D9FDD3',cc:'#12201B',bg:'#EFEAE2'},
+ig:{n:'Instagram',a:'Instagram messages adapter',st:'Planned',sb:'#EEF2F0',sc:'#42524B',note:'Customers send a message to your Instagram account and the same assistant answers. It needs a connected professional account, and Meta’s rules apply. To be checked before launch.',hb:'#fff',hc:'#12201B',sub:'Professional account',cb:'#5B51D8',cc:'#fff',bg:'#fff'}}[k];
+const on=c=>k===c?'s':'';
+return {chName:D.n,adapter:D.a,stText:D.st,stBg:D.sb,stC:D.sc,note:D.note,hdBg:D.hb,hdC:D.hc,hdSub:D.sub,cb:D.cb,cc:D.cc,chatBg:D.bg,tc:{web:on('web'),wa:on('wa'),ig:on('ig')},goWeb:go('web'),goWa:go('wa'),goIg:go('ig')};}
+renderVals(){const v=this.renderVals0();v.menu=!!this.state.menu;v.toggleMenu=()=>this.setState({menu:!this.state.menu});return v;}
+}
+</script></body></html>

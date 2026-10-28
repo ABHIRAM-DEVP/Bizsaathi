@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>BizSaathi Messages</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#12201B}
+.c{background:#fff;border:1px solid #E1E8E4;border-radius:16px;padding:20px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;font:600 14px 'Plus Jakarta Sans',sans-serif;border:1px solid #CBD6D0;background:#fff;color:#12201B;cursor:pointer}
+.p{background:#0B6E5C;border-color:#0B6E5C;color:#fff}
+.s{background:#E4F1EC;border-color:#0B6E5C;color:#0B6E5C}
+.nv{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:10px;color:#42524B;font-weight:600;font-size:14px;text-decoration:none}
+.on{background:#E4F1EC;color:#0B6E5C}
+.t{font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:#EEF2F0;color:#42524B}
+.g{background:#E4F1EC;color:#0B6E5C}
+.st{display:flex;gap:14px}
+.rl{display:flex;flex-direction:column;align-items:center}
+.d{width:22px;height:22px;border-radius:50%;box-sizing:border-box;flex:none;display:grid;place-items:center}
+.dn{background:#0B6E5C}
+.cu{border:3px solid #B45309;background:#fff}
+.up{border:2px solid #CBD6D0;background:#fff}
+.ln{width:2px;flex:1;min-height:20px;background:#CBD6D0}
+.sx{padding-bottom:18px}
+.sx p:first-child{font-size:14px;font-weight:600}
+.sx p+p{font-size:12px;color:#5B6A64;margin-top:2px}
+label{display:block;font-size:13px;font-weight:600;color:#42524B;margin-bottom:6px}
+input{box-sizing:border-box;width:100%;min-height:44px;border:1px solid #CBD6D0;border-radius:10px;padding:0 12px;font:500 14px 'Plus Jakarta Sans',sans-serif;color:#12201B}
+h2{margin:0 0 14px;font-size:16px}
+p{margin:0}
+/*clean*/
+body{-webkit-font-smoothing:antialiased;line-height:1.5}
+h1{letter-spacing:-.02em;font-weight:700}
+h2{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:16px}
+.c{border:1px solid #E7EDEA;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,20,.04),0 6px 20px rgba(16,24,20,.03)}
+.b{border-color:#D5DFDA;transition:background .15s,border-color .15s,box-shadow .15s}
+.b:hover{background:#F1F6F3;border-color:#B9C9C1}
+.p:hover{background:#09594A;border-color:#09594A}
+.s:hover{background:#D8EBE4}
+.b:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0B6E5C;outline-offset:2px}
+.nv{transition:background .15s}
+.nv:hover{background:#F1F6F3}
+.on:hover{background:#E4F1EC}
+input,textarea{border-color:#D5DFDA!important}
+input:focus,textarea:focus{border-color:#0B6E5C!important}
+.t{letter-spacing:.01em}
+main{gap:28px!important}
+tbody tr:hover td{background:#F7FAF8}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></helmet>
+<div style="min-height:900px;background:#F5F8F6">
+<header style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:10px 40px;background:#fff;border-bottom:1px solid #E1E8E4">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-right:16px"><span style="width:32px;height:32px;border-radius:9px;background:#0B6E5C;color:#fff;display:grid;place-items:center;font-size:16px">B</span>BizSaathi</span>
+<nav aria-label="Main" style="display:flex;flex-wrap:wrap;gap:4px"><a class="nv" href="Main.dc.html">Home</a><a class="nv" href="PostStudio.dc.html">Posts</a><a class="nv" href="Catalog.dc.html">My Products</a><a class="nv on" href="Chats.dc.html">Messages</a><a class="nv" href="Orders.dc.html">Orders</a></nav></div>
+<div style="display:flex;align-items:center;gap:12px"><a class="b" href="ApprovalsDesk.dc.html" style="text-decoration:none">Approvals <span style="background:#B45309;color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px">3</span></a><div style="position:relative"><button aria-label="Account menu" aria-haspopup="true" aria-expanded="{{ menu }}" onClick="{{ toggleMenu }}" style="width:44px;height:44px;border-radius:50%;border:0;background:#E4F1EC;color:#0B6E5C;font:700 16px 'Plus Jakarta Sans',sans-serif;cursor:pointer">M</button><sc-if value="{{ menu }}" hint-placeholder-val="{{ false }}"><div role="menu" style="position:absolute;right:0;top:52px;z-index:40;min-width:230px;box-sizing:border-box;background:#fff;border:1px solid #E1E8E4;border-radius:14px;box-shadow:0 8px 28px rgba(16,24,20,.12);padding:8px"><div style="padding:8px 12px 10px;border-bottom:1px solid #EEF2F0;margin-bottom:6px"><b style="font-size:14px">Meera’s Handlooms</b><p style="font-size:12px;color:#0B6E5C;font-weight:600;margin:2px 0 0">✓ Verified Seller</p></div><a role="menuitem" class="nv" href="Trust.dc.html" style="display:flex;box-sizing:border-box">Trust and safety</a><a role="menuitem" class="nv" href="Channels.dc.html" style="display:flex;box-sizing:border-box">How customers reach you</a><a role="menuitem" class="nv" href="Models.dc.html" style="display:flex;box-sizing:border-box">Model settings</a></div></sc-if></div></div></header>
+<main style="box-sizing:border-box;max-width:1240px;margin:0 auto;padding:32px 40px;display:flex;flex-direction:column;gap:20px"><a href="Main.dc.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;align-self:flex-start;color:#0B6E5C;font-weight:600;font-size:14px;text-decoration:none">← Home</a>
+<header><h1 style="margin:0;font-size:28px">Customer messages</h1><p style="color:#5B6A64;margin-top:4px">From your store link and chat widget. Customers see answers in their own language.</p></header><section class="c" style="padding:16px 20px"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px"><h2 style="margin:0;font-size:16px">Where customers talk to you</h2><span style="font-size:13px;color:#5B6A64">Every reply lands in this inbox, whichever door it came through.</span><div style="display:flex;gap:8px"><a class="b" href="Widget.dc.html" style="text-decoration:none">Preview widget</a><a class="b p" href="Channels.dc.html" style="text-decoration:none">See how it works</a></div></div><div style="display:flex;flex-wrap:wrap;gap:12px"><div style="flex:1 1 190px;min-width:0;border:1px solid #E1E8E4;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:14px">Store link</b><span class="t g">Live</span></div><p style="font-size:12px;color:#5B6A64;margin:4px 0 8px;line-height:1.4">bizsaathi.app/meera. A full page with the chat inside.</p><button class="b" style="width:100%" onClick="{{ copyLink }}">Copy link</button></div><div style="flex:1 1 190px;min-width:0;border:1px solid #E1E8E4;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:14px">Chat widget</b><span class="t g">Live</span></div><p style="font-size:12px;color:#5B6A64;margin:4px 0 8px;line-height:1.4">A small chat bubble for your own website or store page.</p><button class="b" style="width:100%" onClick="{{ copyEmbed }}">Copy embed code</button></div><div style="flex:1 1 190px;min-width:0;border:1px solid #E1E8E4;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:14px">WhatsApp</b><span class="t">Coming next</span></div><p style="font-size:12px;color:#5B6A64;margin:4px 0 8px;line-height:1.4">Same assistant, one new adapter. Needs a WhatsApp Business setup.</p></div><div style="flex:1 1 190px;min-width:0;border:1px solid #E1E8E4;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:14px">Instagram</b><span class="t">Coming next</span></div><p style="font-size:12px;color:#5B6A64;margin:4px 0 8px;line-height:1.4">Same assistant, one new adapter.</p></div><div style="flex:1 1 190px;min-width:0;border:1px solid #E1E8E4;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:14px">Facebook</b><span class="t">Coming next</span></div><p style="font-size:12px;color:#5B6A64;margin:4px 0 8px;line-height:1.4">Same assistant, one new adapter.</p></div></div></section>
+<div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+<section class="c" style="flex:0 0 320px;padding:0;overflow:hidden;min-width:0"><div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid #E1E8E4"><button class="b {{ c.all }}" onClick="{{ fAll }}">All</button><button class="b {{ c.need }}" onClick="{{ fNeed }}">Needs you {{ needN }}</button><button class="b {{ c.ai }}" onClick="{{ fAi }}">AI handled</button></div>
+<sc-if value="{{ i0 }}" hint-placeholder-val="{{ true }}"><a href="#" style="display:block;padding:14px 16px;text-decoration:none;color:inherit;border-bottom:1px solid #E1E8E4;background:#E4F1EC"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:14px">Anita</b><span style="font-size:12px;color:#5B6A64">2 min</span></div><p style="font-size:13px;color:#42524B;margin:2px 0 6px">Green kab tak aayega?</p><sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}"><span class="t" style="background:#FDEBD3;color:#8A4B08">Needs you</span></sc-if><sc-if value="{{ sent }}" hint-placeholder-val="{{ true }}"><span class="t g">You replied</span></sc-if></a></sc-if>
+<sc-if value="{{ i1 }}" hint-placeholder-val="{{ true }}"><a href="#" style="display:block;padding:14px 16px;text-decoration:none;color:inherit;border-bottom:1px solid #E1E8E4;background:#fff"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:14px">Rahul</b><span style="font-size:12px;color:#5B6A64">14 min</span></div><p style="font-size:13px;color:#42524B;margin:2px 0 6px">Do you deliver to Indore?</p><span class="t g">Answered in 12 sec</span></a></sc-if>
+<sc-if value="{{ i2 }}" hint-placeholder-val="{{ true }}"><a href="#" style="display:block;padding:14px 16px;text-decoration:none;color:inherit;border-bottom:1px solid #E1E8E4;background:#fff"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:14px">Pooja</b><span style="font-size:12px;color:#5B6A64">1 hr</span></div><p style="font-size:13px;color:#42524B;margin:2px 0 6px">Payment done, thank you</p><span class="t g">Order #1043 paid</span></a></sc-if>
+<sc-if value="{{ i3 }}" hint-placeholder-val="{{ true }}"><a href="#" style="display:block;padding:14px 16px;text-decoration:none;color:inherit;border-bottom:1px solid #E1E8E4;background:#fff"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:14px">Suresh</b><span style="font-size:12px;color:#5B6A64">3 hr</span></div><p style="font-size:13px;color:#42524B;margin:2px 0 6px">Kurta ka price kya hai?</p><span class="t g">Answered in 9 sec</span></a></sc-if>
+</section>
+<section class="c" style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:14px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><div><b>Anita</b><p style="font-size:13px;color:#5B6A64">Store link · Hindi</p></div><span class="t">Chanderi dupatta</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="t g">✓ Verified Buyer</span><span class="t">+91 98•••• •210</span><span class="t">Phone confirmed by code</span><span class="t">Deliver to: Indore 452001</span><span class="t">2 past orders</span><span style="font-size:12px;color:#5B6A64">Only you see this. The assistant never does.</span></div>
+<div style="align-self:flex-start;max-width:75%;background:#fff;border:1px solid #E1E8E4;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5">Kya yeh dupatta green colour mein milega?</div>
+<div style="align-self:flex-end;max-width:75%;background:#E4F1EC;border:1px solid #E1E8E4;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5">Abhi yeh marigold aur maroon mein available hai. Green abhi stock mein nahi hai.<p style="font-size:12px;color:#0B6E5C;margin-top:6px">AI-generated · from your catalog</p></div>
+<div style="align-self:flex-start;max-width:75%;background:#fff;border:1px solid #E1E8E4;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5">Green kab tak aayega?</div>
+<sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}"><div style="border:2px solid #B45309;border-radius:14px;padding:16px;background:#FFFBF4"><p style="font-size:14px;font-weight:700;color:#8A4B08">Needs you: no restock date in your catalog</p><p style="font-size:14px;margin:10px 0 4px;color:#42524B">Suggested reply</p><sc-if value="{{ notEdit }}" hint-placeholder-val="{{ true }}"><p style="font-size:14px;background:#fff;border:1px solid #E1E8E4;border-radius:10px;padding:12px">Green ke liye seller se confirm karke aaj shaam tak bata dungi.</p></sc-if><sc-if value="{{ edit }}" hint-placeholder-val="{{ true }}"><input aria-label="Your reply" value="{{ txt }}" onInput="{{ onTxt }}"></sc-if>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><sc-if value="{{ notEdit }}" hint-placeholder-val="{{ true }}"><button class="b p" onClick="{{ send }}">Send this</button><button class="b" onClick="{{ editIt }}">Edit</button><button class="b" onClick="{{ own }}">Answer myself</button></sc-if><sc-if value="{{ edit }}" hint-placeholder-val="{{ true }}"><button class="b p" onClick="{{ send }}">Send</button><button class="b" onClick="{{ cancel }}">Cancel</button></sc-if></div></div></sc-if><sc-if value="{{ sent }}" hint-placeholder-val="{{ true }}"><div style="margin:12px 0 0 auto;width:fit-content;max-width:80%;background:#0B6E5C;color:#fff;padding:10px 14px;border-radius:12px;font-size:14px">{{ sentText }}</div><p style="font-size:12px;color:#5B6A64;text-align:right;margin-top:4px">Sent by you</p></sc-if>
+</section></div></main>
+<nav aria-label="Next and previous step" style="box-sizing:border-box;max-width:1240px;margin:0 auto;padding:8px 40px 40px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px"><a class="b" href="ApprovalsDesk.dc.html" style="text-decoration:none">← To approve</a><a class="b p" href="Orders.dc.html" style="text-decoration:none;margin-left:auto">Orders →</a></nav>
+</div>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#12201B;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:50;max-width:90%">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":900}}'>
+class Component extends DCLogic {
+constructor(p){super(p);this.state=Object.assign({toast:''},{flt:'all',sent:false,edit:false,txt:'Green ke liye seller se confirm karke aaj shaam tak bata dungi.'});}
+say(m){this.setState({toast:m});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2200);}
+renderVals0(){
+const st=this.state,fl=st.flt,on=k=>fl===k?'s':'';
+return {copyLink:()=>{try{navigator.clipboard.writeText('bizsaathi.app/meera');}catch(e){}this.say('Store link copied');},copyEmbed:()=>{try{navigator.clipboard.writeText('<script src="https://bizsaathi.app/widget.js" data-store="meera"><'+'/script>');}catch(e){}this.say('Embed code copied. Paste it into your website.');},needN:st.sent?0:1,toast:st.toast,notSent:!st.sent,sent:st.sent,edit:st.edit,notEdit:!st.edit,txt:st.txt,sentText:st.txt,
+i0:fl==='all'||(fl==='need'&&!st.sent),i1:fl==='all'||fl==='ai',i2:fl==='all'||fl==='ai',i3:fl==='all'||fl==='ai',c:{all:on('all'),need:on('need'),ai:on('ai')},
+fAll:()=>this.setState({flt:'all'}),fNeed:()=>this.setState({flt:'need'}),fAi:()=>this.setState({flt:'ai'}),
+onTxt:e=>this.setState({txt:e.target.value}),send:()=>{this.setState({sent:true,edit:false});this.say('Reply sent to Anita');},
+editIt:()=>this.setState({edit:true}),own:()=>this.setState({edit:true,txt:''}),cancel:()=>this.setState({edit:false})};
+}
+renderVals(){const v=this.renderVals0();v.menu=!!this.state.menu;v.toggleMenu=()=>this.setState({menu:!this.state.menu});return v;}
+}
+</script></body></html>

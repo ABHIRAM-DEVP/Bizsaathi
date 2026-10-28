@@ -1,0 +1,67 @@
+# Single source of truth for commands (agents, humans, CI).
+# Tools needed: just, uv, pnpm, docker, python3. API/web recipes assume apps/api and apps/web exist.
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+api_url := env_var_or_default("API_URL", "http://localhost:8000")
+
+default:
+    @just --list
+
+up:
+    docker compose up -d postgres redis minio
+
+down:
+    docker compose down
+
+dev-api:
+    cd apps/api && uv run uvicorn app.main:app --reload --port 8000
+
+dev-web:
+    cd apps/web && pnpm dev
+
+# Repo-level guards that work before any app code exists.
+guards:
+    bash scripts/secret_scan.sh
+    python3 scripts/eval_validate.py
+
+# Seconds-fast loop. Run constantly.
+check-fast: guards
+    cd apps/api && uv run ruff check . && uv run mypy . && uv run pytest tests/unit -x -q
+    cd apps/web && pnpm lint && pnpm typecheck && pnpm test --run
+
+# Full gate before reporting done.
+check: check-fast
+    cd apps/api && uv run pytest tests/integration -x -q
+    just contract-check
+    just eval-mock
+    cd apps/web && pnpm build
+
+export-openapi:
+    cd apps/api && uv run python -m app.export_openapi > ../../contracts/openapi.json
+
+contract-check:
+    cd apps/api && uv run python -m app.export_openapi | diff -u ../../contracts/openapi.json -
+
+migrate:
+    cd apps/api && uv run alembic upgrade head
+
+new-migration msg:
+    cd apps/api && uv run alembic revision --autogenerate -m "{{msg}}"
+
+# Evals with mocked models: free and deterministic. NOT a quality claim.
+eval-mock:
+    cd apps/api && uv run python -m app.evals.run --mode mock --split dev
+
+# Evals against the real Meta API. COSTS CREDITS. Ask the human first.
+eval-live split="heldout":
+    cd apps/api && uv run python -m app.evals.run --mode live --split {{split}}
+
+# One real call per model to verify access and IDs. COSTS CREDITS. Ask first.
+meta-smoke:
+    cd apps/api && uv run python -m app.ai.smoke
+
+e2e:
+    cd apps/web && pnpm e2e
+
+smoke:
+    API_URL={{api_url}} bash scripts/api_smoke.sh

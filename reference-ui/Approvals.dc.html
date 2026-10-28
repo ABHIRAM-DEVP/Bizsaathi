@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>BizSaathi Approvals</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#12201B}
+.c{background:#fff;border:1px solid #E1E8E4;border-radius:16px;padding:16px}
+.b{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:12px;font:600 14px 'Plus Jakarta Sans',sans-serif;border:1px solid #CBD6D0;background:#fff;color:#12201B;flex:1}
+.p{background:#0B6E5C;border-color:#0B6E5C;color:#fff}
+.t{font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:#EEF2F0;color:#42524B}
+p{margin:0}
+.s{background:#0B6E5C;border-color:#0B6E5C;color:#fff}.k{flex:none;min-height:44px;padding:0 12px;font-size:13px}
+/*clean*/
+body{-webkit-font-smoothing:antialiased;line-height:1.5}
+.b{border-color:#D5DFDA;transition:background .15s,border-color .15s}
+.b:hover{background:#F1F6F3}
+.p:hover{background:#09594A}
+.b:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #0B6E5C;outline-offset:2px}
+input:focus{border-color:#0B6E5C!important}
+.c{border-color:#E7EDEA;box-shadow:0 1px 2px rgba(16,24,20,.04)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F5F8F6;display:flex;flex-direction:column;overflow:hidden">
+<header style="padding:20px 20px 12px"><h1 style="margin:0;font-size:24px">Approvals</h1><p style="font-size:14px;color:#5B6A64;margin-top:2px">{{ pendingText }}</p>
+<div style="display:flex;gap:8px;margin-top:14px"><button class="b k {{ c.all }}" onClick="{{ fAll }}">All {{ n.all }}</button><button class="b k {{ c.po }}" onClick="{{ fPo }}">Posts {{ n.po }}</button><button class="b k {{ c.re }}" onClick="{{ fRe }}">Replies {{ n.re }}</button><button class="b k {{ c.rf }}" onClick="{{ fRf }}">Refunds {{ n.rf }}</button></div></header>
+<div style="flex:1;overflow-y:auto;padding:8px 20px;display:flex;flex-direction:column;gap:12px">
+<sc-if value="{{ vPo }}" hint-placeholder-val="{{ true }}"><div class="c"><div style="display:flex;gap:8px;margin-bottom:8px"><span class="t">Instagram post</span><span class="t" style="background:#E4F1EC;color:#0B6E5C">Checked</span></div>
+<div style="height:96px;border-radius:10px;background:#E9DFC9;margin-bottom:10px"></div>
+<p style="font-size:14px;line-height:1.5;margin-bottom:12px">Festive season ke liye handwoven Chanderi dupatta, ab stock mein.</p>
+<div style="display:flex;gap:8px"><button class="b" onClick="{{ edit }}">Edit</button><button class="b p" onClick="{{ okPost }}">Approve</button></div></div>
+</sc-if><sc-if value="{{ vRe }}" hint-placeholder-val="{{ true }}"><div class="c"><div style="display:flex;gap:8px;margin-bottom:8px"><span class="t">Customer reply</span><span class="t" style="background:#FDEBD3;color:#8A4B08">Not sure</span></div>
+<p style="font-size:13px;color:#5B6A64">Customer asks</p><p style="font-size:14px;margin-bottom:8px">Can I get a discount on 10 dupattas?</p>
+<p style="font-size:13px;color:#5B6A64">Suggested reply</p><p style="font-size:14px;line-height:1.5;margin-bottom:12px">Thanks for asking! Let me check bulk pricing and get back to you today.</p>
+<div style="display:flex;gap:8px"><button class="b" onClick="{{ edit }}">Edit</button><button class="b p" onClick="{{ okRe }}">Send</button></div></div>
+</sc-if><sc-if value="{{ vRf }}" hint-placeholder-val="{{ true }}"><div class="c"><div style="display:flex;gap:8px;margin-bottom:8px"><span class="t">Refund request</span></div><p style="font-size:14px;line-height:1.5;margin-bottom:12px">Order #1042 arrived 3 days late. Kavita wants ₹1,400 back. Refunds always need your OK.</p><div style="display:flex;gap:8px"><button class="b" onClick="{{ noRf }}">Decline</button><button class="b p" onClick="{{ okRf }}">Approve</button></div></div></sc-if><sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}"><div class="c" style="text-align:center"><p style="font-weight:700">All caught up</p><p style="font-size:14px;color:#5B6A64;margin-top:4px">Nothing is waiting for you.</p></div></sc-if></div>
+<nav style="display:flex;justify-content:space-around;background:#fff;border-top:1px solid #E1E8E4;padding:8px 0 20px;font-size:12px;font-weight:600;color:#42524B"><a href="Main.dc.html" style="min-height:44px;min-width:64px;display:grid;place-items:center;color:inherit;text-decoration:none">Home</a><a href="PostStudio.dc.html" style="min-height:44px;min-width:64px;display:grid;place-items:center;color:inherit;text-decoration:none">Posts</a><a href="#" style="min-height:44px;min-width:64px;display:grid;place-items:center;color:#0B6E5C;text-decoration:none">Approvals</a><a href="Chats.dc.html" style="min-height:44px;min-width:64px;display:grid;place-items:center;color:inherit;text-decoration:none">Messages</a></nav>
+</div>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#12201B;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:50;max-width:90%">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(p){super(p);this.state=Object.assign({toast:''},{po:true,re:true,rf:true,flt:'all'});}
+say(m){this.setState({toast:m});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2200);}
+renderVals(){
+const st=this.state,n={po:st.po?1:0,re:st.re?1:0,rf:st.rf?1:0};n.all=n.po+n.re+n.rf;const fl=st.flt,on=k=>fl===k?'s':'';
+return {pendingText:n.all?n.all+' waiting for you':'Nothing waiting',n:n,c:{all:on('all'),po:on('po'),re:on('re'),rf:on('rf')},toast:st.toast,
+vPo:st.po&&(fl==='all'||fl==='po'),vRe:st.re&&(fl==='all'||fl==='re'),vRf:st.rf&&(fl==='all'||fl==='rf'),empty:n.all===0,
+fAll:()=>this.setState({flt:'all'}),fPo:()=>this.setState({flt:'po'}),fRe:()=>this.setState({flt:'re'}),fRf:()=>this.setState({flt:'rf'}),
+okPost:()=>{this.setState({po:false});this.say('Approved. Ready for you to post.');},okRe:()=>{this.setState({re:false});this.say('Reply sent to the customer');},
+okRf:()=>{this.setState({rf:false});this.say('Refund of ₹1,400 approved');},noRf:()=>{this.setState({rf:false});this.say('Refund declined. Customer is told.');},edit:()=>this.say('Opening the editor')};
+}
+}
+</script></body></html>

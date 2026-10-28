@@ -1,0 +1,59 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just check-fast)",
+      "Bash(just check)",
+      "Bash(just eval-mock)",
+      "Bash(just up)",
+      "Bash(just down)",
+      "Bash(just migrate)",
+      "Bash(just new-migration *)",
+      "Bash(just export-openapi)",
+      "Bash(just smoke)",
+      "Bash(uv run *)",
+      "Bash(pnpm *)",
+      "Bash(python3 scripts/*)",
+      "Bash(bash scripts/*)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(curl http://localhost:*)",
+      "Bash(docker compose *)"
+    ],
+    "ask": [
+      "Bash(just eval-live *)",
+      "Bash(just eval-live)",
+      "Bash(just meta-smoke)",
+      "Bash(git push *)",
+      "Bash(git checkout *)",
+      "Bash(git reset *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(sudo *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-paths.sh" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-gate.sh", "timeout": 330 }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,133 @@
+# ============================================================
+# BizSaathi .gitignore
+# Rule 1: secrets never enter Git. Rule 2: generated files never enter Git.
+# ============================================================
+
+# ---------- Secrets and credentials (most important) ----------
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.env
+.envrc
+secrets/
+.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+*.gpg
+credentials*.json
+service-account*.json
+*-credentials.json
+.npmrc
+.pypirc
+.netrc
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ---------- Local agent settings ----------
+.claude/settings.local.json
+.claude/*.local.*
+.mcp.local.json
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.hypothesis/
+
+# ---------- Node, Next.js and PWA ----------
+node_modules/
+.next/
+out/
+.vercel/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# Generated service worker files (ASSUMPTION: depends on the PWA plugin you choose)
+web/public/sw.js
+web/public/sw.js.map
+web/public/workbox-*.js
+web/public/swe-worker-*.js
+
+# ---------- Tests and evaluation output ----------
+playwright-report/
+test-results/
+blob-report/
+coverage/
+evals/results/
+evals/*.trace
+*.trace.json
+
+# ---------- Docker and local services ----------
+docker-compose.override.yml
+pgdata/
+postgres-data/
+redis-data/
+minio-data/
+.docker/
+
+# ---------- Databases, dumps and backups ----------
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+*.sql.gz
+*.rdb
+
+# ---------- Local uploads and media (keep the folder, not the files) ----------
+storage/*
+uploads/*
+media/*
+!storage/.gitkeep
+!uploads/.gitkeep
+!media/.gitkeep
+
+# ---------- Model weights and large artifacts ----------
+*.gguf
+*.safetensors
+*.onnx
+*.pt
+*.ckpt
+
+# ---------- Logs and temp ----------
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# ---------- Editors and OS ----------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini

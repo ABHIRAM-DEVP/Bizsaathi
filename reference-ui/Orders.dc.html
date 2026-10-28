@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>BizSaathi Orders</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#12201B}
+.c{background:#fff;border:1px solid #E1E8E4;border-radius:16px;padding:20px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;font:600 14px 'Plus Jakarta Sans',sans-serif;border:1px solid #CBD6D0;background:#fff;color:#12201B;cursor:pointer}
+.p{background:#0B6E5C;border-color:#0B6E5C;color:#fff}
+.s{background:#E4F1EC;border-color:#0B6E5C;color:#0B6E5C}
+.nv{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:10px;color:#42524B;font-weight:600;font-size:14px;text-decoration:none}
+.on{background:#E4F1EC;color:#0B6E5C}
+.t{font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:#EEF2F0;color:#42524B}
+.g{background:#E4F1EC;color:#0B6E5C}
+.st{display:flex;gap:14px}
+.rl{display:flex;flex-direction:column;align-items:center}
+.d{width:22px;height:22px;border-radius:50%;box-sizing:border-box;flex:none;display:grid;place-items:center}
+.dn{background:#0B6E5C}
+.cu{border:3px solid #B45309;background:#fff}
+.up{border:2px solid #CBD6D0;background:#fff}
+.ln{width:2px;flex:1;min-height:20px;background:#CBD6D0}
+.sx{padding-bottom:18px}
+.sx p:first-child{font-size:14px;font-weight:600}
+.sx p+p{font-size:12px;color:#5B6A64;margin-top:2px}
+label{display:block;font-size:13px;font-weight:600;color:#42524B;margin-bottom:6px}
+input{box-sizing:border-box;width:100%;min-height:44px;border:1px solid #CBD6D0;border-radius:10px;padding:0 12px;font:500 14px 'Plus Jakarta Sans',sans-serif;color:#12201B}
+h2{margin:0 0 14px;font-size:16px}
+p{margin:0}
+/*clean*/
+body{-webkit-font-smoothing:antialiased;line-height:1.5}
+h1{letter-spacing:-.02em;font-weight:700}
+h2{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:16px}
+.c{border:1px solid #E7EDEA;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,20,.04),0 6px 20px rgba(16,24,20,.03)}
+.b{border-color:#D5DFDA;transition:background .15s,border-color .15s,box-shadow .15s}
+.b:hover{background:#F1F6F3;border-color:#B9C9C1}
+.p:hover{background:#09594A;border-color:#09594A}
+.s:hover{background:#D8EBE4}
+.b:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0B6E5C;outline-offset:2px}
+.nv{transition:background .15s}
+.nv:hover{background:#F1F6F3}
+.on:hover{background:#E4F1EC}
+input,textarea{border-color:#D5DFDA!important}
+input:focus,textarea:focus{border-color:#0B6E5C!important}
+.t{letter-spacing:.01em}
+main{gap:28px!important}
+tbody tr:hover td{background:#F7FAF8}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></helmet>
+<div style="min-height:900px;background:#F5F8F6">
+<header style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:10px 40px;background:#fff;border-bottom:1px solid #E1E8E4">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-right:16px"><span style="width:32px;height:32px;border-radius:9px;background:#0B6E5C;color:#fff;display:grid;place-items:center;font-size:16px">B</span>BizSaathi</span>
+<nav aria-label="Main" style="display:flex;flex-wrap:wrap;gap:4px"><a class="nv" href="Main.dc.html">Home</a><a class="nv" href="PostStudio.dc.html">Posts</a><a class="nv" href="Catalog.dc.html">My Products</a><a class="nv" href="Chats.dc.html">Messages</a><a class="nv on" href="Orders.dc.html">Orders</a></nav></div>
+<div style="display:flex;align-items:center;gap:12px"><a class="b" href="ApprovalsDesk.dc.html" style="text-decoration:none">Approvals <span style="background:#B45309;color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px">3</span></a><div style="position:relative"><button aria-label="Account menu" aria-haspopup="true" aria-expanded="{{ menu }}" onClick="{{ toggleMenu }}" style="width:44px;height:44px;border-radius:50%;border:0;background:#E4F1EC;color:#0B6E5C;font:700 16px 'Plus Jakarta Sans',sans-serif;cursor:pointer">M</button><sc-if value="{{ menu }}" hint-placeholder-val="{{ false }}"><div role="menu" style="position:absolute;right:0;top:52px;z-index:40;min-width:230px;box-sizing:border-box;background:#fff;border:1px solid #E1E8E4;border-radius:14px;box-shadow:0 8px 28px rgba(16,24,20,.12);padding:8px"><div style="padding:8px 12px 10px;border-bottom:1px solid #EEF2F0;margin-bottom:6px"><b style="font-size:14px">Meera’s Handlooms</b><p style="font-size:12px;color:#0B6E5C;font-weight:600;margin:2px 0 0">✓ Verified Seller</p></div><a role="menuitem" class="nv" href="Trust.dc.html" style="display:flex;box-sizing:border-box">Trust and safety</a><a role="menuitem" class="nv" href="Channels.dc.html" style="display:flex;box-sizing:border-box">How customers reach you</a><a role="menuitem" class="nv" href="Models.dc.html" style="display:flex;box-sizing:border-box">Model settings</a></div></sc-if></div></div></header>
+<main style="box-sizing:border-box;max-width:1240px;margin:0 auto;padding:32px 40px;display:flex;flex-direction:column;gap:20px"><a href="Main.dc.html" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;align-self:flex-start;color:#0B6E5C;font-weight:600;font-size:14px;text-decoration:none">← Home</a>
+<header><h1 style="margin:0;font-size:28px">Orders</h1><p style="color:#5B6A64;margin-top:4px">Stock is checked and a payment link is sent for you. Refunds always ask you first.</p></header>
+<section class="c"><h2>Order #1043 · Pooja · Block-print cotton kurta</h2><div style="display:flex;flex-wrap:wrap;gap:8px">
+<div style="flex:1 1 120px;min-width:100px"><div style="display:flex;align-items:center"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span style="height:2px;flex:1;background:#0B6E5C"></span></div><p style="font-size:14px;font-weight:600;margin-top:8px">Order placed</p><p style="font-size:12px;color:#5B6A64">Today 10:12</p></div>
+<div style="flex:1 1 120px;min-width:100px"><div style="display:flex;align-items:center"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span style="height:2px;flex:1;background:#0B6E5C"></span></div><p style="font-size:14px;font-weight:600;margin-top:8px">Stock checked</p><p style="font-size:12px;color:#5B6A64">In stock</p></div>
+<div style="flex:1 1 120px;min-width:100px"><div style="display:flex;align-items:center"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span style="height:2px;flex:1;background:#0B6E5C"></span></div><p style="font-size:14px;font-weight:600;margin-top:8px">Payment link sent</p><p style="font-size:12px;color:#5B6A64">10:13</p></div>
+<div style="flex:1 1 120px;min-width:100px"><div style="display:flex;align-items:center"><span class="d cu"></span><span style="height:2px;flex:1;background:#CBD6D0"></span></div><p style="font-size:14px;font-weight:600;margin-top:8px">Paid</p><p style="font-size:12px;color:#5B6A64">Waiting for customer</p></div>
+<div style="flex:1 1 120px;min-width:100px"><div style="display:flex;align-items:center"><span class="d up"></span></div><p style="font-size:14px;font-weight:600;margin-top:8px">Shipped</p><p style="font-size:12px;color:#5B6A64">After payment</p></div>
+</div><div style="margin-top:16px;border-top:1px solid #E1E8E4;padding-top:14px;display:flex;flex-wrap:wrap;gap:12px 32px;font-size:14px"><div><p style="font-size:12px;color:#5B6A64">Deliver to</p><p style="font-weight:600">Pooja Sharma</p><p>12 Palasia Square, Indore 452001</p></div><div><p style="font-size:12px;color:#5B6A64">Phone</p><p style="font-weight:600">+91 98•••• •210</p><p style="color:#0B6E5C;font-size:12px;font-weight:600">✓ Confirmed by code</p></div><p style="flex:1 1 220px;font-size:12px;color:#5B6A64;line-height:1.5">Only you see these details. The assistant never does. Delivery partners get only what they need for this order.</p></div></section>
+<div style="display:flex;flex-wrap:wrap;gap:8px"><button class="b {{ c.all }}" onClick="{{ fAll }}">All 5</button><button class="b {{ c.wait }}" onClick="{{ fWait }}">Waiting for payment {{ n.wait }}</button><button class="b {{ c.paid }}" onClick="{{ fPaid }}">Paid {{ n.paid }}</button><button class="b {{ c.ship }}" onClick="{{ fShip }}">Shipped {{ n.ship }}</button></div>
+<div class="c" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px;min-width:720px"><thead><tr style="text-align:left;color:#42524B;font-size:13px"><th style="padding:12px">Order</th><th style="padding:12px">Customer</th><th style="padding:12px">Items</th><th style="padding:12px">Amount</th><th style="padding:12px">Status</th><th style="padding:12px"><span style="position:absolute;left:-9999px">Action</span></th></tr></thead><tbody>
+<sc-if value="{{ v1043 }}" hint-placeholder-val="{{ true }}"><tr style="border-top:1px solid #E1E8E4"><td style="padding:14px 12px;font-weight:600">#1043</td><td style="padding:14px 12px">Pooja<span style="display:block;font-size:12px;color:#0B6E5C;font-weight:600">✓ Verified · Indore 452001</span></td><td style="padding:14px 12px">Block-print kurta</td><td style="padding:14px 12px">₹950</td><td style="padding:14px 12px"><span class="t" style="background:#FDEBD3;color:#8A4B08">Waiting for payment</span></td><td style="padding:14px 12px"><sc-if value="{{ w43 }}" hint-placeholder-val="{{ true }}"><button class="b" onClick="{{ rem43 }}">Send reminder</button></sc-if><sc-if value="{{ s43 }}" hint-placeholder-val="{{ true }}"><span class="t g">Reminder sent ✓</span></sc-if></td></tr></sc-if>
+<sc-if value="{{ v1044 }}" hint-placeholder-val="{{ true }}"><tr style="border-top:1px solid #E1E8E4"><td style="padding:14px 12px;font-weight:600">#1044</td><td style="padding:14px 12px">Vikram<span style="display:block;font-size:12px;color:#0B6E5C;font-weight:600">✓ Verified · Bhopal 462001</span></td><td style="padding:14px 12px">Jute tote bag × 2</td><td style="padding:14px 12px">₹900</td><td style="padding:14px 12px"><span class="t" style="background:#FDEBD3;color:#8A4B08">Waiting for payment</span></td><td style="padding:14px 12px"><sc-if value="{{ w44 }}" hint-placeholder-val="{{ true }}"><button class="b" onClick="{{ rem44 }}">Send reminder</button></sc-if><sc-if value="{{ s44 }}" hint-placeholder-val="{{ true }}"><span class="t g">Reminder sent ✓</span></sc-if></td></tr></sc-if>
+<sc-if value="{{ v1042 }}" hint-placeholder-val="{{ true }}"><tr style="border-top:1px solid #E1E8E4"><td style="padding:14px 12px;font-weight:600">#1042</td><td style="padding:14px 12px">Kavita<span style="display:block;font-size:12px;color:#0B6E5C;font-weight:600">✓ Verified · Ujjain 456001</span></td><td style="padding:14px 12px">Chanderi dupatta</td><td style="padding:14px 12px">₹1,400</td><td style="padding:14px 12px"><span class="t" style="background:#F6DADA;color:#8A1F1F">Refund asked</span></td><td style="padding:14px 12px"><a class="b p" href="ApprovalsDesk.dc.html" style="text-decoration:none">Review</a></td></tr></sc-if>
+<sc-if value="{{ v1041 }}" hint-placeholder-val="{{ true }}"><tr style="border-top:1px solid #E1E8E4"><td style="padding:14px 12px;font-weight:600">#1041</td><td style="padding:14px 12px">Rahul<span style="display:block;font-size:12px;color:#0B6E5C;font-weight:600">✓ Verified · Indore 452010</span></td><td style="padding:14px 12px">Handloom saree</td><td style="padding:14px 12px">₹2,200</td><td style="padding:14px 12px"><sc-if value="{{ p41 }}" hint-placeholder-val="{{ true }}"><span class="t g">Paid</span></sc-if><sc-if value="{{ sh41 }}" hint-placeholder-val="{{ true }}"><span class="t">Shipped</span></sc-if></td><td style="padding:14px 12px"><sc-if value="{{ p41 }}" hint-placeholder-val="{{ true }}"><button class="b" onClick="{{ ship41 }}">Mark shipped</button></sc-if><sc-if value="{{ sh41 }}" hint-placeholder-val="{{ true }}"><button class="b" onClick="{{ track }}">Track</button></sc-if></td></tr></sc-if>
+<sc-if value="{{ v1040 }}" hint-placeholder-val="{{ true }}"><tr style="border-top:1px solid #E1E8E4"><td style="padding:14px 12px;font-weight:600">#1040</td><td style="padding:14px 12px">Neha<span style="display:block;font-size:12px;color:#0B6E5C;font-weight:600">✓ Verified · Dewas 455001</span></td><td style="padding:14px 12px">Brass diya set</td><td style="padding:14px 12px">₹600</td><td style="padding:14px 12px"><span class="t">Shipped</span></td><td style="padding:14px 12px"><button class="b" onClick="{{ track }}">Track</button></td></tr></sc-if>
+</tbody></table></div></main>
+<nav aria-label="Next and previous step" style="box-sizing:border-box;max-width:1240px;margin:0 auto;padding:8px 40px 40px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px"><a class="b" href="Chats.dc.html" style="text-decoration:none">← Messages</a><a class="b p" href="Main.dc.html" style="text-decoration:none;margin-left:auto">Home →</a></nav>
+</div>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#12201B;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:50;max-width:90%">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":900}}'>
+class Component extends DCLogic {
+constructor(p){super(p);this.state=Object.assign({toast:''},{flt:'all',r43:false,r44:false,sh41:false});}
+say(m){this.setState({toast:m});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2200);}
+renderVals0(){
+const st=this.state,fl=st.flt;
+const cat={'1043':'wait','1044':'wait','1042':'paid','1041':st.sh41?'ship':'paid','1040':'ship'};
+const n={wait:0,paid:0,ship:0};Object.keys(cat).forEach(k=>n[cat[k]]++);
+const r={};Object.keys(cat).forEach(k=>r['v'+k]=fl==='all'||fl===cat[k]);
+const on=k=>fl===k?'s':'';
+return Object.assign(r,{n:n,toast:st.toast,c:{all:on('all'),wait:on('wait'),paid:on('paid'),ship:on('ship')},
+w43:!st.r43,s43:st.r43,w44:!st.r44,s44:st.r44,p41:!st.sh41,sh41:st.sh41,
+fAll:()=>this.setState({flt:'all'}),fWait:()=>this.setState({flt:'wait'}),fPaid:()=>this.setState({flt:'paid'}),fShip:()=>this.setState({flt:'ship'}),
+rem43:()=>{this.setState({r43:true});this.say('Payment reminder sent to Pooja');},rem44:()=>{this.setState({r44:true});this.say('Payment reminder sent to Vikram');},
+ship41:()=>{this.setState({sh41:true});this.say('Order #1041 marked as shipped');},track:()=>this.say('Courier tracking opens here')});
+}
+renderVals(){const v=this.renderVals0();v.menu=!!this.state.menu;v.toggleMenu=()=>this.setState({menu:!this.state.menu});return v;}
+}
+</script></body></html>

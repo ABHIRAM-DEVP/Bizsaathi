@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>BizSaathi Posts</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#12201B}
+.c{background:#fff;border:1px solid #E1E8E4;border-radius:16px;padding:20px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;font:600 14px 'Plus Jakarta Sans',sans-serif;border:1px solid #CBD6D0;background:#fff;color:#12201B;cursor:pointer}
+.p{background:#0B6E5C;border-color:#0B6E5C;color:#fff}
+.s{background:#E4F1EC;border-color:#0B6E5C;color:#0B6E5C}
+.nv{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:10px;color:#42524B;font-weight:600;font-size:14px;text-decoration:none}
+.on{background:#E4F1EC;color:#0B6E5C}
+.t{font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:#EEF2F0;color:#42524B}
+.g{background:#E4F1EC;color:#0B6E5C}
+.st{display:flex;gap:14px}
+.rl{display:flex;flex-direction:column;align-items:center}
+.d{width:22px;height:22px;border-radius:50%;box-sizing:border-box;flex:none;display:grid;place-items:center}
+.dn{background:#0B6E5C}
+.cu{border:3px solid #B45309;background:#fff}
+.up{border:2px solid #CBD6D0;background:#fff}
+.ln{width:2px;flex:1;min-height:20px;background:#CBD6D0}
+.sx{padding-bottom:18px}
+.sx p:first-child{font-size:14px;font-weight:600}
+.sx p+p{font-size:12px;color:#5B6A64;margin-top:2px}
+label{display:block;font-size:13px;font-weight:600;color:#42524B;margin-bottom:6px}
+input{box-sizing:border-box;width:100%;min-height:44px;border:1px solid #CBD6D0;border-radius:10px;padding:0 12px;font:500 14px 'Plus Jakarta Sans',sans-serif;color:#12201B}
+h2{margin:0 0 14px;font-size:16px}
+p{margin:0}
+.tb{border:0;border-radius:0;border-bottom:3px solid transparent}.ta{border-bottom-color:#0B6E5C;color:#0B6E5C}
+.b:focus-within{outline:2px solid #0B6E5C;outline-offset:2px}
+/*clean*/
+body{-webkit-font-smoothing:antialiased;line-height:1.5}
+h1{letter-spacing:-.02em;font-weight:700}
+h2{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:16px}
+.c{border:1px solid #E7EDEA;border-radius:18px;box-shadow:0 1px 2px rgba(16,24,20,.04),0 6px 20px rgba(16,24,20,.03)}
+.b{border-color:#D5DFDA;transition:background .15s,border-color .15s,box-shadow .15s}
+.b:hover{background:#F1F6F3;border-color:#B9C9C1}
+.p:hover{background:#09594A;border-color:#09594A}
+.s:hover{background:#D8EBE4}
+.b:focus-visible,a:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #0B6E5C;outline-offset:2px}
+.nv{transition:background .15s}
+.nv:hover{background:#F1F6F3}
+.on:hover{background:#E4F1EC}
+input,textarea{border-color:#D5DFDA!important}
+input:focus,textarea:focus{border-color:#0B6E5C!important}
+.t{letter-spacing:.01em}
+main{gap:28px!important}
+tbody tr:hover td{background:#F7FAF8}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></helmet>
+<div style="min-height:900px;background:#F5F8F6">
+<header style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:10px 40px;background:#fff;border-bottom:1px solid #E1E8E4">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;margin-right:16px"><span style="width:32px;height:32px;border-radius:9px;background:#0B6E5C;color:#fff;display:grid;place-items:center;font-size:16px">B</span>BizSaathi</span>
+<nav aria-label="Main" style="display:flex;flex-wrap:wrap;gap:4px"><a class="nv" href="Main.dc.html">Home</a><a class="nv on" href="PostStudio.dc.html">Posts</a><a class="nv" href="Catalog.dc.html">My Products</a><a class="nv" href="Chats.dc.html">Messages</a><a class="nv" href="Orders.dc.html">Orders</a></nav></div>
+<div style="display:flex;align-items:center;gap:12px"><a class="b" href="ApprovalsDesk.dc.html" style="text-decoration:none">Approvals <span style="background:#B45309;color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px">3</span></a><div style="position:relative"><button aria-label="Account menu" aria-haspopup="true" aria-expanded="{{ menu }}" onClick="{{ toggleMenu }}" style="width:44px;height:44px;border-radius:50%;border:0;background:#E4F1EC;color:#0B6E5C;font:700 16px 'Plus Jakarta Sans',sans-serif;cursor:pointer">M</button><sc-if value="{{ menu }}" hint-placeholder-val="{{ false }}"><div role="menu" style="position:absolute;right:0;top:52px;z-index:40;min-width:230px;box-sizing:border-box;background:#fff;border:1px solid #E1E8E4;border-radius:14px;box-shadow:0 8px 28px rgba(16,24,20,.12);padding:8px"><div style="padding:8px 12px 10px;border-bottom:1px solid #EEF2F0;margin-bottom:6px"><b style="font-size:14px">Meera’s Handlooms</b><p style="font-size:12px;color:#0B6E5C;font-weight:600;margin:2px 0 0">✓ Verified Seller</p></div><a role="menuitem" class="nv" href="Trust.dc.html" style="display:flex;box-sizing:border-box">Trust and safety</a><a role="menuitem" class="nv" href="Channels.dc.html" style="display:flex;box-sizing:border-box">How customers reach you</a><a role="menuitem" class="nv" href="Models.dc.html" style="display:flex;box-sizing:border-box">Model settings</a></div></sc-if></div></div></header>
+<div style="box-sizing:border-box;max-width:1360px;margin:0 auto;display:flex;flex-wrap:wrap;gap:32px;padding:32px 40px;align-items:flex-start"><a href="Main.dc.html" style="flex:1 1 100%;display:inline-flex;align-items:center;gap:6px;min-height:44px;align-self:flex-start;color:#0B6E5C;font-weight:600;font-size:14px;text-decoration:none">← Home</a><h1 style="flex:1 1 100%;margin:0;font-size:28px;letter-spacing:-.02em">Create a post</h1>
+<aside style="flex:0 0 190px"><p style="font-size:13px;font-weight:700;color:#42524B;margin-bottom:16px">Chanderi dupatta</p>
+<div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Photo</p><p>Done</p></div></div>
+<div class="st"><div class="rl"><span class="d dn"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg></span><span class="ln dn"></span></div><div class="sx"><p>Listing</p><p>Done</p></div></div>
+<div class="st"><div class="rl"><span class="d cu"></span><span class="ln"></span></div><div class="sx"><p>Posts</p><p style="color:#8A4B08;font-weight:600">You are here</p></div></div>
+<div class="st"><div class="rl"><span class="d up"></span><span class="ln"></span></div><div class="sx"><p>Safety check</p><p>Next</p></div></div>
+<div class="st"><div class="rl"><span class="d up"></span><span class="ln"></span></div><div class="sx"><p>Your approval</p><p>After that</p></div></div>
+<div class="st"><div class="rl"><span class="d up"></span></div><div class="sx" style="padding-bottom:0"><p>Posted</p><p>Last</p></div></div>
+</aside>
+<div style="flex:1 1 360px;min-width:0;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<section class="c" style="flex:1 1 320px;min-width:0"><h2>Your product</h2>
+<sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}"><div style="height:200px;border-radius:12px;background:#E9DFC9;display:grid;place-items:center;color:#5A4A2A;font-size:13px;font-weight:600;margin-bottom:12px">{{ photoLabel }}</div></sc-if><sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ img }}" alt="Your uploaded product photo" style="display:block;width:100%;height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px"></sc-if><div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:12px"><label class="b p" style="cursor:pointer;position:relative">Upload photo<input id="photo" type="file" accept="image/*" onChange="{{ onFile }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer"></label><span style="font-size:13px;color:#5B6A64">{{ fileName }}</span></div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px"><input id="bg" type="checkbox" checked="{{ bg }}" onChange="{{ toggleBg }}" style="width:22px;min-height:22px"><label for="bg" style="margin:0">Clean background</label></div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div><label for="nm">Name</label><input id="nm" value="Chanderi silk dupatta, marigold"></div>
+<div><label for="pr">Price range (you can edit)</label><input id="pr" value="₹1,200 – ₹1,600"></div>
+<div><label>Found in your photo</label><div style="display:flex;flex-wrap:wrap;gap:8px"><span class="t">Handwoven</span><span class="t">Silk-cotton</span><span class="t">Gold zari border</span><span class="t">2.25 m</span></div></div></div></section>
+<section class="c" style="flex:2 1 400px;min-width:0"><div style="display:flex;gap:8px;border-bottom:1px solid #E1E8E4;margin-bottom:16px"><button class="b tb {{ vt.posts }}" onClick="{{ openPosts }}">Write posts</button><button class="b tb {{ vt.claims }}" onClick="{{ openClaims }}">Claim check<sc-if value="{{ hasFlag }}" hint-placeholder-val="{{ true }}"> <span style="background:#B45309;color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:2px 8px;margin-left:6px">{{ flagCount }}</span></sc-if></button></div><sc-if value="{{ isPosts }}" hint-placeholder-val="{{ true }}"><h2>Posts for each platform</h2>
+<div style="display:flex;flex-wrap:wrap;gap:24px;margin-bottom:16px">
+<div><label>Tone</label><div style="display:flex;gap:8px"><button class="b {{ tc.warm }}" onClick="{{ setWarm }}">Warm</button><button class="b {{ tc.fest }}" onClick="{{ setFest }}">Festive</button><button class="b {{ tc.pro }}" onClick="{{ setPro }}">Professional</button></div></div>
+<div><label>Language</label><div style="display:flex;gap:8px"><button class="b {{ lc.hi }}" onClick="{{ setHi }}">हिन्दी</button><button class="b {{ lc.en }}" onClick="{{ setEn }}">English</button><button class="b {{ lc.mr }}" onClick="{{ setMr }}">मराठी</button></div></div></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid #E1E8E4;margin-bottom:16px"><button class="b tb {{ pc.ig }}" onClick="{{ setIg }}">Instagram</button><button class="b tb {{ pc.fb }}" onClick="{{ setFb }}">Facebook</button><button class="b tb {{ pc.wa }}" onClick="{{ setWa }}">WhatsApp status</button></div>
+<div style="border:1px solid #E1E8E4;border-radius:12px;padding:16px;background:#FBFCFB"><span class="t" style="margin-bottom:10px;display:inline-block">AI-generated · {{ toneName }} tone</span>
+<p style="font-size:15px;line-height:1.6">{{ caption }}</p>
+<sc-if value="{{ isIg }}" hint-placeholder-val="{{ true }}"><p style="font-size:15px;color:#0B6E5C;margin-top:10px">#Chanderi #Handwoven #FestiveWear #SupportSmallBusiness</p></sc-if></div>
+<sc-if value="{{ noText }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;border:1px solid #BFDCD3;background:#F2F9F6;border-radius:12px;padding:12px 16px;font-size:14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between"><span><b>Claim check:</b> nothing to check. We only check claims you write yourself.</span><button class="b" onClick="{{ openClaims }}">Add a claim</button></div></sc-if><sc-if value="{{ okText }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;border:1px solid #BFDCD3;background:#F2F9F6;border-radius:12px;padding:12px 16px;font-size:14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between"><span><b>Claim check:</b> your words passed and were added to the post.</span><button class="b" onClick="{{ openClaims }}">See details</button></div></sc-if><sc-if value="{{ hasFlag }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;border:1px solid #F0C48F;background:#FFF8EE;border-radius:12px;padding:12px 16px;font-size:14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between"><span><b>Claim check:</b> {{ flagCount }} in your own words needs a look. It is held out of the post.</span><button class="b" onClick="{{ openClaims }}">Review</button></div></sc-if><div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><button class="b" onClick="{{ copy }}">Copy text</button><button class="b" onClick="{{ dl }}">Download image</button><a class="b p" href="ApprovalsDesk.dc.html" style="margin-left:auto;text-decoration:none">Check and send for approval</a></div>
+<p style="font-size:13px;color:#5B6A64;margin-top:12px">After you send it, the post waits in Approvals. You approve it there, then post it yourself. Nothing goes out without you.</p></sc-if><sc-if value="{{ isClaims }}" hint-placeholder-val="{{ true }}"><h2 style="margin:0 0 4px">Claim check</h2><p style="font-size:13px;color:#5B6A64;margin-bottom:16px">We only check what you write yourself about guarantees, quality or health. Posts we write from your catalog are not flagged.</p><label for="cl">Your own words about this product (optional)</label><textarea id="cl" rows="3" value="{{ claimText }}" onInput="{{ onClaim }}" placeholder="For example: Handwoven with a gold zari border" style="box-sizing:border-box;width:100%;border:1px solid #CBD6D0;border-radius:10px;padding:10px 12px;font:500 14px 'Plus Jakarta Sans',sans-serif;color:#12201B;resize:vertical"></textarea><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center"><span style="font-size:13px;color:#5B6A64">Try:</span><button class="b" onClick="{{ ex1 }}">Health and guarantee</button><button class="b" onClick="{{ ex2 }}">Quality</button><button class="b" onClick="{{ clear }}">Clear</button></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 8px"><span class="t">Guarantee: promises like “guaranteed”</span><span class="t">Health: cures and treatments</span><span class="t">Quality: “pure”, “genuine”, “best”</span></div><sc-if value="{{ noText }}" hint-placeholder-val="{{ true }}"><div style="border:1px dashed #CBD6D0;border-radius:12px;padding:16px;font-size:14px;color:#42524B;line-height:1.5">Nothing to check yet. Write a claim above and we will tell you if it needs proof.</div></sc-if><sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:10px;margin-top:8px"><sc-for list="{{ results }}" as="it" hint-placeholder-count="2"><div style="border:1px solid {{ it.bd }};background:{{ it.bg }};border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-start"><span class="t">{{ it.kind }}</span><div style="flex:1 1 220px"><p style="font-size:15px;font-weight:600">“{{ it.phrase }}”</p><p style="font-size:13px;color:#42524B;margin-top:2px;line-height:1.5">{{ it.note }}</p></div><span class="t" style="background:{{ it.vbg }};color:{{ it.vc }}">{{ it.verdict }}</span></div></sc-for></div></sc-if><sc-if value="{{ askMode }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;border:1px solid #BFDCD3;background:#F2F9F6;border-radius:12px;padding:16px"><span class="t g">Suggested wording</span><p style="font-size:15px;margin:10px 0 4px;line-height:1.5">{{ suggestion }}</p><p style="font-size:13px;color:#42524B">You decide. Nothing changes unless you say so.</p><div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px"><button class="b p" onClick="{{ useSug }}">Use suggested wording</button><button class="b" onClick="{{ askProof }}">Keep mine and ask for proof</button></div></div></sc-if><sc-if value="{{ isPf }}" hint-placeholder-val="{{ true }}"><div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span class="t" style="background:#FDEBD3;color:#8A4B08;font-size:13px;padding:6px 12px">Waiting for proof: add a lab report or certificate. Held out of the post.</span><button class="b" onClick="{{ undoPf }}">Change my mind</button></div></sc-if><sc-if value="{{ okText }}" hint-placeholder-val="{{ true }}"><p style="margin-top:12px;font-size:14px;color:#0B6E5C;font-weight:600">✓ Nothing flagged. Your words are added to the post preview.</p></sc-if></sc-if></section>
+</div></div><nav aria-label="Next and previous step" style="box-sizing:border-box;max-width:1240px;margin:0 auto;padding:8px 40px 40px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px"><a class="b" href="Main.dc.html" style="text-decoration:none">← Home</a><a class="b p" href="ApprovalsDesk.dc.html" style="text-decoration:none;margin-left:auto">To approve →</a></nav>
+</div>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#12201B;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:50;max-width:90%">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":900}}'>
+class Component extends DCLogic {
+constructor(p){super(p);this.state=Object.assign({toast:''},{tone:'warm',lang:'hi',tab:'ig',bg:true,img:'',name:'',view:'posts',claim:'',pf:false});}
+say(m){this.setState({toast:m});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2200);}
+renderVals0(){
+const st=this.state;
+const C={hi:{ig:'Festive season ke liye perfect ✨ Handwoven Chanderi dupatta in marigold, with a soft gold zari border. Light, graceful, made to be worn.',fb:'Naya stock aa gaya ✨ Handwoven Chanderi dupatta, marigold rang mein, sunehri zari border ke saath. ₹1,400. Message karein ya store link dekhein.',wa:'Naya: Chanderi dupatta, marigold ✨ ₹1,400 · 8 piece. Order ke liye reply karein.'},
+en:{ig:'Handwoven Chanderi dupatta in marigold, finished with a soft gold zari border. Light, graceful, made to be worn. ✨',fb:'New in: a handwoven Chanderi dupatta in marigold with a gold zari border. ₹1,400, 8 in stock. Message us or use our store link to order.',wa:'New: Chanderi dupatta, marigold ✨ ₹1,400 · 8 left. Reply to order.'},
+mr:{ig:'सणासुदीसाठी खास ✨ हाताने विणलेली चंदेरी दुपट्टा, मेरिगोल्ड रंगात, सोनेरी जरीच्या काठासह. हलकी आणि सुंदर.',fb:'नवीन स्टॉक आला आहे ✨ हाताने विणलेली चंदेरी दुपट्टा, मेरिगोल्ड रंगात. किंमत ₹1,400. ऑर्डरसाठी संदेश पाठवा.',wa:'नवीन: चंदेरी दुपट्टा, मेरिगोल्ड ✨ ₹1,400 · ८ उपलब्ध. ऑर्डरसाठी उत्तर द्या.'}};
+let cap=C[st.lang][st.tab]; if(st.tone==='fest')cap+=' 🎉🪔'; if(st.tone==='pro')cap=cap.replace(/ ?✨/g,'');
+const txt=st.claim.trim(),seen={},res=[];
+const add=(kind,rx,lvl,verdict,note,warn)=>{(txt.match(rx)||[]).forEach(p=>{const k=kind+p.toLowerCase();if(seen[k])return;seen[k]=1;const bad=lvl!=='ok';res.push({kind:kind,phrase:p,verdict:verdict,note:typeof note==='function'?note(p):note,flag:bad,bd:lvl==='ok'?'#BFDCD3':warn?'#F3B7B0':'#F0C48F',bg:lvl==='ok'?'#F2F9F6':warn?'#FDF1EF':'#FFF8EE',vbg:lvl==='ok'?'#E4F1EC':warn?'#FBE0DC':'#FDEBD3',vc:lvl==='ok'?'#0B6E5C':warn?'#8E2B1F':'#8A4B08'});});};
+add('Health',/cures?|treats?|heals?|diabetes|cancer|weight[- ]loss|lose weight|pain relief/gi,'bad','Needs proof','Health and cure claims need a lab report or an approval. Without one it cannot go out.',true);
+add('Guarantee',/100\s?%\s?guarantee[d]?|guarantee[ds]?|lifetime warranty|money[- ]?back|risk[- ]free/gi,'bad','Needs your terms','A guarantee is a promise. Say exactly what you will do, for example a 7-day return from your policy.',false);
+add('Quality',/100\s?%\s?(?:pure|genuine|original|natural|silk)|pure silk|best quality|genuine|original|authentic|premium|organic|certified/gi,'bad','Check catalog',p=>'Your catalog says handwoven silk-cotton. “'+p+'” is not listed, so add proof or change it.',false);
+add('Quality',/handwoven|hand[- ]woven|handloom|chanderi|zari|silk[- ]cotton/gi,'ok','Matches your catalog','Listed in your catalog for this product.',false);
+const flags=res.filter(r=>r.flag),hasH=flags.some(r=>r.kind==='Health'),hasG=flags.some(r=>r.kind==='Guarantee'),hasQ=flags.some(r=>r.kind==='Quality');
+const sug=[hasG?'Returns accepted within 7 days.':'',hasH?'Not a medical treatment.':'',hasQ?'Handwoven Chanderi, silk-cotton blend.':''].filter(Boolean).join(' ');
+const nf=flags.length;
+if(txt&&nf===0)cap+=' '+txt;
+
+const on=(a,b,k)=>a===b?k:'';
+const names={warm:'Warm',fest:'Festive',pro:'Professional'};
+return {isPosts:st.view==='posts',isClaims:st.view==='claims',vt:{posts:st.view==='posts'?'ta':'',claims:st.view==='claims'?'ta':''},claimText:st.claim,results:res,hasResults:res.length>0,noText:!txt,okText:!!txt&&nf===0,hasFlag:nf>0,flagCount:nf+(nf===1?' claim':' claims'),suggestion:sug,askMode:nf>0&&!st.pf,isPf:nf>0&&st.pf,
+openClaims:()=>this.setState({view:'claims'}),openPosts:()=>this.setState({view:'posts'}),onClaim:e=>this.setState({claim:e.target.value,pf:false}),
+ex1:()=>this.setState({claim:'This oil cures diabetes in 7 days. 100% guaranteed!',pf:false}),ex2:()=>this.setState({claim:'Pure silk dupatta, 100% genuine. Handwoven with a zari border.',pf:false}),clear:()=>this.setState({claim:'',pf:false}),
+useSug:()=>{this.setState({claim:sug,pf:false});this.say('Wording updated');},askProof:()=>{this.setState({pf:true});this.say('Held out of the post until proof is added');},undoPf:()=>this.setState({pf:false}),img:st.img,hasImg:!!st.img,noImg:!st.img,fileName:st.name||'JPG or PNG, or take a photo',onFile:e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;if(st.img){try{URL.revokeObjectURL(st.img);}catch(x){}}this.setState({img:URL.createObjectURL(fl),name:fl.name});this.say('Photo added. Cleaning the background…');},caption:cap,toneName:names[st.tone],isIg:st.tab==='ig',photoLabel:st.bg?'Product photo, background cleaned':'Product photo, original background',bg:st.bg,toast:st.toast,
+tc:{warm:on(st.tone,'warm','s'),fest:on(st.tone,'fest','s'),pro:on(st.tone,'pro','s')},lc:{hi:on(st.lang,'hi','s'),en:on(st.lang,'en','s'),mr:on(st.lang,'mr','s')},pc:{ig:on(st.tab,'ig','ta'),fb:on(st.tab,'fb','ta'),wa:on(st.tab,'wa','ta')},
+setWarm:()=>this.setState({tone:'warm'}),setFest:()=>this.setState({tone:'fest'}),setPro:()=>this.setState({tone:'pro'}),
+setHi:()=>this.setState({lang:'hi'}),setEn:()=>this.setState({lang:'en'}),setMr:()=>this.setState({lang:'mr'}),
+setIg:()=>this.setState({tab:'ig'}),setFb:()=>this.setState({tab:'fb'}),setWa:()=>this.setState({tab:'wa'}),
+toggleBg:()=>this.setState({bg:!st.bg}),copy:()=>{try{navigator.clipboard.writeText(cap);}catch(e){}this.say('Post text copied');},dl:()=>this.say('Image saved to your phone')};
+}
+renderVals(){const v=this.renderVals0();v.menu=!!this.state.menu;v.toggleMenu=()=>this.setState({menu:!this.state.menu});return v;}
+}
+</script></body></html>
