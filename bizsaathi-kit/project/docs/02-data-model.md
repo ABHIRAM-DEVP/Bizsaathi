@@ -2,6 +2,8 @@
 
 ASSUMPTION: entity set is a starting point; include only what the MVP needs. Every business-owned table has `business_id`.
 
+Authoritative column types, enums and formats: docs/15-schema-and-formats.md. Reference DDL: docs/schema/reference_schema.sql (adds sessions, OTP, jobs, proposals, executions, evidence, orders, audit, idempotency, usage and eval tables that this overview diagram omits; `order` is `customer_order`, `user` is `app_user`, money columns are `*_inr numeric(12,2)`). Where this file and docs/15 differ, docs/15 wins.
+
 ```mermaid
 erDiagram
   BUSINESS ||--o{ USER : has

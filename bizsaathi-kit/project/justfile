@@ -23,6 +23,7 @@ dev-web:
 guards:
     bash scripts/secret_scan.sh
     python3 scripts/eval_validate.py
+    python3 scripts/check_docs.py
 
 # Seconds-fast loop. Run constantly.
 check-fast: guards

@@ -1,0 +1,695 @@
+================================================================================
+  BIZSAATHI — RUNNABLE CONTEXT FOR AGENTS (Last updated: Phase 1 Complete)
+================================================================================
+
+## 1. PROJECT IDENTITY
+━━━━━━━━━━━━━━━━━━━━━
+
+BizSaathi is a multimodal, evidence-grounded, human-supervised agentic co-pilot
+for small sellers. The database holds confirmed facts. Models propose,
+deterministic code validates, the seller approves.
+
+Root path: D:\PROJECTS\BizSaathi
+Single git repo. One branch (main).
+
+## 2. CRITICAL DECISIONS (NON-NEGOTIABLE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  D-01: NO PAID META API USAGE. No Meta-branded model calls. The user provides
+        their own API key via .env. The adapter is generic ("AI Model")
+        behind one interface at backend/app/ai/. Default mode is MOCK.
+
+  D-02: API key comes from .env only (MODEL_API_KEY, MODEL_BASE_URL).
+        Config: backend/app/core/config.py -> Settings.MODEL_PROVIDER (default "mock"),
+        Settings.MODEL_API_KEY, Settings.MODEL_BASE_URL.
+        .env is .gitignored and must NEVER be committed.
+
+  D-03: Keys stay server-side. Nothing secret in NEXT_PUBLIC_*, logs, traces, git.
+
+  D-04: Every factual claim in generated content carries evidence IDs.
+        No evidence → block or escalate (fail closed).
+
+  D-05: Writer, verifier, critic and policy gate are separate controls.
+        A node never certifies its own output.
+
+  D-06: Tenant isolation (business_id) enforced server-side on every query/tool.
+        Negative tests required.
+
+  D-07: Social webhooks, real payments, KYC are FUTURE. Do not present mocks
+        as working.
+
+  D-08: Retries and repair loops bounded (default max 2). Then escalate or stop.
+
+## 3. VERIFIED STACK & ENVIRONMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Python:     3.12.7 / 3.12.10 (managed by uv in backend/.venv)
+  Node.js:    v22.x
+  npm:        10.x
+  uv:         installed (backend package manager)
+  Docker:     installed (for compose: postgres, redis, minio)
+  git:        installed
+  just:       NOT INSTALLED — use `python scripts/runner.py <recipe>`
+  OS:         Windows 11. Shell: PowerShell.
+  NOTE:       PowerShell does NOT support `&&` for command chaining.
+              Run commands with dedicated Cwd or semicolon.
+
+## 4. PHASE 1 COMPLETION STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [x] T-101: Repo Baseline & Tooling Audit
+      - Tooling audited, scripts created (runner.py, check_docs.py, eval_validate.py, secret_scan.sh)
+      - AGENTS.md verified and aligned with reality.
+
+  [x] T-102: API Skeleton & Core Framework
+      - FastAPI app (backend/app/main.py) with request context & RFC 7807 problem details
+      - Config (pydantic-settings), structured logging with PII redaction
+      - Health endpoints: GET /v1/health (EP-H01), GET /v1/health/ready (EP-H02)
+      - Tenancy context dependency (require_tenant, require_owner_role)
+      - Format validators (phone, slug, SKU, money)
+
+  [x] T-103: PostgreSQL Schema v1 & Alembic Migrations
+      - SQLAlchemy 2.0 Base & domain models in backend/app/models/domain.py:
+        Business, AppUser, Product, Media, Job, AuditEvent with full constraints & indexes
+      - ProductRepository with mandatory tenant scoping & optimistic concurrency
+      - Alembic configured (alembic.ini, alembic/env.py, alembic/script.py.mako)
+      - Initial migration: alembic/versions/0001_initial_schema.py
+      - Integration tests in tests/integration/test_tenancy.py (tenant isolation negative tests)
+
+  [x] T-104: AI Model Adapter (Zero-Cost & Generic)
+      - Abstract interface: backend/app/ai/interface.py (generate_structured, transcribe, generate_image)
+      - Mock client: backend/app/ai/mock.py (deterministic, schema-valid fixtures, labelled mock)
+      - Live client: backend/app/ai/live.py (OpenAI-compatible, bounded retries <=2, PII redaction, timeout)
+      - Factory: get_model_client() in backend/app/ai/__init__.py
+      - Smoke test: backend/app/ai/smoke.py (passes with exit code 0)
+      - Unit tests: backend/tests/unit/test_ai_adapter.py (6 passed)
+
+  [x] T-105: Upload & Job Flow
+      - Schemas: backend/app/schemas/uploads.py, backend/app/schemas/jobs.py
+      - Service: backend/app/services/uploads.py (type allowlist, 10MB photo cap, 25MB audio cap, dangerous extension block, tenant-prefixed storage key)
+      - Routers: POST /v1/uploads (EP-U01), GET /v1/jobs/{job_id} (EP-J01)
+      - Tenant isolation verified: Tenant B reading Tenant A job receives 404
+      - Unit tests: test_uploads.py (6 passed), test_jobs.py (2 passed)
+
+  [x] T-106: Web Shell + PWA Candidate
+      - One Next.js 16 (App Router) + React 19 + Tailwind v4 application in frontend/
+      - PWA Manifest: frontend/app/manifest.ts + public/manifest.json + SVG icons (192 & 512)
+      - ConnectionStatus component: loading, success, error, and offline states with auto-reconnect
+      - Offline page: frontend/app/offline/page.tsx (zero tenant data cached)
+      - Responsive shell: renders cleanly at 390px (mobile) and 1280px (desktop)
+      - API Client: frontend/src/lib/api-client/index.ts (derived from openapi.json)
+      - Build verification: `npm run build` exits 0, all routes prerendered statically
+
+## 5. COMPLETE VERIFICATION RESULTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Running `python scripts/runner.py check` executes:
+  1. Secret scan: clean (no tokens or keys exposed)
+  2. Eval dataset: 16 cases valid
+  3. Docs consistency: 62 api paths in docs/08 match docs/14, 72 endpoint ids, 29 tables checked
+  4. Backend pytest: 87 passed in 3.27s (all unit tests green)
+  5. Backend ruff: All checks passed (0 errors)
+  6. Backend mypy: Success: no issues found in 45 source files
+  7. Frontend lint: 0 errors
+  8. Frontend build: Compiled successfully, all routes prerendered statically
+  EXIT CODE: 0
+
+## 6. RUNNING COMMANDS CHEATSHEET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Fast check:
+  python scripts/runner.py check-fast
+
+Full check (Definition of Done gate):
+  python scripts/runner.py check
+
+Backend Dev Server:
+  cd backend; uv run uvicorn app.main:app --reload --port 8000
+
+Frontend Dev Server:
+  cd frontend; npm run dev
+
+AI Smoke Test:
+  cd backend; uv run python -m app.ai.smoke
+
+Update OpenAPI contract:
+  cd backend; uv run python -c "import json, pathlib; from app.main import app; pathlib.Path('../contracts/openapi.json').write_text(json.dumps(app.openapi(), indent=2, ensure_ascii=False) + '\n', encoding='utf-8')"
+
+## 7. NEXT TASK (PHASE 2)
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Phase 2: Product & Catalog Lifecycle
+  - Task T-201: Product ingestion LangGraph agent (photo/voice -> draft proposal)
+  - Task T-202: Evidence linking & policy validation gate
+  - Task T-203: Seller review & approval interrupt loop
+================================================================================
+
+
+
+
+context.txt
+ has been written with the full runnable context. Here's what it covers:
+
+14 sections, each designed so the next agent can pick up without re-exploring:
+
+Section	What it contains
+§1 Project Identity	Name, purpose, root path, git state
+§2 Critical Decisions	8 non-negotiable rules (no paid API, mock-first, tenant isolation, etc.)
+§3 Verified Tool Versions	Python 3.12.7, Node v22, uv, docker — plus just NOT INSTALLED
+§4 Repository Structure	Full tree with line counts and file purposes
+§5 Backend Dependencies	Runtime + dev deps from pyproject.toml
+§6 Docker Services	postgres/redis/minio configs + the DB credential mismatch warning
+§7 Completed Work	T-101 ✅, T-102 ✅ with all verification outputs (67 tests, lint, mypy)
+§8 Remaining Tasks	T-103 through T-106 with file lists and prerequisites
+§9 Phase Overview	Phase 0 ✅, Phase 1 🔄, Phases 2-5 ⬜
+§10 How to Run	Exact PowerShell commands (no &&, no just)
+§11 Key Files to Read	Must-read and reference docs
+§12 Established Patterns	RFC 7807, tenancy, logging, money, cursor, auth stub conventions
+§13 Known Issues	6 watch-outs (just missing, DB creds mismatch, .env.example legacy vars)
+§14 Next Task	T-103 with prerequisites and steps
+5:43 PM
+5:51 PM
+5:51 PM
+continue and complete in onr go before your weekly limit ends
+5:56 PM
+Waiting for npm run build to finish...
+
+Waiting for python scripts/runner.py check to complete...
+
+BizSaathi Phase 1 Completion Report
+Completed
+T-101: Repo Baseline & Tooling Audit
+Verified developer tooling (Python 3.12.7, Node v22, uv, git, docker).
+Created cross-platform 
+
+runner.py
+ with recipes for guards, fast checks, and full verification.
+T-102: API Skeleton & Core Framework
+FastAPI app (
+
+backend/app/main.py
+) with RFC 7807 problem details error handling and request context tracing.
+PII-redacting structured JSON logging, typed config (
+
+backend/app/core/config.py
+), format validators, and tenancy context middleware.
+Health endpoints: GET /v1/health (EP-H01) and GET /v1/health/ready (EP-H02).
+T-103: PostgreSQL Schema v1 & Alembic Migrations
+SQLAlchemy 2.0 ORM domain models (
+
+backend/app/models/domain.py
+) covering Business, AppUser, Product, Media, Job, and AuditEvent with CHECK constraints, foreign keys, and compound indexes.
+
+
+ProductRepository
+ enforcing mandatory server-side tenant isolation (business_id) and optimistic concurrency version checks.
+Alembic migration setup (
+
+backend/alembic.ini
+, 
+
+backend/alembic/env.py
+) and reversible initial migration 
+
+0001_initial_schema.py
+.
+Tenant isolation integration tests (
+
+backend/tests/integration/test_tenancy.py
+).
+T-104: AI Model Adapter (Zero-Cost & Generic)
+Abstract adapter interface (
+
+backend/app/ai/interface.py
+) supporting generate_structured, transcribe, and generate_image.
+
+
+MockModelClient
+ for deterministic zero-cost testing, clearly labelled [MOCK] in logs.
+
+
+LiveModelClient
+ reading credentials from .env only (MODEL_API_KEY, MODEL_BASE_URL), with bounded retries ($\le 2$), request timeouts, and prompt PII redaction.
+Adapter factory 
+
+get_model_client()
+ and adapter smoke test (
+
+backend/app/ai/smoke.py
+).
+T-105: Upload & Job Flow
+Schemas: 
+
+UploadRequest, UploadResponse
+, 
+
+JobResponse
+.
+
+
+UploadService
+ enforcing MIME type allowlist, size limits (10MB photo, 25MB audio), blocking executable extensions (.exe, .sh, etc.), and generating collision-free tenant-prefixed storage keys.
+Endpoints: POST /v1/uploads (EP-U01) and GET /v1/jobs/{job_id} (EP-J01) in 
+
+uploads.py
+ and 
+
+jobs.py
+.
+Verified negative tenant isolation: Tenant B reading Tenant A's job receives 404 RFC 7807 problem details.
+T-106: Web Shell + PWA Candidate
+Single Next.js 16 (App Router) + React 19 + Tailwind v4 web app in frontend/.
+PWA Manifest (
+
+frontend/app/manifest.ts
+, 
+
+frontend/public/manifest.json
+) and SVG icons (192x192 & 512x512).
+
+
+ConnectionStatus
+ client component handling loading, success, error, and offline states with automatic reconnection and manual retry.
+Dedicated offline fallback page (
+
+frontend/app/offline/page.tsx
+).
+Responsive shell (
+
+frontend/app/page.tsx
+) verified without layout breakage on 390px (mobile) and 1280px (desktop).
+Generated typed API client in 
+
+frontend/src/lib/api-client/index.ts
+.
+Updated source-of-truth 
+
+contracts/openapi.json
+.
+Updated runnable agent context in 
+
+context.txt
+.
+Files Changed / Created
+backend/app/models/{__init__.py, base.py, domain.py}
+backend/app/repositories/{__init__.py, product.py}
+backend/alembic.ini, backend/alembic/env.py, backend/alembic/script.py.mako, backend/alembic/versions/0001_initial_schema.py
+backend/app/ai/{__init__.py, interface.py, mock.py, live.py, smoke.py}
+backend/app/schemas/{__init__.py, uploads.py, jobs.py}
+backend/app/services/{__init__.py, uploads.py}
+backend/app/routers/{__init__.py, uploads.py, jobs.py}
+backend/app/core/{errors.py, tenancy.py}
+backend/app/main.py
+backend/tests/unit/{test_models.py, test_ai_adapter.py, test_uploads.py, test_jobs.py}
+backend/tests/integration/{__init__.py, conftest.py, test_tenancy.py}
+frontend/app/manifest.ts, frontend/public/manifest.json
+frontend/public/icons/{icon-192.svg, icon-512.svg}
+frontend/app/layout.tsx, frontend/app/page.tsx, frontend/app/offline/page.tsx
+frontend/app/components/ConnectionStatus.tsx
+frontend/src/lib/api-client/index.ts
+contracts/openapi.json
+scripts/runner.py
+context.txt
+Verification
+Execution of full definition-of-done suite via python scripts/runner.py check:
+
+text
+>> bash scripts/secret_scan.sh (in D:\PROJECTS\BizSaathi)
+✅ secret scan clean
+>> python -X utf8 scripts/eval_validate.py (in D:\PROJECTS\BizSaathi)
+✅ eval dataset valid: 16 cases, 16 unique ids
+>> python -X utf8 scripts/check_docs.py (in D:\PROJECTS\BizSaathi)
+✅ docs consistent: 62 api paths in docs/08 all present in docs/14, 72 endpoint ids, 29 tables structurally checked
+>> uv run pytest tests/unit -x -q (in D:\PROJECTS\BizSaathi\backend)
+87 passed, 3 warnings in 3.27s
+>> npm run lint (in D:\PROJECTS\BizSaathi\frontend)
+> frontend@0.1.0 lint
+> eslint
+>> uv run ruff check . (in D:\PROJECTS\BizSaathi\backend)
+All checks passed!
+>> uv run mypy . (in D:\PROJECTS\BizSaathi\backend)
+Success: no issues found in 45 source files
+>> npm run build (in D:\PROJECTS\BizSaathi\frontend)
+▲ Next.js 16.4.3 (Turbopack)
+✓ Compiled successfully in 1557ms
+  Running TypeScript ...
+  Finished TypeScript in 4.3s ...
+✓ Generating static pages using 7 workers (6/6) in 2.0s
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /manifest.webmanifest
+└ ○ /offline
+Exit Code: 0
+AI adapter smoke test:
+
+text
+=== AI Model Adapter Smoke Test (Provider: mock) ===
+[OK] generate_structured response: {'status': 'active', 'message': 'mock_message'}
+[OK] transcribe response: Mock audio transcription: Pure cotton round neck shirt in in...
+[OK] generate_image bytes received: 69 bytes
+=== Model Adapter Smoke Test PASSED ===
+Not Completed
+Real PostgreSQL migration apply against running Docker database (database container was not active in this session; integration tests gracefully skip when PostgreSQL is offline).
+Assumptions
+In dev and test environments, X-Business-ID and X-User-ID headers are honored by require_tenant to enable fast deterministic isolation testing without mandatory mock auth cookies.
+Live model calls will run through an OpenAI-compatible completion/transcription endpoint configured by the user via .env.
+Risks
+Local development without starting Docker compose will not persist database transactions. Run docker compose up -d before starting local feature testing.
+Next Task
+Phase 2: Product & Catalog Lifecycle
+
+T-201: LangGraph ingestion agent (multimodal photo/voice $\to$ draft proposal).
+T-202: Evidence verification & policy gate node.
+T-203: Human-in-the-loop seller review & approval interrupt workflow.
+5:56 PM
+6:29 PM
+6:29 PM
+continue
+6:48 PM
+6:48 PM
+continue and update the 
+
+context.txt
+ with all what is done till now 
+6:50 PM
+6:50 PM
+continue
+6:52 PM
+6:52 PM
+
+All 98 tests passing. Now let me update context.txt with complete Phase 1 + Phase 2 status.
+
+Now let me check the current state of all Phase 2 files to make sure everything is in order before writing the context update.
+
+Good, everything is in place. Let me also verify the ruff and mypy checks pass:
+
+35 ruff errors. Let me fix them while mypy runs:
+
+…\backend > uv run ruff check app/ tests/ 2>&1 | Select-Object -First 50
+E501 Line too long (127 > 120)
+  --> app\agents\nodes\node_01_planner.py:20:121
+   |
+18 |             goal="Extract product draft from photos with uncertainty flags and conflict detection",
+19 |             steps=["validate_intake", "gather_context", "extract_photo_features", "reconcile_catalog"],
+20 |             assigned_nodes=["node_01_planner", "node_02_intake", "node_03_context", "node_04_extractor", "node_06_reconciler"],
+   |                                                                                                                         ^^^^^^^
+21 |         )
+22 |     elif kind == "product_from_voice":
+   |
+
+E501 Line too long (123 > 120)
+  --> app\agents\nodes\node_01_planner.py:26:121
+   |
+24 |             goal="Transcribe voice recording and extract product attributes",
+25 |             steps=["validate_intake", "gather_context", "transcribe_and_extract", "reconcile_catalog"],
+26 |             assigned_nodes=["node_01_planner", "node_02_intake", "node_03_context", "node_05_voice", "node_06_reconciler"],
+   |                                                                                                                         ^^^
+27 |         )
+28 |     elif kind == "post_generate":
+   |
+
+E501 Line too long (129 > 120)
+  --> app\agents\nodes\node_08_draft.py:50:121
+   |
+48 |                 "error_code": "claim.price_hallucinated",
+49 |                 "error_message": (
+50 |                     f"Generated post text price ₹{found_price:.2f} disagrees with confirmed catalog price ₹{expected_price:.2f}."
+   |                                                                                                                         ^^^^^^^^^
+51 |                 ),
+52 |             }
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> app\agents\runner.py:2:1
+   |
+ 1 |   """Job runner executing LangGraph workflows with trace event and model usage recording."""
+ 2 | / from datetime import datetime, timezone
+ 3 | | import time
+ 4 | | from typing import Any
+ 5 | | from uuid import UUID
+ 6 | |
+ 7 | | from sqlalchemy import select
+ 8 | | from sqlalchemy.orm import Session
+ 9 | |
+10 | | from app.agents.graph import build_bizsaathi_graph
+11 | | from app.agents.models import InputBundle
+12 | | from app.agents.state import GraphState
+13 | | from app.models.domain import Job, JobEvent, ModelUsage, Proposal
+   | |_________________________________________________________________^
+2 mypy errors. Let me see the ruff errors and both mypy error locations:
+
+Let me see the full ruff output (it was truncated at 50 lines), then fix everything:
+
+…\backend > uv run ruff check app/ tests/ 2>&1
+<truncated 349 lines>
+11 + from app.agents.tools import get_product_by_sku
+12 | from app.models.domain import Job, Policy, Product
+   |
+
+F401 [*] `app.models.domain.Policy` imported but unused
+  --> tests\unit\test_agent_graph.py:12:36
+   |
+10 | from app.agents.state import GraphState
+11 | from app.agents.tools import get_policy, get_product_by_sku, list_products_by_name
+12 | from app.models.domain import Job, Policy, Product
+   |                                    ^^^^^^
+help: Remove unused import: `app.models.domain.Policy`
+   |
+11 | from app.agents.tools import get_policy, get_product_by_sku, list_products_by_name
+   - from app.models.domain import Job, Policy, Product
+12 + from app.models.domain import Job, Product
+13 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests\unit\test_content_generation.py:2:1
+  |
+1 |   """Unit tests for Post generation, claim linking, and deterministic price verification (T-204)."""
+2 | / from decimal import Decimal
+3 | | from uuid import uuid4
+4 | |
+5 | | import pytest
+6 | | from app.agents.nodes.node_08_draft import draft_post
+7 | | from app.agents.state import GraphState
+  | |_______________________________________^
+help: Organize imports
+  |
+5 | import pytest
+6 +
+7 | from app.agents.nodes.node_08_draft import draft_post
+  |
+
+F401 [*] `decimal.Decimal` imported but unused
+ --> tests\unit\test_content_generation.py:2:21
+  |
+1 | """Unit tests for Post generation, claim linking, and deterministic price verification (T-204)."""
+2 | from decimal import Decimal
+  |                     ^^^^^^^
+3 | from uuid import uuid4
+  |
+help: Remove unused import: `decimal.Decimal`
+  |
+1 | """Unit tests for Post generation, claim linking, and deterministic price verification (T-204)."""
+  - from decimal import Decimal
+2 | from uuid import uuid4
+  |
+
+F401 [*] `uuid.uuid4` imported but unused
+ --> tests\unit\test_content_generation.py:3:18
+  |
+1 | """Unit tests for Post generation, claim linking, and deterministic price verification (T-204)."""
+2 | from decimal import Decimal
+3 | from uuid import uuid4
+  |                  ^^^^^
+4 |
+5 | import pytest
+  |
+help: Remove unused import: `uuid.uuid4`
+  |
+2 | from decimal import Decimal
+  - from uuid import uuid4
+3 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\unit\test_execution_and_approvals.py:2:1
+   |
+ 1 |   """Unit tests for Products, Stock, and Approval Execution Core (T-203)."""
+ 2 | / from datetime import datetime, timedelta, timezone
+ 3 | | from decimal import Decimal
+ 4 | | from uuid import uuid4
+ 5 | |
+ 6 | | import pytest
+ 7 | | from app.core.errors import (
+ 8 | |     EvidenceMissingError,
+ 9 | |     InvalidStateError,
+10 | |     StaleVersionError,
+11 | | )
+12 | | from app.models.domain import Approval, Product, ProductVariant, Proposal
+13 | | from app.repositories.variant import VariantRepository
+14 | | from app.services.execution import ExecutionService
+   | |___________________________________________________^
+help: Organize imports
+  |
+6 | import pytest
+7 +
+8 | from app.core.errors import (
+  |
+
+F401 [*] `decimal.Decimal` imported but unused
+ --> tests\unit\test_execution_and_approvals.py:3:21
+  |
+1 | """Unit tests for Products, Stock, and Approval Execution Core (T-203)."""
+2 | from datetime import datetime, timedelta, timezone
+3 | from decimal import Decimal
+  |                     ^^^^^^^
+4 | from uuid import uuid4
+  |
+help: Remove unused import: `decimal.Decimal`
+  |
+2 | from datetime import datetime, timedelta, timezone
+  - from decimal import Decimal
+3 | from uuid import uuid4
+  |
+
+F401 [*] `app.models.domain.Product` imported but unused
+  --> tests\unit\test_execution_and_approvals.py:12:41
+   |
+10 |     StaleVersionError,
+11 | )
+12 | from app.models.domain import Approval, Product, ProductVariant, Proposal
+   |                                         ^^^^^^^
+13 | from app.repositories.variant import VariantRepository
+14 | from app.services.execution import ExecutionService
+   |
+help: Remove unused import: `app.models.domain.Product`
+   |
+11 | )
+   - from app.models.domain import Approval, Product, ProductVariant, Proposal
+12 + from app.models.domain import Approval, ProductVariant, Proposal
+13 | from app.repositories.variant import VariantRepository
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\unit\test_photo_to_draft.py:2:1
+   |
+ 1 |   """Unit tests for Photo to Product Draft extraction and reconciliation (T-202)."""
+ 2 | / from decimal import Decimal
+ 3 | | from uuid import uuid4
+ 4 | |
+ 5 | | import pytest
+ 6 | | from fastapi.testclient import TestClient
+ 7 | |
+ 8 | | from app.agents.nodes.node_04_extractor import extract_from_photo
+ 9 | | from app.agents.nodes.node_06_reconciler import reconcile_catalog
+10 | | from app.agents.models import ContextBundle, InputBundle
+11 | | from app.agents.state import GraphState
+12 | | from app.main import app
+13 | | from app.models.base import get_db
+14 | | from app.models.domain import Media, Product
+   | |____________________________________________^
+help: Organize imports
+   |
+7  |
+8  + from app.agents.models import ContextBundle, InputBundle
+9  | from app.agents.nodes.node_04_extractor import extract_from_photo
+10 | from app.agents.nodes.node_06_reconciler import reconcile_catalog
+   - from app.agents.models import ContextBundle, InputBundle
+11 | from app.agents.state import GraphState
+   |
+
+F401 [*] `decimal.Decimal` imported but unused
+ --> tests\unit\test_photo_to_draft.py:2:21
+  |
+1 | """Unit tests for Photo to Product Draft extraction and reconciliation (T-202)."""
+2 | from decimal import Decimal
+  |                     ^^^^^^^
+3 | from uuid import uuid4
+  |
+help: Remove unused import: `decimal.Decimal`
+  |
+1 | """Unit tests for Photo to Product Draft extraction and reconciliation (T-202)."""
+  - from decimal import Decimal
+2 | from uuid import uuid4
+  |
+
+F401 [*] `fastapi.testclient.TestClient` imported but unused
+ --> tests\unit\test_photo_to_draft.py:6:32
+  |
+5 | import pytest
+6 | from fastapi.testclient import TestClient
+  |                                ^^^^^^^^^^
+7 |
+8 | from app.agents.nodes.node_04_extractor import extract_from_photo
+  |
+help: Remove unused import: `fastapi.testclient.TestClient`
+  |
+5 | import pytest
+  - from fastapi.testclient import TestClient
+6 |
+  |
+
+F401 [*] `app.main.app` imported but unused
+  --> tests\unit\test_photo_to_draft.py:12:22
+   |
+10 | from app.agents.models import ContextBundle, InputBundle
+11 | from app.agents.state import GraphState
+12 | from app.main import app
+   |                      ^^^
+13 | from app.models.base import get_db
+14 | from app.models.domain import Media, Product
+   |
+help: Remove unused import: `app.main.app`
+   |
+11 | from app.agents.state import GraphState
+   - from app.main import app
+12 | from app.models.base import get_db
+   |
+
+F401 [*] `app.models.base.get_db` imported but unused
+  --> tests\unit\test_photo_to_draft.py:13:29
+   |
+11 | from app.agents.state import GraphState
+12 | from app.main import app
+13 | from app.models.base import get_db
+   |                             ^^^^^^
+14 | from app.models.domain import Media, Product
+   |
+help: Remove unused import: `app.models.base.get_db`
+   |
+12 | from app.main import app
+   - from app.models.base import get_db
+13 | from app.models.domain import Media, Product
+   |
+
+F401 [*] `app.models.domain.Media` imported but unused
+  --> tests\unit\test_photo_to_draft.py:14:31
+   |
+12 | from app.main import app
+13 | from app.models.base import get_db
+14 | from app.models.domain import Media, Product
+   |                               ^^^^^
+help: Remove unused import
+   |
+13 | from app.models.base import get_db
+   - from app.models.domain import Media, Product
+14 |
+   |
+
+F401 [*] `app.models.domain.Product` imported but unused
+  --> tests\unit\test_photo_to_draft.py:14:38
+   |
+12 | from app.main import app
+13 | from app.models.base import get_db
+14 | from app.models.domain import Media, Product
+   |                                      ^^^^^^^
+help: Remove unused import
+   |
+13 | from app.models.base import get_db
+   - from app.models.domain import Media, Product
+14 |
+   |
+
+Found 35 errors.
+[*] 29 fixable with `--fix`.

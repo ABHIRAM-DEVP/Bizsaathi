@@ -1,0 +1,70 @@
+{
+  "mode": "mock",
+  "split": "dev",
+  "note": "Plumbing baseline only; not live-model quality.",
+  "created_at": "2026-10-28T14:52:47.000697+00:00",
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "id": "ev-001",
+      "expected": "flag_conflict",
+      "actual": "flag_conflict"
+    },
+    {
+      "id": "ev-002",
+      "expected": "contradicted",
+      "actual": "contradicted"
+    },
+    {
+      "id": "ev-003",
+      "expected": "unverified",
+      "actual": "unverified"
+    },
+    {
+      "id": "ev-004",
+      "expected": "flag_conflict",
+      "actual": "flag_conflict"
+    },
+    {
+      "id": "ev-005",
+      "expected": "escalate",
+      "actual": "escalate"
+    },
+    {
+      "id": "ev-006",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "id": "ev-007",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "id": "ev-008",
+      "expected": "escalate",
+      "actual": "escalate"
+    },
+    {
+      "id": "ev-009",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "id": "ev-010",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "id": "ev-011",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "id": "ev-012",
+      "expected": "require_approval",
+      "actual": "require_approval"
+    }
+  ]
+}

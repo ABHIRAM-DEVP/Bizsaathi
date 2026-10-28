@@ -1,0 +1,462 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BizSaathi API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Service liveness probe (EP-H01)",
+        "description": "Liveness probe. Checks no external dependencies, returns 200 ok immediately.",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Service readiness probe (EP-H02)",
+        "description": "Readiness probe. Verifies required dependencies (DB, Redis) without exposing secrets.",
+        "operationId": "getReadiness",
+        "responses": {
+          "200": {
+            "description": "All required dependencies are reachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "One or more dependencies are unavailable"
+          }
+        }
+      }
+    },
+    "/v1/uploads": {
+      "post": {
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Request a presigned direct upload URL (EP-U01)",
+        "description": "Validate asset metadata and return a presigned S3 upload URL.",
+        "operationId": "createUpload",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get background job status (EP-J01)",
+        "description": "Retrieve async job progress and outcome within tenant scope.",
+        "operationId": "getJob",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ok",
+            "examples": [
+              "ok"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "HealthResponse"
+      },
+      "JobResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id",
+            "description": "Unique job ID"
+          },
+          "business_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Business Id",
+            "description": "Owner tenant ID"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "Workflow kind"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Current status (queued, running, awaiting_approval, succeeded, blocked, failed)"
+          },
+          "progress_step": {
+            "type": "integer",
+            "title": "Progress Step",
+            "description": "Current step index",
+            "default": 0
+          },
+          "progress_total": {
+            "type": "integer",
+            "title": "Progress Total",
+            "description": "Total expected steps",
+            "default": 0
+          },
+          "result_ref": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Ref",
+            "description": "Result summary or output pointers"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code",
+            "description": "Error code if failed"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message",
+            "description": "Human explanation if failed"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Timestamp job was enqueued"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At",
+            "description": "Timestamp processing started"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At",
+            "description": "Timestamp processing ended"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "business_id",
+          "kind",
+          "status",
+          "created_at"
+        ],
+        "title": "JobResponse",
+        "description": "Async background task state and progress."
+      },
+      "ReadinessChecks": {
+        "properties": {
+          "db": {
+            "type": "string",
+            "title": "Db",
+            "examples": [
+              "ok"
+            ]
+          },
+          "redis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redis",
+            "examples": [
+              "ok"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "db"
+        ],
+        "title": "ReadinessChecks"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "examples": [
+              "ready"
+            ]
+          },
+          "checks": {
+            "$ref": "#/components/schemas/ReadinessChecks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "checks"
+        ],
+        "title": "ReadinessResponse"
+      },
+      "UploadRequest": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "photo",
+              "audio"
+            ],
+            "title": "Kind",
+            "description": "Media type: photo or audio"
+          },
+          "filename": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Filename",
+            "description": "Client filename including extension"
+          },
+          "mime": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Mime",
+            "description": "MIME content-type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Size Bytes",
+            "description": "File size in bytes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "filename",
+          "mime",
+          "size_bytes"
+        ],
+        "title": "UploadRequest",
+        "description": "Request payload to request a presigned upload URL."
+      },
+      "UploadResponse": {
+        "properties": {
+          "media_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Media Id",
+            "description": "Created media record ID"
+          },
+          "upload_url": {
+            "type": "string",
+            "title": "Upload Url",
+            "description": "Presigned PUT URL for direct-to-storage upload"
+          },
+          "storage_key": {
+            "type": "string",
+            "title": "Storage Key",
+            "description": "Tenant-prefixed collision-free storage path"
+          },
+          "expires_in_seconds": {
+            "type": "integer",
+            "title": "Expires In Seconds",
+            "description": "Validity period of upload URL in seconds",
+            "default": 900
+          },
+          "method": {
+            "type": "string",
+            "title": "Method",
+            "description": "HTTP method for uploading",
+            "default": "PUT"
+          }
+        },
+        "type": "object",
+        "required": [
+          "media_id",
+          "upload_url",
+          "storage_key"
+        ],
+        "title": "UploadResponse",
+        "description": "Presigned upload URL and registered media record details."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

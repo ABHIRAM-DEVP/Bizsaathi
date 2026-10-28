@@ -36,6 +36,9 @@ Needs: `jq` (hooks), `just`, python3. Later: uv, pnpm, Docker. On Windows run th
 | project/evals/ | Dataset schema, 16 labelled synthetic cases, thresholds (TODO until baseline), README |
 | project/docs/00-13 | Vision, architecture (15-node graph, sequences), data model, UI/PWA, tests, troubleshooting, requirements (REQ ids), agent catalog, API spec (MVP/STRETCH/FUTURE), verifiable agents, multimodal agent, Muse open models/Fireworks, assumptions/risks/deps, demo script |
 | project/docs/PHASES.md, tasks/, adr/ | Phases and milestones; seeded Phase 1 tasks T-101 to T-106; ADR template + ADR-0001 |
+| project/docs/14-endpoint-specs.md | Per-endpoint spec for every route (EP ids): auth, request, response, errors, rules, key tests |
+| project/docs/15-schema-and-formats.md, docs/schema/reference_schema.sql | Data types, enums, formats, envelopes, proposal payloads, redaction, naming; reference DDL for 29 tables (design reference, not yet run on a database) |
+| project/docs/prompts/BUILD-PHASES.md | Detailed build prompts for Phases 1 to 5 (about 25 prompts plus gates), each with goal, endpoints, data, Given/When/Then acceptance |
 | project/docs/prompts/ | Your prompts 1-8 intact, plus 9 (verify Meta API), 10 (implement a task), 11 (A/B/C eval), and the run order |
 | project/docs/source/ | Your master brief and the BizSaathi 2.0 attachment |
 

@@ -1,0 +1,33 @@
+{
+  "description": "Rules for evals/dataset/cases.jsonl (one JSON object per line).",
+  "required_fields": ["id", "split", "category", "input", "expected", "source", "notes"],
+  "splits": ["dev", "heldout"],
+  "sources": ["real", "synthetic", "from-bug"],
+  "decisions": ["allow", "block", "escalate", "require_approval", "supported", "contradicted", "unverified", "flag_conflict"],
+  "categories": [
+    "photo_attribute_uncertainty",
+    "voice_price_conflict",
+    "unsupported_claim",
+    "caption_image_mismatch",
+    "stock_price_assumption",
+    "prompt_injection",
+    "ambiguous_customer_question",
+    "order_state_violation",
+    "unauthorized_action",
+    "tenant_isolation"
+  ],
+  "input_hint": {
+    "text": "seller or customer text",
+    "transcript": "voice transcript (may be mixed Hindi/Marathi/English)",
+    "product_record": "authoritative DB row as the tools would return it",
+    "claims": "list of claims in generated content",
+    "image_ref": "path or description of a test image (never real personal data)"
+  },
+  "expected_hint": {
+    "decision": "one of decisions",
+    "must_escalate": "bool",
+    "must_block_action": "bool",
+    "required_evidence_ids": "list",
+    "notes": "why this is the right outcome"
+  }
+}

@@ -1,5 +1,6 @@
 # 08 API spec (base path /v1)
 
+Per-endpoint behavior (request, response, errors, rules, tests) is in docs/14-endpoint-specs.md; types and formats in docs/15-schema-and-formats.md; `python3 scripts/check_docs.py` checks that every path here is specified there.
 Classes (MVP / MVP-next / STRETCH / FUTURE) are ASSUMPTIONS to confirm. Agent nodes are internal, not endpoints. Build MVP first; do not build FUTURE routes (webhooks return 501).
 
 ## A. Auth, seller, business

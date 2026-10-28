@@ -17,7 +17,7 @@ BizSaathi: multimodal, evidence-grounded, human-supervised agentic co-pilot for 
 ## Commands (the only ones agents use)
 - `just up` / `just down`: postgres, redis, minio via docker compose
 - `just dev-api` / `just dev-web`
-- `just check-fast`: secret scan + eval-dataset validation + lint + types + unit tests (seconds). Run constantly
+- `just check-fast`: secret scan + eval-dataset validation + docs consistency + lint + types + unit tests (seconds). Run constantly
 - `just check`: check-fast + integration tests + contract check + web build. Run before reporting done
 - `just eval-mock`: evals with mocked models (free, deterministic)
 - `just eval-live`: evals against the real Meta API. COSTS CREDITS. Ask the human first
@@ -45,7 +45,8 @@ BizSaathi: multimodal, evidence-grounded, human-supervised agentic co-pilot for 
 
 ## Layout
 apps/api (app/routers, services, repositories, models, schemas, agents, ai, core)  apps/web  contracts  docs  evals  scripts
-Tasks: docs/tasks/<id>.md. Decisions: docs/adr/. Prompts: docs/prompts/. Requirements: docs/06-requirements.md.
+Tasks: docs/tasks/<id>.md. Decisions: docs/adr/. Prompts: docs/prompts/ (phase build prompts: BUILD-PHASES.md). Requirements: docs/06-requirements.md.
+Contracts: endpoint behavior docs/14-endpoint-specs.md (EP ids); types, enums, formats, envelopes docs/15-schema-and-formats.md; reference DDL docs/schema/reference_schema.sql (design reference, not a migration).
 
 ## Never
 - Add a dependency, model, or MCP server without an ADR or explicit task approval
