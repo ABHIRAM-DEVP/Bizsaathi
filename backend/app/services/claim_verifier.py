@@ -24,11 +24,13 @@ def verify_claim(claim: Claim, product: Product) -> tuple[str, str, dict | None,
         if value.casefold() in text:
             return "supported", "low", {"field": field, "value": value}, None
 
-    contradictory_markers = ("100% pure silk", "pure silk", "green")
-    if any(marker in text for marker in contradictory_markers):
-        material = str(product.attributes.get("material", "")).casefold()
-        color = str(product.attributes.get("color", "")).casefold()
-        if ("silk" in text and "silk" not in material) or ("green" in text and color != "green"):
-            return "contradicted", "high", {"material": material, "color": color}, "Use confirmed product facts only."
+    material = str(product.attributes.get("material", "")).casefold()
+    color = str(product.attributes.get("color", "")).casefold()
+    
+    if ("100% pure silk" in text or "pure silk" in text) and material != "silk" and material != "pure silk":
+        return "contradicted", "high", {"material": material}, "Use confirmed product facts only."
+    
+    if "green" in text and color != "green":
+        return "contradicted", "high", {"color": color}, "Use confirmed product facts only."
 
     return "unverified", "medium", None, "Remove the unsupported claim or ask the seller to confirm it."

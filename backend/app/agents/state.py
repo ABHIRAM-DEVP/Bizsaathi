@@ -29,3 +29,5 @@ class GraphState(TypedDict, total=False):
     error_code: str | None
     error_message: str | None
     status: str
+    verification_failed: bool
+    critique: dict[str, Any]

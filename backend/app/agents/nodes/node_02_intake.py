@@ -27,6 +27,20 @@ def process_intake(state: GraphState) -> dict[str, Any]:
         if not input_bundle.raw_text and not input_bundle.media_ids:
             # Need product context or instructions
             pass
+    elif input_bundle.kind == "customer_reply":
+        if not input_bundle.customer_message:
+            return {
+                "error_code": "intake.missing_message",
+                "error_message": "Customer message is required for customer_reply",
+                "status": "failed",
+            }
+        # Validate language
+        if input_bundle.language not in ("en", "hi", "mr"):
+            return {
+                "error_code": "intake.invalid_language",
+                "error_message": f"Language must be one of: en, hi, mr. Got: {input_bundle.language}",
+                "status": "failed",
+            }
 
     return {
         "status": "running",

@@ -8,7 +8,6 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -36,9 +35,13 @@ def main() -> int:
     args = parser.parse_args()
     if args.mode != "mock":
         raise SystemExit("Live evaluation requires explicit approved integration; not implemented by this runner.")
-    cases = [json.loads(line) for line in (ROOT / "evals/dataset/cases.jsonl").read_text().splitlines() if line.strip()]
+    dataset = (ROOT / "evals/dataset/cases.jsonl").read_text().splitlines()
+    cases = [json.loads(line) for line in dataset if line.strip()]
     cases = [case for case in cases if case["split"] == args.split]
-    results = [{"id": case["id"], "expected": case["expected"]["decision"], "actual": mock_decision(case)} for case in cases]
+    results = [
+        {"id": case["id"], "expected": case["expected"]["decision"], "actual": mock_decision(case)}
+        for case in cases
+    ]
     passed = sum(result["expected"] == result["actual"] for result in results)
     report = {"mode": "mock", "split": args.split, "note": "Plumbing baseline only; not live-model quality.",
               "created_at": datetime.now(UTC).isoformat(), "passed": passed, "total": len(results), "results": results}

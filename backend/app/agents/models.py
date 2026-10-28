@@ -23,6 +23,11 @@ class InputBundle(BaseModel):
     raw_text: str | None = None
     audio_bytes: bytes | None = None
     mime_type: str | None = None
+    # Phase 4: Customer chat fields
+    customer_message: str | None = None
+    conversation_id: UUID | None = None
+    language: str = "en"  # en, hi, mr
+    session_id: UUID | None = None
 
 
 class ContextBundle(BaseModel):

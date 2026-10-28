@@ -15,6 +15,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     Numeric,
     String,
     Text,
@@ -501,4 +502,152 @@ class IdempotencyKeyRecord(Base):
     response_body: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+
+
+# ==================== PHASE 4: Customer & Orders ====================
+
+
+class PublicSession(Base):
+    """Anonymous customer session for public store browsing and chat."""
+
+    __tablename__ = "public_session"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
+    token_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="open")
+    ip_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("status IN ('open', 'escalated', 'closed', 'blocked')", name="public_session_status_check"),
+        UniqueConstraint("token_hash", name="public_session_token_uq"),
+        Index("public_session_business_ix", "business_id", "created_at"),
+    )
+
+
+class Conversation(TimestampMixin, Base):
+    """Customer conversation within a public session."""
+
+    __tablename__ = "conversation"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
+    public_session_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("public_session.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="open")
+    escalation_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    __table_args__ = (
+        CheckConstraint("status IN ('open', 'escalated', 'closed')", name="conversation_status_check"),
+        UniqueConstraint("public_session_id", name="conversation_session_uq"),
+        Index("conversation_business_ix", "business_id", "status", "updated_at"),
+    )
+
+
+class Message(Base):
+    """Individual message in a conversation (customer, assistant, owner, system)."""
+
+    __tablename__ = "message"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
+    conversation_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("conversation.id"), nullable=False)
+    role: Mapped[str] = mapped_column(String(20), nullable=False)
+    body: Mapped[str] = mapped_column(String(4000), nullable=False)
+    evidence_ids: Mapped[list[UUID]] = mapped_column(ARRAY(Uuid), nullable=False, server_default="{}")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint("role IN ('customer', 'assistant', 'owner', 'system')", name="message_role_check"),
+        CheckConstraint("char_length(body) <= 4000", name="message_body_length_check"),
+        Index("message_conversation_ix", "business_id", "conversation_id", "created_at"),
+    )
+
+
+class CustomerOrder(TimestampMixin, Base):
+    """Customer order with status tracking."""
+
+    __tablename__ = "customer_order"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
+    public_session_id: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("public_session.id"), nullable=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, server_default="DRAFT")
+    customer_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    delivery_note: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    total_inr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    payment_method: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    payment_reference: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    payment_recorded_by: Mapped[UUID | None] = mapped_column(Uuid, ForeignKey("app_user.id"), nullable=True)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
+
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('DRAFT', 'AWAITING_PAYMENT', 'PAID', 'FULFILLED', 'CANCELLED', 'FAILED')",
+            name="customer_order_status_check",
+        ),
+        CheckConstraint("char_length(customer_name) BETWEEN 1 AND 120", name="customer_order_name_check"),
+        CheckConstraint(
+            "delivery_note IS NULL OR char_length(delivery_note) <= 500",
+            name="customer_order_note_check",
+        ),
+        CheckConstraint("total_inr >= 0", name="customer_order_total_check"),
+        CheckConstraint(
+            "payment_method IS NULL OR payment_method IN ('cash', 'upi', 'bank', 'other')",
+            name="customer_order_payment_method_check",
+        ),
+        UniqueConstraint("business_id", "idempotency_key", name="customer_order_idempotency_uq"),
+        Index("customer_order_business_ix", "business_id", "status", "created_at"),
+    )
+
+
+class OrderItem(Base):
+    """Line item in a customer order."""
+
+    __tablename__ = "order_item"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
+    order_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("customer_order.id"), nullable=False)
+    variant_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("product_variant.id"), nullable=False)
+    qty: Mapped[int] = mapped_column(Integer, nullable=False)
+    unit_price_inr: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("qty > 0 AND qty <= 100", name="order_item_qty_check"),
+        CheckConstraint("unit_price_inr >= 0", name="order_item_price_check"),
+        Index("order_item_order_ix", "business_id", "order_id"),
+    )
+
+
+class OrderStatusHistory(Base):
+    """Audit log of order status transitions."""
+
+    __tablename__ = "order_status_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
+    order_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("customer_order.id"), nullable=False)
+    from_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    to_status: Mapped[str] = mapped_column(String(30), nullable=False)
+    actor_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    actor_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    detail: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
+    at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "actor_type IN ('user', 'system', 'execution_service')",
+            name="order_status_history_actor_type_check",
+        ),
+        Index("order_status_history_ix", "business_id", "order_id", "at"),
     )
