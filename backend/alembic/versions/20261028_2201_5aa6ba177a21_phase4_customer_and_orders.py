@@ -40,7 +40,12 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_public_session")),
     )
-    op.create_unique_index("public_session_token_uq", "public_session", ["token_hash"])
+    op.create_index(
+        "public_session_token_uq",
+        "public_session",
+        ["token_hash"],
+        unique=True,
+    )
     op.create_index(
         "public_session_business_ix",
         "public_session",

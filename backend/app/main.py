@@ -16,7 +16,17 @@ from app.core.errors import (
     build_problem_response,
 )
 from app.core.logging import logger, setup_logging
-from app.routers import approvals, audit, evidence, health, jobs, posts, products, uploads
+from app.routers import (
+    approvals,
+    audit,
+    evidence,
+    health,
+    jobs,
+    posts,
+    products,
+    public_store,
+    uploads,
+)
 
 
 @asynccontextmanager
@@ -136,3 +146,10 @@ app.include_router(approvals.router, prefix=settings.API_PREFIX)
 app.include_router(posts.router, prefix=settings.API_PREFIX)
 app.include_router(evidence.router, prefix=settings.API_PREFIX)
 app.include_router(audit.router, prefix=settings.API_PREFIX)
+app.include_router(public_store.router, prefix=settings.API_PREFIX)
+
+# Import dashboard router
+from app.routers import dashboard
+app.include_router(dashboard.router, prefix=settings.API_PREFIX)
+
+

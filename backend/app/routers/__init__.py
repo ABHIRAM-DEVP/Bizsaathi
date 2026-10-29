@@ -1,6 +1,7 @@
 """API routers package."""
 
 from app.routers.approvals import router as approvals_router
+from app.routers.dashboard import router as dashboard_router
 from app.routers.health import router as health_router
 from app.routers.jobs import router as jobs_router
 from app.routers.posts import router as posts_router
@@ -13,5 +14,7 @@ __all__ = [
     "uploads_router",
     "products_router",
     "approvals_router",
+    "dashboard_router",
     "posts_router",
 ]
+

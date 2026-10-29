@@ -32,7 +32,7 @@ async def process_customer_chat(state: GraphState) -> dict[str, Any]:
         }
 
     input_bundle = state["input_bundle"]
-    business_id = state["business_id"]
+    _business_id = state["business_id"]  # Reserved for future tenant-scoped queries
     conversation_id = input_bundle.conversation_id
     customer_message = input_bundle.customer_message
     language = input_bundle.language or "en"
@@ -55,18 +55,23 @@ async def process_customer_chat(state: GraphState) -> dict[str, Any]:
         }
 
     # Load conversation history if this is an ongoing conversation
-    history_messages = []
+    history_messages: list[dict[str, Any]] = []
     if conversation_id:
         # In real implementation, this would query Message table
         # For now, we simulate with state or skip
-        history_messages = state.get("conversation_history", [])
+        raw_history = state.get("conversation_history", [])
+        if isinstance(raw_history, list):
+            history_messages = raw_history
 
     # Build prompt with context
-    product_context = _format_product_context(context_bundle)
-    policy_context = _format_policy_context(context_bundle)
+    # Convert ContextBundle to dict for helper functions
+    context_dict = context_bundle.model_dump() if hasattr(context_bundle, "model_dump") else {}
+    product_context = _format_product_context(context_dict)
+    policy_context = _format_policy_context(context_dict)
     history_text = _format_history(history_messages)
 
-    prompt = f"""You are a helpful store assistant. Answer the customer's question using ONLY the information provided below.
+    prompt = f"""You are a helpful store assistant. Answer the customer's \
+question using ONLY the information provided below.
 
 PRODUCT CATALOG:
 {product_context}
@@ -80,32 +85,35 @@ CONVERSATION HISTORY:
 CUSTOMER QUESTION ({language}):
 {customer_message}
 
-Generate a helpful, friendly response in {language}. Include specific product names and prices when relevant. If the question cannot be answered with the available information, politely say so.
+Generate a helpful, friendly response in {language}. Include specific \
+product names and prices when relevant. If the question cannot be answered \
+with the available information, politely say so.
 
 RULES:
 - Use ONLY facts from the product catalog and policies above
 - Do NOT invent prices, availability, or features
 - Do NOT make promises about delivery or payment that are not in the policies
-- If asked about products not in the catalog, say "We don't currently have that item"
+- If asked about products not in the catalog, say "We don't currently \
+have that item"
 - Be warm and helpful, but accurate
 """
 
     client = get_model_client()
     
-    # Generate response (using generate_structured with simple schema for text response)
+    # Generate response (using generate_structured with simple schema)
     schema = {
         "type": "object",
-        "properties": {
-            "response": {"type": "string"}
-        },
-        "required": ["response"]
+        "properties": {"response": {"type": "string"}},
+        "required": ["response"],
     }
     
     result_obj = await client.generate_structured(prompt, schema)
-    response_text = result_obj.get("response", "I'm here to help! What can I assist you with?")
+    response_text = result_obj.get(
+        "response", "I'm here to help! What can I assist you with?"
+    )
 
     # Extract evidence: which products/policies were mentioned?
-    evidence_ids = _extract_evidence_ids(response_text, context_bundle)
+    evidence_ids = _extract_evidence_ids(response_text, context_dict)
 
     # Build result
     result_payload = {
@@ -172,12 +180,14 @@ def _format_history(history: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _extract_evidence_ids(response: str, context_bundle: dict[str, Any]) -> list[UUID]:
+def _extract_evidence_ids(
+    response: str, context_bundle: dict[str, Any]
+) -> list[UUID]:
     """
     Extract evidence IDs for products/policies mentioned in the response.
     
-    Simple heuristic: if a product name appears in the response, link its evidence.
-    In production, this should be more sophisticated (entity linking, etc.)
+    Simple heuristic: if a product name appears in response, link its evidence.
+    In production, this should be more sophisticated (entity linking, etc.).
     """
     evidence_ids: list[UUID] = []
     

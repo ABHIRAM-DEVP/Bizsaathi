@@ -5,14 +5,13 @@ These tests verify the complete flow from API endpoints through business logic
 to database persistence, including tenant isolation and error handling.
 """
 
-import pytest
-from decimal import Decimal
 from uuid import uuid4
+
+import pytest
 from httpx import AsyncClient
 
 from app.main import app
-from app.models.base import get_db
-from app.models.domain import Business, AppUser, Product
+from app.models.domain import Business
 
 
 @pytest.mark.anyio
@@ -34,7 +33,7 @@ async def test_full_product_lifecycle():
     async with AsyncClient(app=app, base_url="http://test") as client:
         # Create test business
         business_id = uuid4()
-        business = Business(
+        _business = Business(
             id=business_id,
             name="Test Handlooms",
             slug="test-handlooms",
