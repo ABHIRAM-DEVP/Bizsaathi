@@ -1,5 +1,7 @@
 # Frontend context
 
+> [Back to BizSaathi overview](../../../README.md)
+
 `AuthContext.tsx` provides shared seller authentication/session state to frontend routes.
 
 ## Architecture and use

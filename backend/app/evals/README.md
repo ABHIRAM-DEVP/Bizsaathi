@@ -1,5 +1,7 @@
 # Backend evaluation runner
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This package contains backend-side evaluation execution. The canonical synthetic cases, threshold configuration, and reports are in the repository-level [evals/](../../../evals/README.md) directory.
 
 ## Use and architecture

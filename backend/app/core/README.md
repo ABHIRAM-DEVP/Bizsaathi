@@ -1,5 +1,7 @@
 # Core backend controls
 
+> [Back to BizSaathi overview](../../../README.md)
+
 `core/` holds cross-cutting infrastructure used by API and workflow code: application settings, database URL handling, development sessions, error formats, language/format helpers, structured logging, and tenant context.
 
 ## Architecture and use

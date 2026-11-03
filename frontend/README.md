@@ -1,5 +1,7 @@
 # Frontend
 
+> [Back to BizSaathi overview](../README.md)
+
 The frontend is the repository's single Next.js App Router application. It provides seller-facing workflows and public storefront/customer chat experiences; it is not a separate frontend per feature.
 
 ## Architecture and use

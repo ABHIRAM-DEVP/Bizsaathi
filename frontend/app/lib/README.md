@@ -1,5 +1,7 @@
 # Frontend application helpers
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This folder contains shared API URL handling and reusable hooks used by app routes. Keep generated API clients separate from handwritten runtime helpers and follow the repository rule not to hand-edit generated client files.
 
 ## Architecture and use

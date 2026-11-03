@@ -1,5 +1,7 @@
 # Project documentation
 
+> [Back to BizSaathi overview](../README.md)
+
 This folder is the human-readable source for BizSaathi's product intent, architecture, requirements, data model, endpoint behavior, agent controls, testing, risks, and demo guidance.
 
 ## How to navigate

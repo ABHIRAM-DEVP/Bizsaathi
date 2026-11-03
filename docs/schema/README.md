@@ -1,5 +1,7 @@
 # Reference schema
 
+> [Back to BizSaathi overview](../../README.md)
+
 `reference_schema.sql` is a design reference for the relational domain model. It documents tables, relationships, and tenant ownership for planning and review.
 
 ## Architecture and use

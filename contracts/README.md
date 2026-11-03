@@ -1,5 +1,7 @@
 # API contracts
 
+> [Back to BizSaathi overview](../README.md)
+
 `openapi.json` is the checked-in OpenAPI 3.1 contract for the BizSaathi API. It describes endpoint paths, operations, request/response schemas, and service errors for frontend and API consumers.
 
 ## Architecture and use

@@ -1,5 +1,7 @@
 # Public web assets
 
+> [Back to BizSaathi overview](../../README.md)
+
 This directory contains static assets served by Next.js, including PWA-related files and icons.
 
 ## Architecture and use

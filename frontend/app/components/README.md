@@ -1,5 +1,7 @@
 # Shared frontend components
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This folder contains reusable UI components such as the seller shell, connection status, workflow stepper, and draft review.
 
 ## Architecture and use

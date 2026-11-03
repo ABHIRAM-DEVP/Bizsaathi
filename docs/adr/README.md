@@ -1,5 +1,7 @@
 # Architecture decision records
 
+> [Back to BizSaathi overview](../../README.md)
+
 This folder records durable architectural decisions, including context, chosen approach, and consequences. The numbered ADRs explain decisions such as modular-monolith shape, approval boundaries, LangGraph runtime, and grounded customer intent planning.
 
 ## Use

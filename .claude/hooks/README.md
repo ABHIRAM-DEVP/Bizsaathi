@@ -1,5 +1,7 @@
 # Agent hooks
 
+> [Back to BizSaathi overview](../../README.md)
+
 This directory contains shell hooks used by the local agent workflow, including path guards and a completion gate.
 
 ## Architecture and use

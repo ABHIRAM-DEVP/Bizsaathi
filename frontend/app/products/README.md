@@ -1,5 +1,7 @@
 # Product routes
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This route group supports product catalog browsing and product creation/editing, including photo-assisted draft workflows.
 
 ## Architecture and use

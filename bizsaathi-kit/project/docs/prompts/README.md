@@ -1,21 +1,29 @@
-# Prompt runbook
+# Prompt Runbook
 
-Prompts are files. Use docs/prompts/PROMPTS-1-8.md. One prompt per session; `/clear` between them. Review the output (`git diff`, `just check-fast`) before the next.
+> A recommended order for using the setup kit's prompts.
 
-| Order | Prompt | When | Model advice |
-|---|---|---|---|
-| 1 | Reconcile kit with repo | once, today | strongest available (sets rules for everything) |
-| 9 | Verify Meta API access | right after 1, before any model code | strongest; needs your credentials and approval for the live call |
-| 2 | Verify stack vs official docs | after 1 and 9 | strongest |
-| 3 | Skills/subagents/MCP review | after 2 | strongest |
-| 4 | Review and improve docs 00-03 + PHASES | after 2 | strongest, then you edit by hand |
-| 5 | Review/extend task files | after 4 | cheap model fine, you review |
-| 10 | Implement one task (repeat) | each task | cheap or mid model is fine: the task file and checks carry the quality |
-| 6 | Testing strategy + commands | before Phase 3 | mid model |
-| 11 | A/B/C evaluation | Phase 5 | strongest for analysis; live run costs credits |
-| 7 | Audit the setup | weekly | mid model |
-| 8 | Capture lessons | when a mistake repeats | cheap model |
+> [Back to BizSaathi overview](../../../../README.md)
 
-Build prompts for each phase (1.1 to 5.5, with phase gates) are in docs/prompts/BUILD-PHASES.md. They cite endpoint ids from docs/14 and formats from docs/15. Run them in order after Prompts 1, 9 and 2.
+Run one prompt per session. Clear the session between prompts, then review the resulting diff and checks before continuing.
 
-Never run all prompts in one go. If a prompt needs a fact that can only come from you (deadline, credits, team size, official docs a tool cannot fetch), it must stop and ask.
+## Recommended sequence
+
+| Step | Prompt | When to run | Guidance |
+|---:|---|---|---|
+| 1 | Reconcile kit and repository | Before implementation | Establish project-specific rules |
+| 9 | Verify model API access | Before model integration | Requires credentials and approval for a live call |
+| 2 | Verify stack against official docs | After prompts 1 and 9 | Confirm versions and supported APIs |
+| 3 | Review skills, agents, and MCP | After prompt 2 | Review development tooling |
+| 4 | Review core docs and phases | After prompt 2 | Review the output before adopting it |
+| 5 | Review and extend task files | After prompt 4 | Keep tasks bounded and testable |
+| 10 | Implement one task | For each task | Follow its acceptance criteria and checks |
+| 6 | Review testing strategy and commands | Before Phase 3 | Confirm validation coverage |
+| 11 | Run the A/B/C evaluation | Phase 5 | Live evaluations may incur provider costs |
+| 7 | Audit the setup | Weekly | Recheck project configuration |
+| 8 | Capture recurring lessons | When a mistake repeats | Update instructions based on evidence |
+
+## Build-phase prompts
+
+Detailed prompts for Phases 1.1–5.5, including phase gates, are in `docs/prompts/BUILD-PHASES.md`. They cite endpoint IDs from `docs/14-endpoint-specs.md` and formats from `docs/15-schema-and-formats.md`. Run them in sequence after prompts 1, 9, and 2.
+
+> **Important:** Do not run every prompt at once. If required information is unavailable—such as a deadline, credits, team size, or official documentation—stop and ask rather than guessing.

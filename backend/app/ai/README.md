@@ -1,5 +1,7 @@
 # AI model adapters
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This package is the backend boundary for model providers. `interface.py` defines the operations consumed by application code; `mock.py` supports deterministic development and tests; `live.py` makes configured provider calls. Credentials and model configuration belong in server-side environment settings.
 
 ## Architecture and use

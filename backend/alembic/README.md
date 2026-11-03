@@ -1,5 +1,7 @@
 # Alembic migrations
 
+> [Back to BizSaathi overview](../../README.md)
+
 This folder contains database migration configuration and versioned schema changes for the backend's PostgreSQL database.
 
 ## Architecture and use

@@ -1,5 +1,7 @@
 # Repository agent configuration
 
+> [Back to BizSaathi overview](../README.md)
+
 This folder contains repository-scoped instructions and automation for coding agents. It complements `AGENTS.md` and `CLAUDE.md`; it is not part of the deployed application.
 
 ## Contents

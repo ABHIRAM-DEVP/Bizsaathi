@@ -1,8 +1,16 @@
-# Source documents
+# Source Documents
 
-| File | What it is |
+> Original project inputs for reference. Record decisions and current requirements in the derived documentation.
+
+> [Back to BizSaathi overview](../../README.md)
+
+## Included sources
+
+| File | Description |
 |---|---|
-| bizsaathi-master-brief.source.md | Your master brief (Parts A, B, D) retyped from your message; Part C prompts are in docs/prompts/PROMPTS-1-8.md |
-| bizsaathi-2.0-architecture.source.md | Your BizSaathi 2.0 architecture attachment, copied as supplied. The rendered Mermaid CSS noise was removed and the diagrams were lost in the export; they are redrawn in docs/01-architecture.md. The image links inside it are external and not reproduced here |
+| `bizsaathi-master-brief.source.md` | Master brief (Parts A, B, and D); Part C prompts are in `docs/prompts/PROMPTS-1-8.md`. |
+| `bizsaathi-2.0-architecture.source.md` | Supplied BizSaathi 2.0 architecture attachment. Export noise was removed; diagrams are redrawn in `docs/01-architecture.md`. External image links are not reproduced here. |
 
-Treat these as inputs. Decisions go into docs/ and docs/adr/. When a derived doc disagrees with a source, the derived doc must say why.
+## How to use these sources
+
+Treat these files as inputs, not as the current implementation contract. Record decisions in `docs/` and `docs/adr/`. If a derived document differs from a source, document the reason in the derived material.

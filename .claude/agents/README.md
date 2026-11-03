@@ -1,5 +1,7 @@
 # Agent instructions
 
+> [Back to BizSaathi overview](../../README.md)
+
 This directory defines specialized agent roles for implementation, security review, and evaluation analysis.
 
 ## Architecture and use

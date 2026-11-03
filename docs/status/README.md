@@ -1,5 +1,7 @@
 # Status notes
 
+> [Back to BizSaathi overview](../../README.md)
+
 This folder contains task- or milestone-specific status reports. Treat these as dated snapshots rather than authoritative current system configuration.
 
 ## Use

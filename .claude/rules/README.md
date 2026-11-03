@@ -1,5 +1,7 @@
 # Scoped engineering rules
 
+> [Back to BizSaathi overview](../../README.md)
+
 This directory contains topic-specific instructions for agents working in the API, agents, data/tenancy, model adapters, security, testing, evaluation, formats, and web/PWA code.
 
 ## Architecture and use

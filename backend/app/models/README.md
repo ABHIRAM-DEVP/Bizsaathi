@@ -1,5 +1,7 @@
 # Persistence models
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This package defines SQLAlchemy's shared base and application domain models. Models represent persisted business records and relationships; confirmed product, stock, and account facts come from these records, not from generated text.
 
 ## Architecture and use

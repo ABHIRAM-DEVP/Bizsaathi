@@ -1,5 +1,7 @@
 # Backend application
 
+> [Back to BizSaathi overview](../../README.md)
+
 `app/` contains the FastAPI application modules. The main flow is router → service → repository/model, with shared settings and controls in `core/`. Agent workflows are invoked by services or job handling rather than owning database truth.
 
 ## Modules

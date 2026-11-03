@@ -1,5 +1,7 @@
 # API schemas
 
+> [Back to BizSaathi overview](../../../README.md)
+
 Pydantic models in this package define API request and response data for authentication, businesses, products, uploads, jobs, approvals, conversations, customers, orders, posts, and dashboards.
 
 ## Architecture and use

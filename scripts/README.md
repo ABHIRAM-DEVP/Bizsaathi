@@ -1,5 +1,7 @@
 # Repository scripts
 
+> [Back to BizSaathi overview](../README.md)
+
 This folder contains local verification and utility scripts: `runner.py`, secret scanning, evaluation dataset validation, documentation consistency, safety checks, and API smoke testing.
 
 ## Use

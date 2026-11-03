@@ -1,5 +1,7 @@
 # Public store routes
 
+> [Back to BizSaathi overview](../../../README.md)
+
 This route group serves customer-facing storefront pages and in-app chat for a store slug.
 
 ## Architecture and use

@@ -1,5 +1,7 @@
 # Evaluations
 
+> [Back to BizSaathi overview](../README.md)
+
 Evaluations define repeatable checks of AI-assisted workflows and their safety boundaries. The intended comparison is A (single model call), B (tools/evidence), and C (full verified graph), including both improvements and regressions.
 
 ## Contents and architecture
