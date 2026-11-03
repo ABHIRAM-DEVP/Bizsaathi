@@ -104,14 +104,15 @@ The [OpenAPI contract](contracts/openapi.json) is the API/web source of truth. D
 
 ### Business and production outcomes
 
-| Business / production outcome | Client-safe status | Evidence required before assigning an outcome percentage |
-|---|---|---|
-| Time saved | **Not yet benchmarked** | Matched manual-versus-assisted task timings, including seller review and corrections |
-| Cost saved | **Not yet benchmarked** | Same-workflow baseline and assisted costs, including labor, actual provider billing, and allocated hosting |
-| Production availability / performance | **Not measured in production** | Production request volume, observation window, availability, throughput, and p50/p95 latency |
-| Live-model quality | **Not evaluated** | Approved live evaluation, labelled dataset, model/configuration, and metric-specific results |
+| Outcome | Metric and calculation | Illustrative calculation only — not a BizSaathi result | BizSaathi status / evidence needed |
+|---|---|---|---|
+| Time saved | `(manual median minutes − assisted median minutes, including review) ÷ manual median minutes × 100` | 10 min manual vs. 7 min assisted = **30%** | **Not benchmarked**; collect matched timings for the same seller task |
+| Cost saved | `(baseline cost per completed task − assisted cost per completed task) ÷ baseline cost per completed task × 100` | ₹100 baseline vs. ₹70 assisted, including labor, actual model billing, and allocated hosting = **30%** | **Not benchmarked**; collect comparable end-to-end costs |
+| Production availability | `(scheduled observation minutes − unavailable minutes) ÷ scheduled observation minutes × 100` | 30 days with 3.6 hours unavailable = **99.5%** | **Not measured in production**; requires production monitoring and a stated observation window |
+| Production performance | Report request throughput and p50/p95 latency; compare p95 change as `(baseline p95 − observed p95) ÷ baseline p95 × 100` | p95 800 ms to 600 ms = **25% lower p95 latency** | **Not measured in production**; requires production traffic, workload, and telemetry |
+| Live-model quality | `(labelled outputs meeting a pre-defined acceptance criterion ÷ labelled outputs evaluated) × 100` | 18 of 20 labelled outputs pass = **90%** for that criterion and dataset | **Not evaluated**; requires approval, labelled cases, and recorded model/configuration |
 
-These are not zero-valued outcomes: the required measurements have not been collected, so assigning a savings, availability, or live-quality percentage would be unsupported. Live evaluation is not approved.
+**Important:** The example figures above show how to calculate percentages; they are hypothetical, not measured results, targets, or forecasts for BizSaathi. Actual business and production outcomes remain unknown until the required measurements are collected. Live evaluation is not approved.
 
 ### Verified quantitative evidence
 
@@ -129,7 +130,7 @@ These are not zero-valued outcomes: the required measurements have not been coll
 
 The **75%** figure is the proportion of listed integration scenarios that execute; it is not code coverage or a product-quality score. Other percentages describe only the stated test/evaluation results. None measures seller time saved, cost reduction, production availability, or live-model quality. Do not present hypothetical percentage calculations as BizSaathi results.
 
-For future impact reporting, calculate **time saved (%)** as `(manual median task time - assisted median task time) / manual median task time × 100`, and **cost saved (%)** as `(baseline cost per completed task - assisted cost per completed task) / baseline cost per completed task × 100`. Report live-model quality per labelled metric and production availability/latency with the dataset, workload, and observation window.
+For client reporting, replace the illustrative calculations with measured data and include the sample size, observation window, workload, and methodology. Report live-model quality per pre-defined criterion and dataset; report production availability alongside throughput and p50/p95 latency.
 
 ### What has been measured locally
 
