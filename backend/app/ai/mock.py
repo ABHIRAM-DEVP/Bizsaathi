@@ -46,6 +46,8 @@ class MockModelClient(ModelClient):
         except json.JSONDecodeError:
             prompt_data = {}
         language = prompt_data.get("language") if isinstance(prompt_data, dict) else None
+        if not isinstance(language, str):
+            language = "en"
         localized_post_text = {
             "en": "Make every playtime moment feel a little more magical.",
             "hi": "हर खेल के पल को खुशियों से भरें।",

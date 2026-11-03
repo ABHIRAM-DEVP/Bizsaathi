@@ -91,9 +91,11 @@ def test_operator_cannot_read_business_profile(
 
 def test_public_chat_requires_customer_account(
     inbox_client: tuple[TestClient, FakeSession],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     client, _ = inbox_client
     origin = settings.CORS_ALLOWED_ORIGINS.split(",")[0].strip()
+    monkeypatch.setattr("app.routers.public_store.check_public_rate_limit", lambda *args, **kwargs: None)
 
     response = client.post(
         "/v1/public/stores/example-store/sessions",

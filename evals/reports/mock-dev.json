@@ -2,7 +2,7 @@
   "mode": "mock",
   "split": "dev",
   "note": "Plumbing baseline only; not live-model quality.",
-  "created_at": "2026-11-03T09:54:42.207894+00:00",
+  "created_at": "2026-11-03T10:27:13.889204+00:00",
   "passed": 12,
   "total": 12,
   "results": [

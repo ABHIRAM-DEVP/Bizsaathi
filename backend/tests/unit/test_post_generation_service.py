@@ -48,6 +48,9 @@ class CapturingModel(ModelClient):
     async def generate_image(self, prompt):
         return b""
 
+    async def analyze_image(self, image_bytes, mime_type, prompt="...", schema=None):
+        return {}
+
 
 @pytest.mark.anyio
 async def test_generation_uses_seller_description_and_attributes_as_feature_sources(monkeypatch):
@@ -129,7 +132,7 @@ async def test_generation_emits_incremental_json_string_snapshots(monkeypatch):
     assert all(
         earlier.startswith("A thoughtful choice")
         and later.startswith(earlier)
-        for earlier, later in zip(first_line_updates, first_line_updates[1:])
+        for earlier, later in zip(first_line_updates, first_line_updates[1:], strict=False)
     )
     assert any(index == 1 and text == creative_lines[1] for index, text in updates)
 
@@ -290,7 +293,11 @@ async def test_create_generated_post_uses_tenant_catalog_and_links_fact_evidence
 
     async def mock_copy(**kwargs):
         copy_inputs.append(kwargs)
-        return ["Make every playtime moment feel a little more magical.", "A thoughtful choice for every day."], "mock", "mock-model-v1"
+        return (
+            ["Make every playtime moment feel a little more magical.", "A thoughtful choice for every day."],
+            "mock",
+            "mock-model-v1",
+        )
 
     monkeypatch.setattr("app.services.post_generation.generate_post_copy", mock_copy)
     response = await create_generated_post(

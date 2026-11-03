@@ -10,8 +10,8 @@ import json
 import logging
 import re
 import time
-from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator, AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any
 from urllib.parse import urlsplit
 

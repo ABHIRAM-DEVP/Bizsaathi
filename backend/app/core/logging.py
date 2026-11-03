@@ -73,6 +73,7 @@ class StructuredJsonFormatter(logging.Formatter):
             "node",
             "duration_ms",
             "error_code",
+            "exception_type",
             "model_id",
             "latency_ms",
             "first_token_ms",

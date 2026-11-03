@@ -11,8 +11,7 @@ from sqlalchemy.orm import Session
 from app.agents.graph import build_bizsaathi_graph
 from app.agents.models import InputBundle
 from app.agents.state import GraphState
-from app.core.config import settings
-from app.models.domain import Job, JobEvent, ModelUsage, Proposal
+from app.models.domain import Job, JobEvent, Proposal
 
 
 class AgentJobRunner:
@@ -49,27 +48,15 @@ class AgentJobRunner:
         self._session.add(ev)
         self._session.flush()
 
-    def _record_model_usage(
-        self,
-        job_id: UUID,
-        node: str,
-        model_id: str,
-        mode: str,
-        latency_ms: int,
-    ) -> None:
-        """Record token and latency metrics for model usage."""
-        mu = ModelUsage(
-            business_id=self._business_id,
-            job_id=job_id,
-            node=node,
-            model_id=model_id,
-            mode=mode,
-            latency_ms=latency_ms,
-            input_tokens=150,
-            output_tokens=100,
-        )
-        self._session.add(mu)
-        self._session.flush()
+    def _record_node_events(self, job_id: UUID, node_events: list[dict[str, Any]]) -> None:
+        for event in node_events:
+            self._record_event(
+                job_id=job_id,
+                node=event["node"],
+                event=event["event"],
+                duration_ms=event["duration_ms"],
+                error_code=event.get("error_code"),
+            )
 
     async def run_job(self, job_id: UUID, input_bundle: InputBundle) -> GraphState:
         """Execute the workflow for the job, handling checkpoints, events, and outcome."""
@@ -100,24 +87,15 @@ class AgentJobRunner:
             "status": "queued",
         }
 
-        graph = build_bizsaathi_graph()
+        node_events: list[dict[str, Any]] = []
+        graph = build_bizsaathi_graph(node_events)
         start_t = time.monotonic()
 
         try:
             final_state = await graph.ainvoke(initial_state)
             duration_ms = int((time.monotonic() - start_t) * 1000)
-
-            # Record model usage if calls were made
+            self._record_node_events(job_id, node_events)
             calls_made = final_state.get("model_calls", 0)
-            if calls_made > 0:
-                is_mock = settings.MODEL_MOCK_MODE or settings.MODEL_PROVIDER == "mock"
-                self._record_model_usage(
-                    job_id=job_id,
-                    node="agent_pipeline",
-                    model_id="mock-model-v1" if is_mock else settings.MODEL_ID,
-                    mode="mock" if is_mock else "live",
-                    latency_ms=duration_ms,
-                )
 
             # Check outcome
             status = final_state.get("status", "succeeded")
@@ -173,11 +151,13 @@ class AgentJobRunner:
             self._session.flush()
             return cast(GraphState, final_state)
 
-        except Exception as err:
+        except Exception:
             duration_ms = int((time.monotonic() - start_t) * 1000)
+            self._record_node_events(job_id, node_events)
             job.status = "failed"
             job.error_code = "node.failed"
-            job.error_message = str(err)
+            job.error_message = "Workflow execution failed; consult sanitized trace events."
+            job.model_calls = sum(event["model_calls"] for event in node_events)
             job.finished_at = datetime.now(timezone.utc)
             self._record_event(
                 job_id=job_id,

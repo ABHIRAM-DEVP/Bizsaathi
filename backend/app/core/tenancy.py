@@ -155,3 +155,10 @@ async def require_owner_role(ctx: AuthContext = Depends(require_tenant)) -> Auth
     if ctx.role != "owner":
         raise ForbiddenError(detail="Owner privileges required for this action")
     return ctx
+
+
+async def require_owner_or_operator(ctx: AuthContext = Depends(require_tenant)) -> AuthContext:
+    """Allow owner and read-only operator access to tenant resources."""
+    if ctx.role not in ("owner", "operator"):
+        raise ForbiddenError(detail="Owner or operator privileges required for this action")
+    return ctx

@@ -4,8 +4,8 @@ All model interactions flow through this typed adapter.
 Default mode is mock; live calls use credentials from environment only.
 """
 
-from abc import ABC, abstractmethod
 import json
+from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
 from typing import Any
 

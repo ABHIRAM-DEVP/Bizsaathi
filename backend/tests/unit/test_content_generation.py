@@ -2,9 +2,9 @@
 
 import pytest
 
+from app.agents.models import ContextBundle, InputBundle
 from app.agents.nodes.node_07_brief import create_brief
 from app.agents.nodes.node_08_draft import draft_post
-from app.agents.models import ContextBundle, InputBundle
 from app.agents.state import GraphState
 
 
@@ -52,6 +52,9 @@ async def test_deterministic_check_rejects_hallucinated_price(monkeypatch):
 
         async def generate_image(self, prompt):
             return b""
+
+        async def analyze_image(self, image_bytes, mime_type, prompt="...", schema=None):
+            return {}
 
     monkeypatch.setattr("app.agents.nodes.node_08_draft.get_model_client", lambda: HallucinatingModel())
 

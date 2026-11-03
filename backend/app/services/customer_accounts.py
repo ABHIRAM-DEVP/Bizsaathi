@@ -13,8 +13,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.errors import ConflictError, ForbiddenError, UnauthenticatedError
-from app.models.domain import CustomerAccount, CustomerAuthSession
 from app.models.base import get_db
+from app.models.domain import CustomerAccount, CustomerAuthSession
 from app.schemas.customer_accounts import (
     CustomerAccountLoginRequest,
     CustomerAccountRegisterRequest,

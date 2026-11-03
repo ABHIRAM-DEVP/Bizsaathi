@@ -116,7 +116,7 @@ State machine: DRAFT -> AWAITING_PAYMENT -> PAID -> FULFILLED; also CANCELLED, F
 - EP-J02 `GET /evidence/{id}` owner/operator, MVP. `{id, source_kind, source_id, source_version, snapshot(redacted), claim_ids[]}`. Tenant-checked.
 - EP-J03 `POST /evaluations/runs` owner, STRETCH. Body `{mode:"mock"|"live", split, system:"A"|"B"|"C", confirm_cost?}`. `live` requires `confirm_cost:true`. 202 job. Result labelled mock or live.
 - EP-J04 `GET /evaluations/runs`, EP-J05 `GET /evaluations/runs/{id}` owner/operator, STRETCH. Metrics, failure cases, model ids, usage, cost, label.
-- EP-J06 `GET /metrics/agents` owner/operator, STRETCH. Per-node p50/p95 latency, error rate, retry count, model calls.
+- EP-J06 `GET /metrics/agents?days=30` owner/operator, STRETCH. `days` is 1-90. Returns tenant-scoped job counts by status, succeeded/terminal-job ratio, job-duration p50/p95, graph-node execution/error counts and duration p50/p95, and recorded model-call totals. Token counts and estimated cost are `null` until actual provider usage and pricing are recorded; no values are inferred. Queries are bounded by job creation time and business_id. Tests: owner/operator success; unauthenticated and public access denied; invalid window rejected; tenant filter applied.
 
 ## Coverage check
 Every endpoint in docs/08-api-spec.md appears here. FUTURE routes return 501 with problem JSON. Keep this file and 08 in step; a new route needs both, plus an ADR if it adds a permission.

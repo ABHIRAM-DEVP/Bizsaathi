@@ -2,6 +2,7 @@ import json
 from uuid import uuid4
 
 from app.core.errors import ExternalServiceError
+from app.models.domain import Evidence
 from app.services import customer_replies
 from app.services.customer_replies import (
     CatalogItem,
@@ -534,7 +535,7 @@ def test_shop_overview_without_profile_or_products_asks_customer_what_they_need(
 def test_catalog_shop_overview_fallback_records_product_and_business_evidence() -> None:
     class EvidenceSession:
         def __init__(self) -> None:
-            self.evidence = []
+            self.evidence: list[Evidence] = []
 
         def add_all(self, evidence) -> None:
             self.evidence.extend(evidence)
@@ -621,6 +622,7 @@ def test_structured_agent_plan_resolves_semantic_product_question(monkeypatch) -
     )
 
     assert "Rainproof Travel Bag" in reply.text
+    assert product.description is not None
     assert product.description in reply.text
     assert "₹1499.00" in reply.text
     assert reply.product_ids == (product.id,)
@@ -737,7 +739,7 @@ def test_payment_problem_escalates_instead_of_returning_general_policy() -> None
 def test_shop_profile_and_policy_claims_are_written_as_tenant_evidence() -> None:
     class EvidenceSession:
         def __init__(self) -> None:
-            self.evidence = []
+            self.evidence: list[Evidence] = []
 
         def add_all(self, evidence) -> None:
             self.evidence.extend(evidence)

@@ -2370,10 +2370,120 @@
           }
         }
       }
+    },
+    "/v1/metrics/agents": {
+      "get": {
+        "tags": [
+          "metrics"
+        ],
+        "summary": "Read Agent Metrics",
+        "description": "Return real, tenant-scoped job and graph-node metrics for up to 90 days.",
+        "operationId": "read_agent_metrics_v1_metrics_agents_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 90,
+              "minimum": 1,
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentMetricsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AgentMetricsResponse": {
+        "properties": {
+          "window_days": {
+            "type": "integer",
+            "maximum": 90.0,
+            "minimum": 1.0,
+            "title": "Window Days"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "total_jobs": {
+            "type": "integer",
+            "title": "Total Jobs"
+          },
+          "jobs_by_status": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Jobs By Status"
+          },
+          "success_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Success Rate",
+            "description": "Succeeded jobs divided by terminal jobs; null when no jobs have finished."
+          },
+          "workflow_latency_ms": {
+            "$ref": "#/components/schemas/WorkflowLatencyMetrics"
+          },
+          "model_usage": {
+            "$ref": "#/components/schemas/ModelUsageMetrics"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/NodeMetrics"
+            },
+            "type": "array",
+            "title": "Nodes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "window_days",
+          "generated_at",
+          "total_jobs",
+          "jobs_by_status",
+          "success_rate",
+          "workflow_latency_ms",
+          "model_usage",
+          "nodes"
+        ],
+        "title": "AgentMetricsResponse",
+        "description": "Tenant-scoped workflow metrics over a bounded time window."
+      },
       "ApprovalDecisionRequest": {
         "properties": {
           "expected_proposal_version": {
@@ -3634,6 +3744,53 @@
         "title": "MessageResponse",
         "description": "Response for EP-E03 POST /public/sessions/{id}/messages."
       },
+      "ModelUsageMetrics": {
+        "properties": {
+          "model_calls": {
+            "type": "integer",
+            "title": "Model Calls"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Tokens"
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Tokens"
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_calls"
+        ],
+        "title": "ModelUsageMetrics",
+        "description": "Recorded call totals; token and billing data stay unknown until provided."
+      },
       "NextStep": {
         "properties": {
           "label": {
@@ -3654,6 +3811,52 @@
         ],
         "title": "NextStep",
         "description": "Suggested next action for the seller."
+      },
+      "NodeMetrics": {
+        "properties": {
+          "node": {
+            "type": "string",
+            "title": "Node"
+          },
+          "execution_count": {
+            "type": "integer",
+            "title": "Execution Count"
+          },
+          "error_count": {
+            "type": "integer",
+            "title": "Error Count"
+          },
+          "p50_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Ms"
+          },
+          "p95_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P95 Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node",
+          "execution_count",
+          "error_count"
+        ],
+        "title": "NodeMetrics",
+        "description": "Observed execution/error counts and duration distribution for a graph node."
       },
       "OrderItemResponse": {
         "properties": {
@@ -4531,6 +4734,35 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WorkflowLatencyMetrics": {
+        "properties": {
+          "p50": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50"
+          },
+          "p95": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P95"
+          }
+        },
+        "type": "object",
+        "title": "WorkflowLatencyMetrics",
+        "description": "Observed end-to-end job duration distribution in milliseconds."
       }
     }
   }

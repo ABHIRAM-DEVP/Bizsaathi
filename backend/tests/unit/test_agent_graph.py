@@ -8,7 +8,7 @@ import pytest
 from app.agents.models import InputBundle
 from app.agents.runner import AgentJobRunner
 from app.agents.tools import get_product_by_sku
-from app.models.domain import Job, Product
+from app.models.domain import Job, ModelUsage, Product
 
 
 class MockDbSession:
@@ -83,10 +83,17 @@ async def test_graph_runs_with_increasing_seq_and_no_raw_reasoning():
 
     state = await runner.run_job(job_id=job_id, input_bundle=input_bundle)
     assert state["status"] in ("succeeded", "awaiting_approval")
+    assert job.model_calls == state.get("model_calls", 0)
 
     # Verify JobEvent rows
     events = [item for item in mock_db.added if item.__tablename__ == "job_event"]
     assert len(events) >= 2
+
+    node_events = [event for event in events if event.node not in ("system", "pipeline")]
+    assert {event.node for event in node_events} >= {"planner", "intake", "context", "extract_photo"}
+    assert all(event.duration_ms is not None and event.duration_ms >= 0 for event in node_events)
+    assert all(event.event == "step_finished" for event in node_events)
+    assert not any(isinstance(item, ModelUsage) for item in mock_db.added)
 
     # Check increasing sequence
     seqs = [ev.seq for ev in events]

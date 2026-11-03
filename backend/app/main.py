@@ -28,6 +28,7 @@ from app.routers import (
     evidence,
     health,
     jobs,
+    metrics,
     orders,
     posts,
     products,
@@ -156,9 +157,12 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> Response:
-    logger.exception(
-        f"Unhandled server exception: {exc}",
-        extra={"request_id": getattr(request.state, "request_id", "req_unknown")},
+    logger.error(
+        "Unhandled server exception",
+        extra={
+            "request_id": getattr(request.state, "request_id", "req_unknown"),
+            "exception_type": type(exc).__name__,
+        },
     )
     return build_problem_response(
         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -185,3 +189,4 @@ app.include_router(audit.router, prefix=settings.API_PREFIX)
 app.include_router(public_store.router, prefix=settings.API_PREFIX)
 
 app.include_router(dashboard.router, prefix=settings.API_PREFIX)
+app.include_router(metrics.router, prefix=settings.API_PREFIX)

@@ -88,7 +88,7 @@ Classes (MVP / MVP-next / STRETCH / FUTURE) are ASSUMPTIONS to confirm. Agent no
 GET /dashboard (MVP). GET /channels (STRETCH). POST /channels/{type}/connect, /push/subscribe, GET /notifications (STRETCH/FUTURE). POST /webhooks/whatsapp, /instagram, /facebook: FUTURE, return 501 until a signed provider round-trip is tested.
 
 ## J. Observability and evaluation
-GET /jobs/{id}/trace (MVP, sanitized, no raw reasoning). GET /evidence/{id} (MVP). GET, POST /evaluations/runs, GET /evaluations/runs/{id}, GET /metrics/agents (STRETCH).
+GET /jobs/{id}/trace (MVP, sanitized, no raw reasoning). GET /evidence/{id} (MVP). GET, POST /evaluations/runs, GET /evaluations/runs/{id}, GET /metrics/agents?days=30 (STRETCH; tenant-scoped job/node latency, error counts, and recorded model-call metrics; unknown token/cost fields remain null).
 
 ## Cross-cutting
 Error shape: problem JSON with request_id. Idempotency-Key header on order, approval and notification side effects. Pagination on list routes. All owner routes authorize role + business_id.

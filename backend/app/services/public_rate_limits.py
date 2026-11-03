@@ -34,25 +34,25 @@ def check_public_rate_limit(key: str, max_requests: int, window_seconds: int) ->
                 )
             )
 
-        statement = insert(PublicRateLimitBucket).values(
+        insert_statement = insert(PublicRateLimitBucket).values(
             key_hash=key_hash,
             window_start=window_start,
             request_count=1,
         )
-        same_window = PublicRateLimitBucket.window_start == statement.excluded.window_start
-        statement = statement.on_conflict_do_update(
+        same_window = PublicRateLimitBucket.window_start == insert_statement.excluded.window_start
+        statement = insert_statement.on_conflict_do_update(
             index_elements=[PublicRateLimitBucket.key_hash],
             set_={
                 "window_start": case(
                     (same_window, PublicRateLimitBucket.window_start),
-                    else_=statement.excluded.window_start,
+                    else_=insert_statement.excluded.window_start,
                 ),
                 "request_count": case(
                     (same_window, PublicRateLimitBucket.request_count + 1),
                     else_=1,
                 ),
             },
-            where=PublicRateLimitBucket.window_start <= statement.excluded.window_start,
+            where=PublicRateLimitBucket.window_start <= insert_statement.excluded.window_start,
         ).returning(PublicRateLimitBucket.request_count)
         request_count = db.execute(statement).scalar_one_or_none()
         db.commit()

@@ -1,7 +1,7 @@
 """Node 08: Draft (post drafting with explicit claims and deterministic price check)."""
 
-import re
 import json
+import re
 from typing import Any
 from uuid import uuid4
 
