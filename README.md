@@ -104,21 +104,16 @@ The [OpenAPI contract](contracts/openapi.json) is the API/web source of truth. D
 
 ### Business and production outcomes
 
-| Metric | Measured percentage | Current evidence |
+| Metric | BizSaathi result | Example calculation (illustrative only) |
 |---|---:|---|
-| Time saved | **N/A — not measured** | No matched manual-versus-assisted timing study |
-| Cost saved | **N/A — not measured** | No comparable labor, provider billing, and hosting cost baseline |
-| Production performance | **N/A — not measured** | No production traffic or production telemetry |
-| Live-model quality | **N/A — not measured** | No approved, labelled live-model evaluation run |
+| Time saved | **N/A — no matched timing data** | If a task takes 10 min manually and 7 min with assistance including review: `(10 − 7) ÷ 10 × 100 = 30%` |
+| Cost saved | **N/A — no comparable cost data** | If the same task costs ₹100 at baseline and ₹70 assisted, including labor, actual API, and allocated hosting: `(100 − 70) ÷ 100 × 100 = 30%` |
+| Production availability | **N/A — no production telemetry** | If a 30-day observation has 3 hours of downtime: `(720 − 3) ÷ 720 × 100 ≈ 99.58%` availability; report p50/p95 latency and workload separately |
+| Live-model quality | **N/A — no approved live evaluation** | If 18 of 20 labelled live outputs meet a pre-defined criterion: `18 ÷ 20 × 100 = 90%` for that criterion and dataset only |
 
-**N/A does not mean 0%.** There is not enough real-world evidence to calculate these impact percentages. A valid time-saved figure must include seller review and corrections; a valid cost figure must include actual model, labor, and allocated infrastructure costs.
+**Important: the example values above are hypothetical arithmetic examples, not BizSaathi results, targets, forecasts, or client claims. N/A does not mean 0%.** The user has not supplied matched manual/assisted timings, cost records, or production telemetry, and live evaluation is not approved. A valid time-saved figure must include seller review and corrections; a valid cost figure must include actual model, labor, and allocated infrastructure costs.
 
-When suitable data exists, use these definitions rather than guesses:
-
-- **Time saved (%)** = `(manual median task time - assisted median task time) / manual median task time × 100`
-- **Cost saved (%)** = `(baseline cost per completed task - assisted cost per completed task) / baseline cost per completed task × 100`
-- **Live-model quality (%)** = report each labelled evaluation metric separately (for example, supported-claim rate); do not substitute a mock pass rate.
-- **Production performance** = report measured availability, throughput, and p50/p95 latency with the observation window and workload. Do not combine these unlike measures into one percentage.
+When real evidence is collected, calculate **time saved (%)** as `(manual median task time - assisted median task time) / manual median task time × 100`, and **cost saved (%)** as `(baseline cost per completed task - assisted cost per completed task) / baseline cost per completed task × 100`. Report the labelled live-model metric and production availability/latency with dataset, workload, and observation window; do not substitute mock pass rates or combine unrelated measures into one percentage.
 
 ### What has been measured locally
 
