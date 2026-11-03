@@ -1,0 +1,439 @@
+/* BizSaathi Global Styles - Extracted from PDF mockups */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* PDF Design Colors - Primary */
+  --color-primary: #0f766e;
+  --color-primary-hover: #0d6b64;
+  --color-primary-light: #f0fdf9;
+  --color-primary-lighter: #ccfbef;
+  
+  /* Text Colors */
+  --color-text: #1a1d1f;
+  --color-text-secondary: #6c7275;
+  --color-text-muted: #9ca3af;
+  
+  /* Background Colors */
+  --color-bg-page: #f8f9fa;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #f8f9fa;
+  
+  /* Border Colors */
+  --color-border: #e9ecef;
+  --color-border-light: #e0e4e7;
+  --color-border-input: #d1d5db;
+  
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-success-bg: #d1fae5;
+  --color-success-border: #6ee7b7;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-warning-border: #fcd34d;
+  --color-error: #ef4444;
+  --color-error-bg: #fee2e2;
+  --color-error-border: #fca5a5;
+  --color-info: #3b82f6;
+  --color-info-bg: #dbeafe;
+  --color-info-border: #93c5fd;
+  
+  /* Badge Colors */
+  --color-badge-green: #10b981;
+  --color-badge-green-bg: #d1fae5;
+  --color-badge-orange: #f59e0b;
+  --color-badge-orange-bg: #fef3c7;
+  --color-badge-red: #ef4444;
+  --color-badge-red-bg: #fee2e2;
+  --color-badge-gray: #6b7280;
+  --color-badge-gray-bg: #f3f4f6;
+  
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-h1: 32px;
+  --font-size-h2: 24px;
+  --font-size-h3: 20px;
+  --font-size-h4: 18px;
+  --font-size-body: 15px;
+  --font-size-small: 14px;
+  --font-size-tiny: 13px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 40px;
+  --spacing-5xl: 48px;
+  --spacing-card: 24px;
+  --spacing-section: 24px;
+  --spacing-page: 32px;
+  
+  /* Border Radius (PDF values) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+  --radius-button: 8px;
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-badge: 6px;
+  --radius-avatar: 50%;
+  
+  /* Component Dimensions */
+  --header-height: 64px;
+  --button-height: 44px;
+  --button-padding: 0 20px;
+  --input-height: 44px;
+  --input-padding: 0 16px;
+  --nav-item-height: 40px;
+  --nav-item-padding: 0 16px;
+  --avatar-size: 40px;
+  
+  /* Max Widths */
+  --max-width-content: 1200px;
+  --max-width-wide: 1400px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.04), 0 10px 40px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.08), 0 20px 60px rgba(0, 0, 0, 0.08);
+  --shadow-button: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-button-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+  
+  /* Transitions */
+  --transition: 0.2s ease;
+  --transition-fast: 0.15s ease;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text);
+  background: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition);
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  border: 1px solid var(--color-border-input);
+  transition: var(--transition);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-primary);
+}
+
+/* Base button styles matching PDF */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--button-height);
+  padding: var(--button-padding);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-button);
+  transition: var(--transition);
+  white-space: nowrap;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-button);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-outline:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Card styles matching PDF */
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: var(--spacing-card);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Badge styles matching PDF */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) 10px;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-badge);
+  white-space: nowrap;
+}
+
+.badge-green {
+  background: var(--color-badge-green-bg);
+  color: var(--color-badge-green);
+}
+
+.badge-orange {
+  background: var(--color-badge-orange-bg);
+  color: var(--color-badge-orange);
+}
+
+.badge-red {
+  background: var(--color-badge-red-bg);
+  color: var(--color-badge-red);
+}
+
+.badge-gray {
+  background: var(--color-badge-gray-bg);
+  color: var(--color-badge-gray);
+}
+
+/* Avatar styles */
+.avatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: var(--radius-avatar);
+  object-fit: cover;
+}
+
+/* Form elements matching PDF */
+label {
+  display: block;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  height: var(--input-height);
+  padding: var(--input-padding);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-input);
+  font-size: var(--font-size-body);
+  color: var(--color-text);
+  background: white;
+  transition: var(--transition);
+}
+
+textarea {
+  min-height: 120px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-body);
+}
+
+thead tr {
+  text-align: left;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+}
+
+th,
+td {
+  padding: var(--spacing-md);
+}
+
+tbody tr {
+  border-top: 1px solid var(--color-border);
+}
+
+tbody tr:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Utility classes */
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+/* Focus states for accessibility */
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :root {
+    --font-size-h1: 28px;
+    --font-size-h2: 20px;
+    --spacing-card: 16px;
+    --spacing-page: 16px;
+  }
+  
+  .card {
+    padding: 16px;
+  }
+}
+
+/* Keep light theme only - PDF shows light design */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Intentionally empty - forcing light theme */
+  }
+}
