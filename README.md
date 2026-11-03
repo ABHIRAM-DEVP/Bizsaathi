@@ -123,18 +123,26 @@ Edit `.env` before starting. Set unique local values for the database username, 
 ### 2. Build and start the local stack
 
 ```powershell
-docker compose up -d --build --wait
-docker compose ps
+docker compose up --build
 ```
 
-The backend container applies database migrations at startup. When the services report healthy, open:
+Keep this terminal open while using the app; Compose builds the images if needed, starts the services, and displays their logs. Once the services are healthy, open:
 
 - Web app: [http://localhost:3000](http://localhost:3000)
 - Login / local account: [http://localhost:3000/login](http://localhost:3000/login)
 - API docs: [http://localhost:8080/v1/docs](http://localhost:8080/v1/docs)
 - Readiness check: [http://localhost:8080/v1/health/ready](http://localhost:8080/v1/health/ready)
 
-Create or sign in to a local account from the login screen. Local account registration is development-only; it is not production authentication. To stop the stack, run `docker compose down` (persistent database volumes are retained).
+The backend container applies database migrations at startup. Create or sign in to a local account from the login screen. Local account registration is development-only; it is not production authentication. Stop the foreground stack with `Ctrl+C`, then run `docker compose down` to stop and remove the containers (persistent database volumes are retained).
+
+To run it in the background instead, use this **instead of** the command above:
+
+```powershell
+docker compose up -d --build --wait
+docker compose ps
+```
+
+Open the same URLs when the services are healthy. Stop the background stack with `docker compose down`.
 
 > **Development note:** The root `.env.example` contains blank required credentials and URLs. Copying it alone is not sufficient; configure the required values before Compose startup. The optional MinIO profile also requires its port settings.
 
