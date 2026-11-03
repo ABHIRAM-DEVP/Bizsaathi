@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "products": [
+    {
+      "sku": "FAN-20OZ-ORG-001",
+      "name": "fanta",
+      "description": "A plastic bottle of Fanta orange flavoured carbonated soft drink, filled with bright orange liquid and featuring the Fanta brand label with green leaf logo on an orange-tinted body and blue cap",
+      "price_inr": "20.00",
+      "stock": 15,
+      "photo": "assets/fanta-orange.png"
+    },
+    {
+      "sku": "SKU-78046940",
+      "name": "t-shirt",
+      "description": "Olive green short-sleeve crew neck T-shirt with a large front print divided into two panels. The upper panel shows two birds in flight above the word 'GROW'; the lower panel features stylized clover/plant illustrations in a minimalist green and white design.",
+      "price_inr": "500.00",
+      "stock": 10,
+      "photo": "assets/olive-grow-tshirt.png"
+    },
+    {
+      "sku": "SKU-0553F5C9",
+      "name": "denim jeans blue",
+      "description": "Loose-fitting wide-leg jeans with a high-rise waist, button fly, decorative topstitching and fading and a relaxed, flowy silhouette.",
+      "price_inr": "1000.00",
+      "stock": 30,
+      "photo": "assets/denim-jeans-blue.png"
+    },
+    {
+      "sku": "SKU-E60CDC3F",
+      "name": "Kurta Pajama",
+      "description": "A men's traditional knee-length kurta with a mandarin band collar, front button placket, full-length sleeves with a relaxed fit, subtle white vertical pinstripes, and a small chest pocket. The relaxed silhouette is shown paired with white trousers.",
+      "price_inr": "1200.00",
+      "stock": 8,
+      "photo": "assets/kurta-pajama.png"
+    },
+    {
+      "sku": "SKU-05F042FA",
+      "name": "Salwar Kameez",
+      "description": "Elegant floor-length traditional ensemble featuring a long kameez with intricate gold-toned embroidery and embellished motifs along the front panel, sleeves and hem, paired with matching tapered trousers and a lightweight embroidered dupatta draped over the shoulder. The set has a feminine silhouette with detailed craftsmanship and a flowing drape, styled with embellished footwear by a pool-side setting.",
+      "price_inr": "1500.00",
+      "stock": 20,
+      "photo": "assets/salwar-kameez.png"
+    }
+  ],
+  "synthetic_chats": [
+    {
+      "key": "price-question",
+      "answer_kind": "price",
+      "customer_name": "Synthetic buyer 1",
+      "message": "What is the price of {product_name}?"
+    },
+    {
+      "key": "stock-question",
+      "answer_kind": "stock",
+      "customer_name": "Synthetic buyer 2",
+      "message": "Is {product_name} available right now?"
+    },
+    {
+      "key": "refund-escalation",
+      "answer_kind": "refund",
+      "customer_name": "Synthetic buyer 3",
+      "message": "I was charged twice. Can you refund me?"
+    }
+  ]
+}

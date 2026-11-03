@@ -135,6 +135,14 @@ Keep this terminal open while using the app; Compose builds the images if needed
 
 The backend container applies database migrations at startup. Create or sign in to a local account from the login screen. Local account registration is development-only; it is not production authentication. Stop the foreground stack with `Ctrl+C`, then run `docker compose down` to stop and remove the containers (persistent database volumes are retained).
 
+### Demo data loaded automatically
+
+On Docker startup with `APP_ENV=development`, the backend automatically loads [the checked-in demo fixture](backend/app/demo_data/demo-data.json) into the local Demo Store: five products with photos and inventory, four clearly synthetic order examples with one pending approval, and three synthetic customer conversations grounded in the catalog. Loading is idempotent and does not overwrite existing products with matching SKUs. The conversations and orders are explicitly demo records; no real customer conversations, payments, or shipments are imported. No policies are included because none were present in the local demo account.
+
+Preloaded chat replies use deterministic templates with product or inventory evidence; startup seeding never calls the configured model provider.
+
+Each judge gets these records in their own database when they run `docker compose up --build`; no separate import command is needed. The records persist in the Compose database volume after `docker compose down`. To start with a completely fresh local database, run `docker compose down -v` before starting again; this deletes all local database data. Never use development fixtures or demo access on a public production deployment.
+
 To run it in the background instead, use this **instead of** the command above:
 
 ```powershell

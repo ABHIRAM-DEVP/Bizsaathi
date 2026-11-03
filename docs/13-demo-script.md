@@ -6,6 +6,8 @@ The hackathon's Stage One requires a reasonable use of Meta Model API and/or Met
 
 Show only working, tested features. Use a demo account and non-sensitive sample product data. Keep the recording to exactly 3:00; use captions and readable zoom for the interface and code.
 
+For the local Docker demo, the backend loads the checked-in product/photo fixture and synthetic orders, approval, and inbox conversations automatically when `APP_ENV=development`. Preloaded chat replies are deterministic templates grounded with catalog or inventory evidence; startup seeding does not call the configured model provider. Start with `docker compose up --build`, enter the shared demo workspace, and verify the seeded catalog, inbox, and approval before recording. The seeded customer threads and orders are synthetic; do not describe them as real customer activity or payments.
+
 ## Timed script
 
 | Time | Show and say |
@@ -27,6 +29,7 @@ Show only working, tested features. Use a demo account and non-sensitive sample 
 - [ ] Confirm every screen, model attribution, approval, validation result, and metric shown is real and repeatable. Remove any unimplemented path from the spoken script.
 - [ ] Keep mock mode and mock evaluation results clearly labelled; do not imply they demonstrate live quality.
 - [ ] Test the complete demo path immediately before recording; have a local screen recording ready only as a transparent fallback.
+- [ ] Confirm the automatic fixture load completed in backend logs; describe the conversations and orders as synthetic, not real customer activity.
 - [ ] Check the final video duration is 3:00 and submit before the stated deadline.
 
 ## Evidence and limits

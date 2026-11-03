@@ -2,12 +2,10 @@
 
 import base64
 import binascii
-import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal
-from uuid import UUID, uuid4
+from uuid import UUID
 
-import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
@@ -18,11 +16,9 @@ from app.core.tenancy import AuthContext, require_owner_role
 from app.models.base import get_db
 from app.models.domain import (
     AuditEvent,
-    Business,
     Conversation,
     Message,
     Product,
-    ProductVariant,
     PublicSession,
 )
 from app.schemas.conversations import (
@@ -39,6 +35,7 @@ from app.schemas.conversations import (
     MessageRole,
 )
 from app.services.customer_replies import generate_grounded_reply
+from app.services.demo_seed import seed_demo_inbox
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
 
@@ -190,106 +187,6 @@ def _append_assistant_reply(
     return message
 
 
-def _create_demo_product(db: Session, business_id: UUID) -> Product:
-    product = Product(
-        business_id=business_id,
-        sku=f"DEMO-TOY-{uuid4().hex[:8].upper()}",
-        name="DEMO ONLY - Sample toy",
-        description="Synthetic local demo item; not a real product and not for sale.",
-        price_inr=499,
-        field_sources={
-            "name": {"source": "synthetic_demo", "confirmed": False},
-            "price_inr": {"source": "synthetic_demo", "confirmed": False},
-        },
-        attributes={"demo_only": True},
-        status="active",
-        version=1,
-    )
-    db.add(product)
-    db.flush()
-    db.add(
-        ProductVariant(
-            business_id=business_id,
-            product_id=product.id,
-            color="Demo",
-            size=None,
-            stock=8,
-            stock_version=1,
-        )
-    )
-    db.flush()
-    return product
-
-
-def _start_demo(db: Session, business_id: UUID) -> list[ConversationDetailResponse]:
-    tenant_exists = db.execute(
-        select(Business.id).where(Business.id == business_id).with_for_update()
-    ).scalar_one_or_none()
-    if tenant_exists is None:
-        raise NotFoundError(f"Business {business_id} not found.")
-
-    existing = db.execute(
-        select(Conversation)
-        .where(Conversation.business_id == business_id, Conversation.source == "demo")
-        .order_by(Conversation.created_at)
-    ).scalars().all()
-    if existing:
-        return [_detail(db, conversation) for conversation in existing]
-
-    products = db.execute(
-        select(Product)
-        .where(Product.business_id == business_id, Product.status == "active")
-        .order_by(Product.created_at.desc())
-    ).scalars().all()
-    if not products:
-        products = [_create_demo_product(db, business_id)]
-    product = next((item for item in products if not item.attributes.get("demo_only")), products[0])
-
-    questions = (
-        ("Synthetic buyer 1", f"What is the price of {product.name}?"),
-        ("Synthetic buyer 2", f"Is {product.name} available?"),
-        ("Synthetic buyer 3", "I was charged twice, please refund me."),
-    )
-    details: list[ConversationDetailResponse] = []
-    for customer_name, question in questions:
-        session_id = uuid4()
-        random_token = secrets.token_urlsafe(32)
-        public_session = PublicSession(
-            id=session_id,
-            business_id=business_id,
-            token_hash=bcrypt.hashpw(random_token.encode("utf-8"), bcrypt.gensalt()),
-            status="open",
-            ip_hash=None,
-            expires_at=datetime.now(UTC) + timedelta(days=1),
-        )
-        conversation = Conversation(
-            id=uuid4(),
-            business_id=business_id,
-            public_session_id=session_id,
-            status="open",
-            source="demo",
-            customer_label=customer_name,
-        )
-        db.add(public_session)
-        db.flush()
-        db.add(conversation)
-        db.flush()
-        customer_message = Message(
-            business_id=business_id,
-            conversation_id=conversation.id,
-            role="customer",
-            body=question,
-            evidence_ids=[],
-        )
-        db.add(customer_message)
-        _append_assistant_reply(db, conversation, question, include_demo_products=True)
-        if conversation.status == "escalated":
-            public_session.status = "escalated"
-        db.flush()
-        details.append(_detail(db, conversation))
-    return details
-
-
 @router.get("", response_model=ConversationListResponse, summary="List tenant conversations (EP-F01)")
 def list_conversations(
     status_filter: Annotated[Literal["open", "escalated", "closed"] | None, Query(alias="status")] = None,
@@ -380,8 +277,8 @@ def start_demo(
 ) -> DemoStartResponse:
     if settings.ENV not in ("dev", "test"):
         raise ForbiddenError(detail="Synthetic inbox data is available only in development and test.")
-    conversations = _start_demo(db, auth.business_id)
-    return DemoStartResponse(conversations=conversations)
+    conversations = seed_demo_inbox(db, auth.business_id)
+    return DemoStartResponse(conversations=[_detail(db, conversation) for conversation in conversations])
 
 
 @router.post(
