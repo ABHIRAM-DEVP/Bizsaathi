@@ -1,8 +1,8 @@
 <div align="center">
 
-# BizSaathi — The Seller's AI Co-pilot
+# BizSaathi
 
-### Evidence-grounded tools for small businesses
+### The evidence-grounded AI co-pilot for small sellers
 
 **AI proposes. Deterministic controls validate. Sellers approve.**
 
@@ -17,145 +17,85 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-workflows-1c3c3c)](https://www.langchain.com/langgraph)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ed?logo=docker)](https://www.docker.com/)
 
-[Problem](#problem) · [Solution](#solution) · [Agent workflow](#agent-workflow) · [Metrics](#measured-metrics-and-impact) · [Get started](#get-started) · [Verification](#verification)
+[Overview](#overview) · [How it works](#how-it-works) · [Metrics](#measured-metrics) · [Get started](#get-started) · [Verification](#verification)
 
 </div>
 
 ---
 
-## Problem
+## Overview
 
-Small sellers often manage products, stock, customer questions, and marketing through photos, voice notes, and chat messages. Generic AI can draft text, but it may invent a price, claim stock that is not available, or answer a policy question without evidence. Sellers need assistance without giving up control of their business facts or customer-facing decisions.
+Small sellers often manage product details, customer questions, and marketing through photos, voice notes, and chat. Generic AI can help draft text, but can also invent prices, stock, or policies. BizSaathi is designed to assist with those workflows while keeping confirmed business facts and consequential decisions under seller control.
 
-## Solution
-
-BizSaathi is a mobile-friendly seller co-pilot for product intake, evidence-linked content drafts, and catalog-grounded customer replies. It combines AI proposals with database-backed facts, deterministic validation, and human review.
-
-| Workflow | What BizSaathi does | Control |
+| Workflow | Assistance | Human and system safeguards |
 |---|---|---|
-| Product intake | Interprets an uploaded product photo into a draft | Draft is not a confirmed product; seller reviews it |
-| Content drafting | Produces copy from a seller brief and available product details | Claims are checked against available evidence |
+| Product intake | Turns a product photo into a draft | Draft stays a suggestion until the seller confirms it |
+| Content drafting | Creates copy from a seller brief and product details | Factual claims are checked against available evidence |
 | Customer chat | Answers using tenant-scoped catalog and policy data | Unsupported or sensitive requests can be escalated |
-| Job review | Records job status and observable workflow events | Trace data excludes raw model reasoning |
+| Job review | Shows status and sanitized workflow events | Traces exclude raw model reasoning |
 
-**Confirmed prices, stock, and policies come from the business database—not model output.** BizSaathi does not autonomously publish to social channels, confirm payments, or change business policy. Social webhooks, real payment processing, and KYC are outside the current scope.
+**The database is the source of confirmed prices, stock, and policies—not the model.** BizSaathi does not autonomously publish to social channels, confirm payments, or change business policy. Social webhooks, real payment processing, and KYC are out of scope.
 
-## Agent workflow
+## How it works
 
-The LangGraph runtime shares a typed state and routes work according to the requested workflow. The paths below describe the current graph, not a claim that every catalogued or planned agent is active:
-
-```mermaid
-flowchart TD
-  START[Seller or customer request] --> P[Planner]
-  P --> I[Intake validation]
-  I --> C[Gather tenant-scoped context]
-  C -->|Product photo| X[Photo extraction]
-  X -->|Valid extraction| R[Catalog reconciliation]
-  C -->|Post generation| B[Create content brief]
-  B --> D[Draft content]
-  D --> V[Verify claims]
-  V --> K[Critique consistency]
-  K --> G[Policy gate]
-  C -->|Customer question| Q[Grounded customer reply]
-  R --> RESULT[Proposal or workflow result]
-  G --> RESULT
-  Q --> RESULT
-  RESULT --> OWNER[Seller reviews consequential actions]
-```
-
-The API and application layer enforce tenant scope and permissions outside the model. Workflow events record node, outcome, duration, and safe error codes. Retries and repairs are bounded. See [System architecture](docs/01-architecture.md) for broader design diagrams and [Product vision](docs/00-vision.md) for scope and principles.
-
-## System architecture
+The web app calls a FastAPI modular backend. The backend enforces authentication and tenant scope, reads confirmed facts from PostgreSQL, and coordinates agent workflows through LangGraph. Model output remains a proposal; deterministic checks and seller review gate consequential actions.
 
 ```mermaid
 flowchart LR
-  SELLER[Seller web / PWA] --> WEB[Next.js App Router]
+  SELLER[Seller web / PWA] --> WEB[Next.js]
   CUSTOMER[Storefront customer] --> WEB
-  WEB --> API[FastAPI modular API]
+  WEB --> API[FastAPI API]
   API --> AUTH[Auth and tenant boundary]
   AUTH --> SERVICES[Domain services and typed tools]
-  SERVICES <--> DB[(PostgreSQL<br/>business facts, jobs, evidence)]
+  SERVICES <--> DB[(PostgreSQL<br/>confirmed facts, jobs, evidence)]
   SERVICES --> RUNNER[Agent job runner]
   RUNNER --> GRAPH[LangGraph workflows]
   GRAPH <--> DB
-  GRAPH --> ADAPTER[Single model adapter]
-  ADAPTER --> MODEL[Configured model provider]
-  SERVICES --> REVIEW[Seller review and approval]
-  API -. configured local service .-> REDIS[(Redis)]
+  GRAPH --> ADAPTER[Single model adapter<br/>mock or configured live]
+  ADAPTER --> MODEL[Model provider]
+  SERVICES --> REVIEW[Seller review / approval]
+  API -. optional configured service .-> REDIS[(Redis)]
   API -. configured media storage .-> STORAGE[(S3-compatible storage)]
 ```
 
-The backend is a modular monolith. PostgreSQL is the source of truth. Redis and S3-compatible media storage are configured for local/deployment use; their presence in the design is not evidence of a cloud deployment.
+### Workflow controls
 
-## Technology
+1. **Validate intake and identity** outside the model.
+2. **Retrieve tenant-scoped context** from business records.
+3. **Generate a proposal** through the configured model adapter.
+4. **Verify evidence and policy** using deterministic checks.
+5. **Escalate or request seller approval** when facts are uncertain or an action is consequential.
+6. **Record observable outcomes** such as node, duration, and safe error code; do not record raw reasoning.
 
-| Layer | Stack |
+The runtime graph routes according to the requested work; not every catalogued or planned node is active. See [System architecture](docs/01-architecture.md) and [Product vision](docs/00-vision.md) for detailed diagrams, scope, and design principles.
+
+### Technology
+
+| Layer | Technologies |
 |---|---|
 | Web / PWA | Next.js App Router, React, TypeScript, Tailwind CSS |
-| API | Python 3.12, FastAPI, Pydantic v2 |
-| Agent workflows | LangGraph, typed state |
-| Database | PostgreSQL, SQLAlchemy 2, Alembic |
+| API / schemas | Python 3.12, FastAPI, Pydantic v2 |
+| Workflows | LangGraph, typed state |
+| Persistence | PostgreSQL, SQLAlchemy 2, Alembic |
 | Supporting services | Redis; S3-compatible media storage |
 | Quality checks | pytest, Ruff, mypy, ESLint, OpenAPI comparison, mock evaluations |
 
-The [OpenAPI contract](contracts/openapi.json) is the API/web source of truth. Dependency versions and open assumptions are listed in [docs/12-assumptions-risks-deps.md](docs/12-assumptions-risks-deps.md).
+The [OpenAPI contract](contracts/openapi.json) is the API/web source of truth. Dependency versions and assumptions are documented in [docs/12-assumptions-risks-deps.md](docs/12-assumptions-risks-deps.md).
 
-## Measured metrics and impact
+## Measured metrics
 
-### Business and production outcomes
+### Business and production impact
 
-| Business / production outcome | Client-safe status | Evidence required before assigning an outcome percentage |
+| Outcome | Current evidence | Status |
 |---|---|---|
-| Time saved | **Not yet benchmarked** | Matched manual-versus-assisted task timings, including seller review and corrections |
-| Cost saved | **Not yet benchmarked** | Same-workflow baseline and assisted costs, including labor, actual provider billing, and allocated hosting |
-| Production availability / performance | **Not measured in production** | Production request volume, observation window, availability, throughput, and p50/p95 latency |
-| Live-model quality | **Not evaluated** | Approved live evaluation, labelled dataset, model/configuration, and metric-specific results |
+| Time saved | No matched manual-versus-assisted timing study | **Not yet benchmarked** |
+| Cost saved | No comparable labor, provider billing, and hosting baseline | **Not yet benchmarked** |
+| Production availability / performance | No production traffic or telemetry | **Not measured in production** |
+| Live-model quality | No approved, labelled live evaluation | **Not evaluated** |
 
-These are not zero-valued outcomes: the required measurements have not been collected, so assigning a savings, availability, or live-quality percentage would be unsupported. Live evaluation is not approved.
+These are unknown outcomes, not zero-valued results. Live evaluation is not approved. Do not infer business savings or live quality from local tests or mock runs.
 
-### Verified quantitative evidence
-
-| Indicator | Measured result | Scope |
-|---|---:|---|
-| Backend unit-test pass rate | **100% (236/236)** | Local automated unit suite |
-| Backend integration-test pass rate | **100% (9/9 executed)** | Local integration suite; 3 additional full-stack tests are skipped and excluded from the denominator |
-| Integration scenarios currently executed | **75% (9/12)** | 9 pass; the remaining 3 (25%) are explicitly skipped full-stack scenarios |
-| Development mock-evaluation pass rate | **100% (12/12)** | Deterministic mock plumbing; not live-model quality |
-| Held-out mock-evaluation pass rate | **100% (4/4)** | Deterministic mock plumbing; not live-model quality |
-| Repository guards | **Pass** | Secret scan, 16-case dataset validation, and documentation consistency |
-| Backend lint / typing | **Pass** | Ruff and mypy; 141 source files checked |
-| Frontend lint / production build | **Pass** | ESLint and Next.js build; 18 pages generated |
-| OpenAPI contract | **49 paths / 52 operations** | Generated contract matches checked-in contract |
-
-The **75%** figure is the proportion of listed integration scenarios that execute; it is not code coverage or a product-quality score. Other percentages describe only the stated test/evaluation results. None measures seller time saved, cost reduction, production availability, or live-model quality. Do not present hypothetical percentage calculations as BizSaathi results.
-
-For future impact reporting, calculate **time saved (%)** as `(manual median task time - assisted median task time) / manual median task time × 100`, and **cost saved (%)** as `(baseline cost per completed task - assisted cost per completed task) / baseline cost per completed task × 100`. Report live-model quality per labelled metric and production availability/latency with the dataset, workload, and observation window.
-
-### What has been measured locally
-
-| Check or metric | Result | Interpretation |
-|---|---:|---|
-| Development mock evaluation | **12/12 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
-| Held-out mock evaluation | **4/4 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
-| Backend unit tests | **236 passed / 236 executed — 100% pass** | Local automated tests; see [Verification](#verification) |
-| Backend integration tests | **9 passed / 9 executed — 100% pass; 3 skipped** | Includes controlled fixtures; three full-stack tests are explicitly skipped |
-| Integration scenario execution | **9/12 — 75% executed; 25% skipped** | Test execution status, not code coverage |
-| Metrics aggregation | Tested with controlled database fixtures | Tenant isolation and percentile calculations; not production traffic |
-| Model tokens / estimated provider cost | **N/A — not collected** | No fabricated tokens, model prices, or dollar savings |
-
-The percentages above apply only to the listed tests or deterministic mock cases. They are not product accuracy, customer benefit, uptime, or production performance claims.
-
-The agent metrics API is `GET /v1/metrics/agents?days=30` (owner/operator; 1–90 days). It reports tenant-scoped job counts and status, success rate, workflow/node latency percentiles, node error events, and recorded model-call totals. Token counts and estimated cost remain `null` until actual usage and pricing data are collected.
-
-### Technical inventory
-
-| Inventory measure | Observed value |
-|---|---:|
-| OpenAPI contract | 49 paths / 52 HTTP operations |
-| Reference SQL schema | 32 tables (design reference, not a deployed-table count) |
-| Synthetic evaluation dataset | 16 cases (12 dev, 4 held-out) |
-| Logical nodes in architecture catalog | 15 (not all active in the runtime graph) |
-| Test coverage percentage | Not collected |
+The tenant-scoped agent metrics endpoint is `GET /v1/metrics/agents?days=30` (owner/operator; 1–90 days). It reports job counts/status, success rate, workflow and node latency percentiles, node error events, and recorded model-call totals. Token counts and estimated provider cost remain `null` until actual usage and pricing data are collected. Its aggregation has been tested with controlled database fixtures, not production traffic.
 
 ## Get started
 
@@ -163,9 +103,9 @@ The agent metrics API is `GET /v1/metrics/agents?days=30` (owner/operator; 1–9
 
 - Git
 - Docker Desktop with Docker Compose
-- A local `.env` file configured from [.env.example](.env.example)
+- For running services directly: Python 3.12 with `uv`, and Node.js with npm
 
-For running services outside Docker, install Python 3.12 with `uv`, and Node.js with npm. Live model credentials are **not required** for the mock-mode local demo.
+The local demo defaults to mock mode; a live-model key is not required.
 
 ### 1. Clone and configure
 
@@ -175,45 +115,47 @@ Set-Location Bizsaathi
 Copy-Item .env.example .env
 ```
 
-Edit `.env` before starting. Set unique local values for the database username, password and database name, and a private JWT signing secret. For the Docker Compose stack, set `DATABASE_URL` to use the Compose database host (`postgres`) and port `5432`; URL-encode special characters in credentials. If running the API directly on your host, use `localhost` and the configured host port (default `5433`) instead. Configure the required storage settings and keep all secrets in `.env`—never commit or share it. The example defaults to mock mode, so no provider key is needed.
+Edit `.env` before starting. Configure unique local database credentials, a private JWT signing secret, database/storage URLs, and the required storage settings. For Docker Compose, `DATABASE_URL` must address the database service at host `postgres`, port `5432`; for an API run directly on Windows, use `localhost` and the configured host port (default `5433`). URL-encode special characters in URL credentials. Keep `.env` private and never commit or share it. The example uses mock AI mode and needs no provider key.
 
-### 2. Build and start the local stack
+### 2. Start the stack
 
 ```powershell
 docker compose up -d --build --wait
 docker compose ps
 ```
 
-The backend container applies database migrations at startup. When the services report healthy, open:
+The backend container applies database migrations at startup. Once services are healthy:
 
-- Web app: [http://localhost:3000](http://localhost:3000)
-- Login / local account: [http://localhost:3000/login](http://localhost:3000/login)
-- API docs: [http://localhost:8080/v1/docs](http://localhost:8080/v1/docs)
-- Readiness check: [http://localhost:8080/v1/health/ready](http://localhost:8080/v1/health/ready)
+| Service | URL |
+|---|---|
+| Web app | [http://localhost:3000](http://localhost:3000) |
+| Login | [http://localhost:3000/login](http://localhost:3000/login) |
+| API documentation | [http://localhost:8080/v1/docs](http://localhost:8080/v1/docs) |
+| API readiness | [http://localhost:8080/v1/health/ready](http://localhost:8080/v1/health/ready) |
 
-Create or sign in to a local account from the login screen. Local account registration is development-only; it is not production authentication. To stop the stack, run `docker compose down` (persistent database volumes are retained).
+Create or sign in to a local account from the login screen. Local account registration is development-only, not production authentication. Stop the stack with `docker compose down`; database volumes are retained.
 
-> **Development note:** The root `.env.example` contains blank required credentials and URLs. Copying it alone is not sufficient; configure the required values before Compose startup. The optional MinIO profile also requires its port settings.
+> **Configuration note:** `.env.example` contains blank required credentials and URLs. Copying it alone is insufficient; fill in required values before Compose startup. Optional MinIO also requires its port settings.
 
-### Run the web and API directly
+### Run the app without the frontend/backend containers
 
-Start PostgreSQL and Redis first, configure `.env` with host-accessible service URLs, then use separate PowerShell terminals:
+Start PostgreSQL and Redis and configure `.env` with host-accessible URLs. Then use separate PowerShell terminals:
 
 ```powershell
-# Terminal 1 — from repository root; apply migrations before first run
+# Terminal 1: API and database migrations
 Set-Location backend
 uv run alembic upgrade head
 uv run uvicorn app.main:app --reload --port 8080
 ```
 
 ```powershell
-# Terminal 2 — from repository root
+# Terminal 2: web app
 Set-Location frontend
 npm ci
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). See [STARTUP_GUIDE.md](STARTUP_GUIDE.md) for more local development detail.
+Open [http://localhost:3000](http://localhost:3000). See [STARTUP_GUIDE.md](STARTUP_GUIDE.md) for additional setup notes.
 
 ## Test and validate
 
@@ -225,7 +167,7 @@ python scripts/runner.py check-fast
 python scripts/runner.py check
 ```
 
-The runner's `check` recipe covers guards, backend unit tests, Ruff, mypy, frontend lint, and frontend production build. Run integration tests and mock evaluation splits separately from `backend/`:
+`check` runs repository guards, backend unit tests, Ruff, mypy, frontend lint, and the frontend production build. Integration tests and mock evaluations are separate commands:
 
 ```powershell
 Set-Location backend
@@ -234,36 +176,35 @@ uv run python -m app.evals.run --mode mock --split dev
 uv run python -m app.evals.run --mode mock --split heldout
 ```
 
-Mock results are free, deterministic plumbing checks—not live-model quality. Do not run live evaluations unless explicitly approved and configured with server-side credentials.
+The mock evaluation runner does not call a live provider. Live evaluations are not implemented by this runner and should not be presented as completed.
 
 ## Verification
 
-Local working-tree checks run on 2026-11-03:
+Local working-tree checks run on **2026-11-03**. Percentages below describe only the listed tests or mock cases—not seller benefit, production uptime, live-model accuracy, or code coverage.
 
-| Area | Result |
+| Check | Result |
 |---|---|
-| Repository guards | **Pass** — secret scan clean; 16 evaluation cases valid; docs consistency checked |
-| Backend unit tests | **236 passed, 0 failed**, 5 warnings |
-| Backend integration tests | **9 passed, 0 failed, 3 skipped**; skipped full-stack tests are marked `skipif(True)` |
-| Ruff | **Pass** |
-| mypy | **Pass** — 141 source files checked |
-| Frontend ESLint | **Pass** |
-| Frontend production build | **Pass** — 18 pages generated |
-| OpenAPI contract comparison | **Pass** — 49 paths / 52 operations |
-| Mock evaluations | **Pass** — dev 12/12, held-out 4/4; mock only |
-| Frontend E2E | **Not configured** — no `npm test` script or frontend test files |
+| Backend unit tests | **236 passed / 236 executed — 100%** |
+| Backend integration tests | **9 passed / 9 executed — 100%; 3 skipped** |
+| Integration scenario execution | **9/12 — 75% executed**; this is not code coverage |
+| Mock evaluations | **Dev 12/12 — 100%; held-out 4/4 — 100%**; mock plumbing only |
+| Ruff / mypy | **Passed**; mypy checked 141 source files |
+| Frontend ESLint / production build | **Passed**; Next.js generated 18 pages |
+| Repository guards | **Passed**; secret scan clean, 16 eval cases validated, docs consistent |
+| OpenAPI comparison | **Passed**; 49 paths, 52 operations |
+| Frontend E2E | **Not configured**; no `npm test` script or frontend test files |
 
-These are local check results, not a production certification. Test coverage percentage, production availability, live-model quality, time saved, and cost saved have not been established.
+Three full-stack integration scenarios are marked skipped in the test source and are excluded from the executed-test pass rate. These results are local verification, not production certification. Code coverage, production availability, live-model quality, time saved, and cost saved have not been established.
 
 ## Repository map
 
-| Folder | Purpose |
+| Area | Purpose |
 |---|---|
 | [backend/](backend/README.md) | API, services, persistence, agent workflows |
 | [frontend/](frontend/README.md) | The single seller and customer web/PWA |
 | [contracts/](contracts/README.md) | Shared OpenAPI contract |
 | [docs/](docs/README.md) | Requirements, architecture, endpoint specifications, decisions |
 | [evals/](evals/README.md) | Synthetic datasets, thresholds, reports |
-| [scripts/](scripts/README.md) | Repository validation and utilities |
-| [bizsaathi-kit/](bizsaathi-kit/README.md) | Reusable setup kit, not application runtime |
-| [reference-ui/](reference-ui/README.md) | Static design references, not production UI |
+| [scripts/](scripts/README.md) | Validation and repository utilities |
+| [bizsaathi-kit/](bizsaathi-kit/README.md) | Reusable setup kit; not application runtime |
+| [reference-ui/](reference-ui/README.md) | Static design references; not production UI |
