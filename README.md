@@ -104,16 +104,32 @@ The [OpenAPI contract](contracts/openapi.json) is the API/web source of truth. D
 
 ### Business and production outcomes
 
-| Metric | BizSaathi result | Example calculation (illustrative only) |
+| Business / production outcome | Client-safe status | Evidence required before assigning an outcome percentage |
+|---|---|---|
+| Time saved | **Not yet benchmarked** | Matched manual-versus-assisted task timings, including seller review and corrections |
+| Cost saved | **Not yet benchmarked** | Same-workflow baseline and assisted costs, including labor, actual provider billing, and allocated hosting |
+| Production availability / performance | **Not measured in production** | Production request volume, observation window, availability, throughput, and p50/p95 latency |
+| Live-model quality | **Not evaluated** | Approved live evaluation, labelled dataset, model/configuration, and metric-specific results |
+
+These are not zero-valued outcomes: the required measurements have not been collected, so assigning a savings, availability, or live-quality percentage would be unsupported. Live evaluation is not approved.
+
+### Verified quantitative evidence
+
+| Indicator | Measured result | Scope |
 |---|---:|---|
-| Time saved | **N/A — no matched timing data** | If a task takes 10 min manually and 7 min with assistance including review: `(10 − 7) ÷ 10 × 100 = 30%` |
-| Cost saved | **N/A — no comparable cost data** | If the same task costs ₹100 at baseline and ₹70 assisted, including labor, actual API, and allocated hosting: `(100 − 70) ÷ 100 × 100 = 30%` |
-| Production availability | **N/A — no production telemetry** | If a 30-day observation has 3 hours of downtime: `(720 − 3) ÷ 720 × 100 ≈ 99.58%` availability; report p50/p95 latency and workload separately |
-| Live-model quality | **N/A — no approved live evaluation** | If 18 of 20 labelled live outputs meet a pre-defined criterion: `18 ÷ 20 × 100 = 90%` for that criterion and dataset only |
+| Backend unit-test pass rate | **100% (236/236)** | Local automated unit suite |
+| Backend integration-test pass rate | **100% (9/9 executed)** | Local integration suite; 3 additional full-stack tests are skipped and excluded from the denominator |
+| Integration scenarios currently executed | **75% (9/12)** | 9 pass; the remaining 3 (25%) are explicitly skipped full-stack scenarios |
+| Development mock-evaluation pass rate | **100% (12/12)** | Deterministic mock plumbing; not live-model quality |
+| Held-out mock-evaluation pass rate | **100% (4/4)** | Deterministic mock plumbing; not live-model quality |
+| Repository guards | **Pass** | Secret scan, 16-case dataset validation, and documentation consistency |
+| Backend lint / typing | **Pass** | Ruff and mypy; 141 source files checked |
+| Frontend lint / production build | **Pass** | ESLint and Next.js build; 18 pages generated |
+| OpenAPI contract | **49 paths / 52 operations** | Generated contract matches checked-in contract |
 
-**Important: the example values above are hypothetical arithmetic examples, not BizSaathi results, targets, forecasts, or client claims. N/A does not mean 0%.** The user has not supplied matched manual/assisted timings, cost records, or production telemetry, and live evaluation is not approved. A valid time-saved figure must include seller review and corrections; a valid cost figure must include actual model, labor, and allocated infrastructure costs.
+The **75%** figure is the proportion of listed integration scenarios that execute; it is not code coverage or a product-quality score. Other percentages describe only the stated test/evaluation results. None measures seller time saved, cost reduction, production availability, or live-model quality. Do not present hypothetical percentage calculations as BizSaathi results.
 
-When real evidence is collected, calculate **time saved (%)** as `(manual median task time - assisted median task time) / manual median task time × 100`, and **cost saved (%)** as `(baseline cost per completed task - assisted cost per completed task) / baseline cost per completed task × 100`. Report the labelled live-model metric and production availability/latency with dataset, workload, and observation window; do not substitute mock pass rates or combine unrelated measures into one percentage.
+For future impact reporting, calculate **time saved (%)** as `(manual median task time - assisted median task time) / manual median task time × 100`, and **cost saved (%)** as `(baseline cost per completed task - assisted cost per completed task) / baseline cost per completed task × 100`. Report live-model quality per labelled metric and production availability/latency with the dataset, workload, and observation window.
 
 ### What has been measured locally
 
@@ -123,6 +139,7 @@ When real evidence is collected, calculate **time saved (%)** as `(manual median
 | Held-out mock evaluation | **4/4 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
 | Backend unit tests | **236 passed / 236 executed — 100% pass** | Local automated tests; see [Verification](#verification) |
 | Backend integration tests | **9 passed / 9 executed — 100% pass; 3 skipped** | Includes controlled fixtures; three full-stack tests are explicitly skipped |
+| Integration scenario execution | **9/12 — 75% executed; 25% skipped** | Test execution status, not code coverage |
 | Metrics aggregation | Tested with controlled database fixtures | Tenant isolation and percentile calculations; not production traffic |
 | Model tokens / estimated provider cost | **N/A — not collected** | No fabricated tokens, model prices, or dollar savings |
 
