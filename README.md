@@ -93,6 +93,17 @@ The checked-in [OpenAPI contract](contracts/openapi.json) is the API/web source 
 
 These are operational metrics, not business-impact claims. The current repository does not contain a matched manual-versus-assisted timing baseline, production usage sample, provider billing data, or user study. Therefore **time saved and cost saved are not measured**. Mock evaluation runs make no live provider calls; their zero provider usage is not evidence of savings compared with a live workflow.
 
+### Business and production outcomes
+
+| Metric | Current status | Evidence needed |
+|---|---|---|
+| Time saved | **Not measured** | Matched manual-versus-assisted workflow timings, including seller review and corrections |
+| Cost saved | **Not measured** | Comparable labor, actual model/API billing, and allocated hosting/storage cost |
+| Production performance | **Not measured** | Production traffic and service telemetry; local builds and fixture timings are not production measurements |
+| Live-model quality | **Not measured** | Approved live evaluation with labelled cases, recorded model/configuration, and separately reported results |
+
+The metrics aggregation is tested with controlled database fixtures, including tenant isolation and percentile calculations; it has not been measured against production traffic. Mock evaluation scores describe deterministic mock plumbing only and must not be interpreted as live-model quality.
+
 ### Technical inventory
 
 | Measure | Observed value | What it means |
@@ -152,6 +163,10 @@ The metrics endpoint and its aggregation are covered by unit and PostgreSQL inte
 | PostgreSQL image / Redis image | `pgvector/pgvector:pg16` / `redis:7-alpine` |
 
 These are local tool and dependency versions, not production throughput, availability, service-level objectives, or user-outcome measurements.
+
+## Next task
+
+Add a frontend metrics view, enable the currently skipped full-stack integration tests, and configure a frontend end-to-end test runner.
 
 ## Repository map
 
