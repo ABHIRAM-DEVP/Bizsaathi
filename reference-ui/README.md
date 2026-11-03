@@ -19,3 +19,9 @@ rather than copy wholesale.
 
 Serve the folder (e.g. `python3 -m http.server`) and open `Approvals.dc.html`;
 some browsers block the scripts over file://.
+
+## Architecture, stack, and impact
+
+These are static HTML design references rendered with the included design-tool support runtime. They do not call the BizSaathi API, persist data, or implement production authorization, approvals, or customer workflows. Use them to inspect visual values and inform a separate production implementation; do not copy their vendor runtime into the application.
+
+There are no functional, performance, accessibility, or business-impact metrics for this mockup folder. The value is visual guidance only.

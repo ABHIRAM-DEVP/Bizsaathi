@@ -1,18 +1,28 @@
-# Evals
+# Evaluations
 
-Purpose: show that the verified graph (C) is safer than a single call (A) or tools only (B), with measured numbers, including where it is worse.
+Evaluations define repeatable checks of AI-assisted workflows and their safety boundaries. The intended comparison is A (single model call), B (tools/evidence), and C (full verified graph), including both improvements and regressions.
 
-Files
-- dataset/schema.json: allowed categories, splits, decisions
-- dataset/cases.jsonl: labelled cases. 16 synthetic starter cases; replace and extend with real labelled cases. No real personal data
-- thresholds.yaml: pass thresholds, set before running
-- reports/: run outputs, one file per run, labelled mock or live (created by the runner you build in Phase 6)
+## Contents and architecture
 
-Commands
-- `python3 scripts/eval_validate.py`: validates the dataset (part of `just check-fast`)
-- `just eval-mock`: mocked models, free, deterministic. Tests plumbing only; NOT a quality claim
-- `just eval-live`: real Meta API, costs credits, ask first
+- `dataset/schema.json`: allowed categories, splits, and decision fields.
+- `dataset/cases.jsonl`: synthetic labelled cases; no real personal data.
+- `thresholds.yaml`: pass targets and explicit `TODO` baselines.
+- `reports/`: run output, labelled mock or live.
 
-Rules: .claude/rules/evals.md. Add cases with `/add-eval-case`. Keep `heldout` for final reporting; do not tune on it.
+Cases exercise the implemented pipeline; thresholds must be set before a run and must not be weakened to get a pass. Keep held-out cases out of tuning. Follow `.claude/rules/evals.md`.
 
-Minimum categories to cover: photo attribute uncertainty, voice price conflict (Hindi/Marathi/English mixes), unsupported claim, caption-image mismatch, stock/price assumption, prompt injection, ambiguous customer question, order-state violation, unauthorized action, tenant isolation.
+## Stack and commands
+
+Python validation/evaluation scripts and the backend's model adapter; mock and live runs are separate. Dataset validation:
+
+```powershell
+python scripts/eval_validate.py
+```
+
+The repository runner includes validation in `python scripts/runner.py guards`. Run a live evaluation only when explicitly approved because it may use paid credits.
+
+## Current metrics and impact
+
+The current configured targets are `unauthorized_actions_blocked: 1.0`, `cross_tenant_leaks: 0`, and `duplicate_side_effects: 0`. `false_approval_rate`, `missed_escalation_rate`, `evidence_coverage`, claim precision/recall, extraction and cross-modal accuracy, p95 latency, and workflow cost are `TODO`. These values are targets, not measured outcomes.
+
+The evaluation system's value is surfacing safety and quality regressions before relying on an agent workflow. No comparative A/B/C results or real-world impact metrics are claimed unless present in a dated report.

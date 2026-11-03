@@ -2,6 +2,8 @@
 
 Spec-first, evidence-based setup for building BizSaathi with Claude Code (or any agent that reads AGENTS.md). It turns your master brief and BizSaathi 2.0 plan into files an agent loads, hooks that enforce rules, docs to review, an eval dataset and the prompts to run in order.
 
+This folder is a reusable development/process kit, not the running BizSaathi application. Its templates and example project structure may describe an earlier or planned layout; the repository's root `backend/`, `frontend/`, `contracts/`, and `docs/` describe the current application.
+
 ## The idea in four lines
 1. Facts live in files (AGENTS.md, docs/, task files), not in chat.
 2. "Done" is a command (`just check`), enforced by a Stop hook, not a sentence from a model.
@@ -65,3 +67,7 @@ Not verified: all Meta model IDs, endpoints, prices and credit amounts; the hack
 - The Stop hook runs only `check-fast`. Run `just check` before reporting done.
 - Eval thresholds are TODO on purpose. Set them after a baseline run; never to make a run pass.
 - `just eval-mock`, `just meta-smoke` and the eval runner are commands your code must provide (tasks T-104 and Phase 5); the kit defines the contract, not the implementation.
+
+## Metrics and impact
+
+The kit has no runtime users, latency, cost, or business-impact metrics. It provides reusable instructions and checks intended to improve traceability, safety review, and verification discipline. Its example test results apply only to the kit artifacts and are not application quality or production measurements.
