@@ -10,7 +10,7 @@ from app.core.errors import (
     InvalidStateError,
     StaleVersionError,
 )
-from app.models.domain import Approval, ProductVariant, Proposal
+from app.models.domain import Approval, CustomerOrder, OrderStatusHistory, ProductVariant, Proposal
 from app.repositories.variant import VariantRepository
 from app.services.execution import ExecutionService
 
@@ -142,6 +142,61 @@ def test_idempotent_approval_execution():
     assert receipt2["status"] == "succeeded"
     assert receipt2["is_cached"] is True
     assert receipt2["execution_id"] == receipt1["execution_id"]
+
+
+def test_approved_order_action_moves_demo_order_to_awaiting_payment():
+    business_id = uuid4()
+    order_id = uuid4()
+    proposal_id = uuid4()
+    approval_id = uuid4()
+    order = CustomerOrder(
+        id=order_id,
+        business_id=business_id,
+        status="DRAFT",
+        customer_name="Demo customer",
+        total_inr=499,
+        idempotency_key="demo-order",
+        version=1,
+    )
+    proposal = Proposal(
+        id=proposal_id,
+        business_id=business_id,
+        root_id=proposal_id,
+        type="order_action",
+        version=1,
+        payload={
+            "fields": {"order_id": str(order_id), "action": "approve_order"},
+            "demo_sample": True,
+        },
+        status="approved",
+    )
+    approval = Approval(
+        id=approval_id,
+        business_id=business_id,
+        proposal_id=proposal_id,
+        type="order_action",
+        status="approved",
+        side_effect={
+            "action": "approve_order",
+            "order_id": str(order_id),
+            "description": "Approve order",
+        },
+        expires_at=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+    db = MemoryDbSession([order, proposal, approval])
+
+    receipt = ExecutionService(session=db, business_id=business_id).execute_approval(
+        approval_id,
+        idempotency_key="order-approval",
+    )
+
+    assert receipt["status"] == "succeeded"
+    assert order.status == "AWAITING_PAYMENT"
+    assert order.version == 2
+    history = [entity for entity in db.added if isinstance(entity, OrderStatusHistory)]
+    assert len(history) == 1
+    assert history[0].from_status == "DRAFT"
+    assert history[0].to_status == "AWAITING_PAYMENT"
 
 
 def test_concurrent_stock_adjustment_and_negative_stock():

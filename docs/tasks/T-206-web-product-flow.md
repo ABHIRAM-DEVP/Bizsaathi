@@ -8,4 +8,4 @@
 - **TEST COMMAND:** `cd frontend && npm run lint && npm run build`
 - **SECURITY:** UI never marks AI suggestions as confirmed and never uses browser model credentials.
 - **OUT OF SCOPE:** Live API wiring and Playwright/component tests (test tooling has not been added or approved).
-- **STATUS:** Routes and protected review-state scaffold implemented; API wiring and test coverage remain.
+- **STATUS:** Product-to-post workflow is wired; automated browser/component coverage and remaining six-state coverage remain.

@@ -15,6 +15,7 @@ class UploadRequest(BaseModel):
     filename: str = Field(min_length=1, max_length=255, description="Client filename including extension")
     mime: str = Field(min_length=3, max_length=100, description="MIME content-type")
     size_bytes: int = Field(gt=0, description="File size in bytes")
+    product_id: UUID | None = Field(default=None, description="Optional confirmed product to associate with this media")
 
 
 class UploadResponse(BaseModel):

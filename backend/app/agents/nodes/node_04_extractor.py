@@ -1,10 +1,13 @@
 """Node 04: Extractor (Photo-to-product structured extraction)."""
 
+import os
+from pathlib import Path
 from typing import Any
 
 from app.agents.models import UncertaintyRecord
 from app.agents.state import GraphState
 from app.ai import get_model_client
+from app.core.config import settings
 
 
 async def extract_from_photo(state: GraphState) -> dict[str, Any]:
@@ -37,7 +40,34 @@ async def extract_from_photo(state: GraphState) -> dict[str, Any]:
     }
 
     prompt = f"Analyze product photo(s): {', '.join(input_bundle.storage_keys)}"
-    raw_res = await client.generate_structured(prompt, schema)
+
+    # Read image bytes from media storage if present
+    root = Path(settings.MEDIA_STORAGE_PATH).expanduser().resolve()
+    image_bytes: bytes | None = None
+    mime_type = "image/jpeg"
+
+    if input_bundle.storage_keys:
+        primary_key = input_bundle.storage_keys[0]
+        ext = os.path.splitext(primary_key)[1].lower()
+        if ext == ".png":
+            mime_type = "image/png"
+        elif ext == ".webp":
+            mime_type = "image/webp"
+
+        target_file = (root / primary_key).resolve()
+        if target_file.is_file():
+            image_bytes = target_file.read_bytes()
+
+    if image_bytes is None:
+        if not (settings.MODEL_MOCK_MODE or settings.MODEL_PROVIDER == "mock"):
+            return {
+                "status": "blocked",
+                "error_code": "image_unavailable",
+                "error_message": "The uploaded photo could not be read. Please upload it again.",
+            }
+        image_bytes = b"mock_fixture_image_bytes"
+
+    raw_res = await client.analyze_image(image_bytes, mime_type, prompt, schema)
 
     extracted = {
         "name": raw_res.get("name", "Extracted Handcrafted Item"),

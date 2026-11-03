@@ -2,6 +2,11 @@
 
 from fastapi import APIRouter, Response, status
 from pydantic import BaseModel, Field
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.core.logging import logger
+from app.models.base import get_sync_engine
 
 router = APIRouter(tags=["health"])
 
@@ -45,12 +50,13 @@ async def get_health() -> HealthResponse:
 )
 async def get_readiness(response: Response) -> ReadinessResponse:
     """Readiness probe. Verifies required dependencies (DB, Redis) without exposing secrets."""
-    # In Phase 1.2, skeleton check marks DB as ok (or tests DB if configured)
-    db_ok = True  # Verified with real Postgres in T-103
-    checks = ReadinessChecks(db="ok" if db_ok else "unreachable")
-
-    if not db_ok:
+    try:
+        engine = get_sync_engine()
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        logger.warning("Database readiness check failed")
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-        return ReadinessResponse(status="unready", checks=checks)
+        return ReadinessResponse(status="unready", checks=ReadinessChecks(db="unreachable"))
 
-    return ReadinessResponse(status="ready", checks=checks)
+    return ReadinessResponse(status="ready", checks=ReadinessChecks(db="ok"))

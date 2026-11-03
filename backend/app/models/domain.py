@@ -55,7 +55,11 @@ class AppUser(TimestampMixin, Base):
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False, index=True)
-    phone_e164: Mapped[str] = mapped_column(String(16), nullable=False, unique=True)
+    phone_e164: Mapped[str | None] = mapped_column(String(16), nullable=True, unique=True)
+    local_email: Mapped[str | None] = mapped_column(String(320), nullable=True, unique=True)
+    local_password_hash: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    local_session_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    identity_type: Mapped[str] = mapped_column(String(20), nullable=False, server_default="phone")
     role: Mapped[str] = mapped_column(String(20), nullable=False)
     display_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     language: Mapped[str] = mapped_column(String(5), nullable=False, server_default="en")
@@ -66,6 +70,20 @@ class AppUser(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint("role IN ('owner', 'operator')", name="app_user_role_check"),
         CheckConstraint("language IN ('en', 'hi', 'mr')", name="app_user_language_check"),
+        CheckConstraint("identity_type IN ('phone', 'local_dev')", name="app_user_identity_type_check"),
+        CheckConstraint(
+            "(identity_type = 'phone' AND phone_e164 IS NOT NULL) "
+            "OR (identity_type = 'local_dev' AND phone_e164 IS NULL)",
+            name="app_user_phone_identity_check",
+        ),
+        CheckConstraint(
+            "(identity_type = 'phone' AND local_email IS NULL AND local_password_hash IS NULL) "
+            "OR (identity_type = 'local_dev' AND "
+            "((local_email IS NULL AND local_password_hash IS NULL) "
+            "OR (local_email IS NOT NULL AND local_password_hash IS NOT NULL)))",
+            name="app_user_local_credentials_check",
+        ),
+        CheckConstraint("local_session_version >= 0", name="app_user_local_session_version_check"),
     )
 
 
@@ -454,7 +472,7 @@ class Evidence(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "source_kind IN ('product', 'variant', 'policy', 'order', 'transcript', 'media')",
+            "source_kind IN ('business', 'product', 'variant', 'policy', 'order', 'transcript', 'media')",
             name="evidence_source_kind_check",
         ),
         CheckConstraint("source_version >= 1", name="evidence_source_version_check"),
@@ -508,14 +526,73 @@ class IdempotencyKeyRecord(Base):
 # ==================== PHASE 4: Customer & Orders ====================
 
 
+class CustomerAccount(TimestampMixin, Base):
+    """Public customer identity shared across stores."""
+
+    __tablename__ = "customer_account"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True)
+    display_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    password_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("char_length(email) BETWEEN 3 AND 320", name="customer_account_email_check"),
+        CheckConstraint("char_length(display_name) BETWEEN 1 AND 120", name="customer_account_name_check"),
+    )
+
+
+class CustomerAuthSession(Base):
+    """Hashed opaque login session for a public customer account."""
+
+    __tablename__ = "customer_auth_session"
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    customer_account_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("customer_account.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        Index("customer_auth_session_account_ix", "customer_account_id", "expires_at"),
+    )
+
+
+class PublicRateLimitBucket(Base):
+    """Shared fixed-window counters for anonymous-facing endpoints."""
+
+    __tablename__ = "public_rate_limit_bucket"
+
+    key_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    request_count: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("request_count > 0", name="public_rate_limit_count_check"),
+        Index("public_rate_limit_window_ix", "window_start"),
+    )
+
+
 class PublicSession(Base):
-    """Anonymous customer session for public store browsing and chat."""
+    """Authenticated customer's session for public store browsing and chat."""
 
     __tablename__ = "public_session"
 
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     business_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("business.id"), nullable=False)
-    token_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    customer_account_id: Mapped[UUID | None] = mapped_column(
+        Uuid,
+        ForeignKey("customer_account.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    token_hash: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="open")
     ip_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -540,9 +617,12 @@ class Conversation(TimestampMixin, Base):
     public_session_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("public_session.id"), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="open")
     escalation_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    source: Mapped[str] = mapped_column(String(20), nullable=False, server_default="public")
+    customer_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     __table_args__ = (
         CheckConstraint("status IN ('open', 'escalated', 'closed')", name="conversation_status_check"),
+        CheckConstraint("source IN ('public', 'demo')", name="conversation_source_check"),
         UniqueConstraint("public_session_id", name="conversation_session_uq"),
         Index("conversation_business_ix", "business_id", "status", "updated_at"),
     )
@@ -559,6 +639,7 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(20), nullable=False)
     body: Mapped[str] = mapped_column(String(4000), nullable=False)
     evidence_ids: Mapped[list[UUID]] = mapped_column(ARRAY(Uuid), nullable=False, server_default="{}")
+    read_by_owner_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
     )

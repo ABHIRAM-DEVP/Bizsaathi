@@ -19,7 +19,16 @@ from app.core.errors import (
     InvalidStateError,
     NotFoundError,
 )
-from app.models.domain import Approval, AuditEvent, Execution, Product, ProductVariant, Proposal
+from app.models.domain import (
+    Approval,
+    AuditEvent,
+    CustomerOrder,
+    Execution,
+    OrderStatusHistory,
+    Product,
+    ProductVariant,
+    Proposal,
+)
 
 
 class ExecutionService:
@@ -83,6 +92,26 @@ class ExecutionService:
             raise NotFoundError(f"Proposal {approval.proposal_id} not found.")
 
         payload = proposal.payload
+        if approval.type == "order_action":
+            result_ref = self._approve_order_action(approval, payload, actor_id)
+            proposal.status = "executed"
+            execution = Execution(
+                id=uuid4(),
+                business_id=self._business_id,
+                approval_id=approval_id,
+                idempotency_key=idempotency_key,
+                status="succeeded",
+                result_ref=result_ref,
+            )
+            self._session.add(execution)
+            self._session.flush()
+            return {
+                "execution_id": str(execution.id),
+                "status": "succeeded",
+                "result_ref": result_ref,
+                "is_cached": False,
+            }
+
         seller_confirmed = payload.get("seller_confirmed_fields", [])
 
         # STRICT VALIDATION: price_inr and stock MUST be confirmed by seller
@@ -200,3 +229,62 @@ class ExecutionService:
             "result_ref": result_ref,
             "is_cached": False,
         }
+
+    def _approve_order_action(
+        self,
+        approval: Approval,
+        payload: dict[str, Any],
+        actor_id: str | None,
+    ) -> dict[str, str]:
+        fields = payload.get("fields")
+        if not isinstance(fields, dict):
+            raise InvalidStateError("Order approval is missing its action fields.")
+        if fields.get("action") != "approve_order" or approval.side_effect.get("action") != "approve_order":
+            raise InvalidStateError("Unsupported order approval action.")
+
+        order_id_value = fields.get("order_id")
+        if not isinstance(order_id_value, str) or approval.side_effect.get("order_id") != order_id_value:
+            raise InvalidStateError("Order approval does not identify a matching order.")
+        try:
+            order_id = UUID(order_id_value)
+        except ValueError as exc:
+            raise InvalidStateError("Order approval contains an invalid order ID.") from exc
+
+        order = self._session.execute(
+            select(CustomerOrder)
+            .where(
+                CustomerOrder.id == order_id,
+                CustomerOrder.business_id == self._business_id,
+            )
+            .with_for_update()
+        ).scalar_one_or_none()
+        if order is None:
+            raise NotFoundError("Order not found.")
+        if order.status != "DRAFT":
+            raise InvalidStateError(f"Only DRAFT orders can be approved; current status is '{order.status}'.")
+
+        order.status = "AWAITING_PAYMENT"
+        order.version += 1
+        self._session.add(
+            OrderStatusHistory(
+                business_id=self._business_id,
+                order_id=order.id,
+                from_status="DRAFT",
+                to_status="AWAITING_PAYMENT",
+                actor_type="user" if actor_id else "system",
+                actor_id=actor_id,
+                detail={"approval_id": str(approval.id), "action": "approve_order"},
+            )
+        )
+        self._session.add(
+            AuditEvent(
+                business_id=self._business_id,
+                actor_type="user" if actor_id else "system",
+                actor_id=actor_id,
+                action="order.approved",
+                entity_type="customer_order",
+                entity_id=str(order.id),
+                detail={"approval_id": str(approval.id), "status": "AWAITING_PAYMENT"},
+            )
+        )
+        return {"order_id": str(order.id), "status": order.status}

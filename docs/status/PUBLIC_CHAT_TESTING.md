@@ -1,6 +1,22 @@
 # Public Chat API - Testing Guide
 
-Quick reference for testing the Phase 4 Public Chat API endpoints (T-401).
+Quick reference for testing the account-backed Phase 4 customer chat.
+
+> The anonymous `X-Session-Token` examples later in this legacy guide are no longer valid. Public chat now requires a customer account; the API issues an HttpOnly cookie and binds chat sessions to that account.
+
+## Current flow
+
+1. Apply migrations and start the API and frontend.
+2. Open a shared `/store/{slug}` page and create a customer account with an email and a password of at least 12 characters.
+3. Ask a product question, return to the same store link, and confirm the account resumes the conversation.
+4. Sign in as the store owner and open Messages. Customer inquiries appear as unread; opening the thread marks them read.
+5. Test a product description/recommendation, then a refund or safety question. Catalog facts should include evidence; sensitive or unsupported requests should escalate.
+
+The agent workflow is LangGraph-orchestrated and deterministic. It matches product names, descriptions, and saved attributes; answers from the saved shop profile and latest tenant policies; combines price, stock, and detail questions; and uses recent turns to resolve follow-ups. It uses no external model call, performs no payment/order/refund action, and only cites tenant-owned catalog, shop-profile, or policy evidence.
+
+## Archived anonymous-session procedure
+
+The examples below describe the previous API and are retained only as historical reference. Do not use the anonymous session-token flow.
 
 ## Prerequisites
 

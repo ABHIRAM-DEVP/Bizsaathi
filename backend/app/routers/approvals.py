@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.errors import (
+    ConflictError,
     NotFoundError,
     StaleVersionError,
 )
@@ -50,9 +51,13 @@ async def list_approvals(
 
     result = []
     for a in approvals:
-        stmt_p = select(Proposal).where(Proposal.id == a.proposal_id)
+        stmt_p = select(Proposal).where(
+            Proposal.id == a.proposal_id,
+            Proposal.business_id == auth.business_id,
+        )
         prop = db.execute(stmt_p).scalar_one_or_none()
-        prop_ver = prop.version if prop else 1
+        if prop is None:
+            raise NotFoundError("Referenced proposal not found.")
         result.append(
             ApprovalResponse(
                 id=a.id,
@@ -63,8 +68,8 @@ async def list_approvals(
                 warnings=a.warnings,
                 risk=a.risk,
                 side_effect=a.side_effect,
-                proposal_version=prop_ver,
-                diff={},
+                proposal_version=prop.version,
+                diff=prop.payload,
                 expires_at=a.expires_at,
                 decided_by=a.decided_by,
                 decided_at=a.decided_at,
@@ -96,10 +101,13 @@ async def get_approval(
     if not approval:
         raise NotFoundError(f"Approval {approval_id} not found.")
 
-    stmt_p = select(Proposal).where(Proposal.id == approval.proposal_id)
+    stmt_p = select(Proposal).where(
+        Proposal.id == approval.proposal_id,
+        Proposal.business_id == auth.business_id,
+    )
     proposal = db.execute(stmt_p).scalar_one_or_none()
-    prop_ver = proposal.version if proposal else 1
-    diff = proposal.payload if proposal else {}
+    if proposal is None:
+        raise NotFoundError("Referenced proposal not found.")
 
     return ApprovalResponse(
         id=approval.id,
@@ -110,8 +118,8 @@ async def get_approval(
         warnings=approval.warnings,
         risk=approval.risk,
         side_effect=approval.side_effect,
-        proposal_version=prop_ver,
-        diff=diff,
+        proposal_version=proposal.version,
+        diff=proposal.payload,
         expires_at=approval.expires_at,
         decided_by=approval.decided_by,
         decided_at=approval.decided_at,
@@ -142,10 +150,15 @@ async def approve_proposal(
     if not approval:
         raise NotFoundError(f"Approval {approval_id} not found.")
 
-    stmt_p = select(Proposal).where(Proposal.id == approval.proposal_id)
+    stmt_p = select(Proposal).where(
+        Proposal.id == approval.proposal_id,
+        Proposal.business_id == auth.business_id,
+    )
     proposal = db.execute(stmt_p).scalar_one_or_none()
     if not proposal:
         raise NotFoundError("Referenced proposal not found.")
+    if approval.status not in {"pending", "approved"}:
+        raise ConflictError(f"Approval is already {approval.status}.")
 
     # Guard: Version binding
     if proposal.version != req.expected_proposal_version:
@@ -199,15 +212,26 @@ async def reject_proposal(
     if not approval:
         raise NotFoundError(f"Approval {approval_id} not found.")
 
-    stmt_p = select(Proposal).where(Proposal.id == approval.proposal_id)
+    stmt_p = select(Proposal).where(
+        Proposal.id == approval.proposal_id,
+        Proposal.business_id == auth.business_id,
+    )
     proposal = db.execute(stmt_p).scalar_one_or_none()
+    if proposal is None:
+        raise NotFoundError("Referenced proposal not found.")
+    if approval.status not in {"pending", "rejected"}:
+        raise ConflictError(f"Approval is already {approval.status}.")
+    if proposal.version != req.expected_proposal_version:
+        raise StaleVersionError(
+            f"Stale approval decision: Proposal has version {proposal.version}, "
+            f"but decision bound to version {req.expected_proposal_version}."
+        )
 
     approval.status = "rejected"
     approval.decided_at = datetime.now(timezone.utc)
     approval.decided_by = auth.user_id
     approval.decision_reason = req.decision_reason
-    if proposal:
-        proposal.status = "rejected"
+    proposal.status = "rejected"
     db.flush()
 
     return {"approval_id": str(approval_id), "status": "rejected"}
@@ -234,10 +258,15 @@ async def edit_proposal(
     if not approval:
         raise NotFoundError(f"Approval {approval_id} not found.")
 
-    stmt_p = select(Proposal).where(Proposal.id == approval.proposal_id)
+    stmt_p = select(Proposal).where(
+        Proposal.id == approval.proposal_id,
+        Proposal.business_id == auth.business_id,
+    )
     old_proposal = db.execute(stmt_p).scalar_one_or_none()
     if not old_proposal:
         raise NotFoundError("Proposal not found.")
+    if approval.status != "pending":
+        raise ConflictError(f"Approval is already {approval.status}.")
 
     # Invalidate previous approval and proposal version
     approval.status = "invalidated"

@@ -44,14 +44,18 @@
       {
         "matcher": "Edit|Write",
         "hooks": [
-          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-paths.sh" }
+          { "type": "command", 
+          "command": "wsl.exe bash -lc 'cd /mnt/d/PROJECTS/BizSaathi && bash .claude/hooks/guard-paths.sh'"}
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-gate.sh", "timeout": 330 }
+          { 
+            "type": "command", 
+            "command": "wsl.exe bash -lc 'cd /mnt/d/PROJECTS/BizSaathi && bash .claude/hooks/stop-gate.sh'", 
+            "timeout": 330 }
         ]
       }
     ]

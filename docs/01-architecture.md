@@ -47,7 +47,7 @@ flowchart TD
   N5 --> N6
   N6 --> N7[07 Content strategy]
   N7 --> N8[08 Content production]
-  CQ[Customer question] --> N9[09 Customer + commerce]
+  CQ[Customer question] --> N9[09 Customer policy gate, intent planner, grounded reply]
   N8 --> N10[10 Evidence verifier]
   N9 --> N10
   N10 --> N11[11 Multimodal critic]
@@ -62,7 +62,7 @@ flowchart TD
   BL --> N15
   N15 --> AU[(Audit + metrics)]
 ```
-Customer questions skip 02, 04-08 and go 09 -> 10 -> 13. Nodes 10, 11, 13 are different controls: facts, cross-modal consistency, permissions. No node certifies its own output.
+Customer questions skip 02, 04-08 and go 09 -> 10 -> 13. Node 09 internally triages sensitive requests, retrieves tenant-scoped facts, ranks catalog candidates using product names, descriptions, attributes, and recent conversation references, makes one bounded structured intent-planning call, then writes a deterministic reply. Nodes 10, 11, 13 are different controls: facts, cross-modal consistency, permissions. No node certifies its own output.
 
 ## Sequence: photo to confirmed product
 ```mermaid
@@ -93,13 +93,18 @@ sequenceDiagram
   participant D as PostgreSQL
   C->>A: POST /public/sessions/{id}/messages
   A->>G: untrusted text + session scope (business_id from store slug)
-  G->>D: read-only tools: product, stock, policy
-  G->>G: evidence verifier + policy gate
+  G->>G: deterministic critical-request gate
+  G->>D: read-only tenant retrieval: product, stock, profile, policy
+  G->>M: one structured intent plan (live mode; bounded)
+  M-->>G: intent, retrieved product IDs, requested fact fields
+  G->>G: deterministic grounded reply + evidence verifier
   alt evidence supports answer
     G-->>C: answer with evidence refs
-  else missing or ambiguous
+  else normal ambiguity
+    G-->>C: useful clarifying question; conversation stays responsive
+  else sensitive request or unsupported fact
     G-->>A: escalation to owner inbox
-    A-->>C: honest holding message
+    A-->>C: safe response; later questions still receive replies
   end
 ```
 
@@ -111,6 +116,7 @@ sequenceDiagram
 | Models | Meta Model API behind adapter; IDs in config | IDs UNVERIFIED |
 | Execution boundary | Model proposes, policy gate decides, owner approves, execution service acts | fixed |
 | Retrieval | SQL tools for facts; pgvector/FTS only for unstructured policy text | optional |
+| Customer chat planning | One structured intent plan selects only retrieved tenant-owned records; deterministic writer/verifier provide factual answers | ADR-0004 |
 | Observability | Structured logs, OpenTelemetry spans per node, observable events only | |
 | Errors | Problem JSON `{type,title,status,detail,request_id}` | |
 

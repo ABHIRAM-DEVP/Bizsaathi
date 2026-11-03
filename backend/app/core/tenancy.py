@@ -4,15 +4,40 @@ from uuid import UUID
 
 from fastapi import Depends, Request
 from pydantic import BaseModel, Field
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.dev_sessions import verify_dev_session_token
 from app.core.errors import ForbiddenError, UnauthenticatedError
 from app.core.logging import logger
+from app.models.base import get_db
+from app.models.domain import AppUser, Business
 
 DEV_BUSINESS_ID = UUID("00000000-0000-0000-0000-000000000001")
 DEV_USER_ID = UUID("00000000-0000-0000-0000-000000000002")
 DEMO_TENANT_B_ID = UUID("00000000-0000-0000-0000-000000000011")
 DEMO_OPERATOR_ID = UUID("00000000-0000-0000-0000-000000000003")
+
+
+def ensure_development_business(session: Session) -> None:
+    """Create the configured development tenant when a real DB-backed request arrives."""
+    if settings.ENV != "dev":
+        return
+
+    from app.models.domain import Business
+
+    business = session.execute(select(Business).where(Business.id == DEV_BUSINESS_ID)).scalar_one_or_none()
+    if business is None:
+        session.add(
+            Business(
+                id=DEV_BUSINESS_ID,
+                name=settings.DEV_BUSINESS_NAME,
+                slug=settings.DEV_BUSINESS_SLUG,
+            )
+        )
+        session.flush()
+
 
 DEMO_ACCOUNTS = {
     "demo-owner": (DEV_BUSINESS_ID, DEV_USER_ID, "owner"),
@@ -28,19 +53,54 @@ class AuthContext(BaseModel):
     is_dev_stub: bool = Field(default=False, description="True if generated from dev stub")
 
 
-async def get_auth_context(request: Request) -> AuthContext:
+async def get_auth_context(request: Request, db: Session = Depends(get_db)) -> AuthContext:
     """Extract authenticated tenant context from session/headers, or fallback to dev stub when in dev mode."""
     # Check if context already set by middleware/session
     ctx: AuthContext | None = getattr(request.state, "auth_context", None)
     if ctx is not None:
         return ctx
 
-    # Check for authorization header / cookie / session
-    auth_header = request.headers.get("Authorization")
     session_cookie = request.cookies.get("bizsaathi_session")
+    if session_cookie:
+        if settings.ENV != "dev":
+            raise UnauthenticatedError(detail="Local development sessions are not available in this environment.")
+        try:
+            claims = verify_dev_session_token(session_cookie, settings.SECRET_KEY.get_secret_value())
+        except ValueError as exc:
+            raise UnauthenticatedError(detail="Invalid or expired local development session.") from exc
+
+        user = db.execute(
+            select(AppUser)
+            .join(Business, AppUser.business_id == Business.id)
+            .where(
+                AppUser.id == claims.user_id,
+                AppUser.business_id == claims.business_id,
+                AppUser.identity_type == "local_dev",
+                AppUser.role == "owner",
+                Business.status == "active",
+            )
+        ).scalar_one_or_none()
+        if user is None:
+            raise UnauthenticatedError(detail="Local development account is unavailable.")
+        if user.local_session_version != claims.session_version:
+            raise UnauthenticatedError(detail="Your local session was signed out. Sign in again.")
+
+        session_ctx = AuthContext(
+            business_id=user.business_id,
+            user_id=user.id,
+            role=user.role,
+            is_dev_stub=False,
+        )
+        request.state.auth_context = session_ctx
+        return session_ctx
+
+    if request.headers.get("x-local-account-required") == "true":
+        raise UnauthenticatedError(
+            detail="Sign in to your local account to continue."
+        )
 
     # In production/staging, missing auth fails immediately
-    if not auth_header and not session_cookie:
+    if not request.headers.get("Authorization"):
         if settings.ENV in ("dev", "test"):
             # Dev stub: strictly allowed in dev/test only and clearly labelled
             dev_b_id = DEV_BUSINESS_ID
@@ -80,8 +140,6 @@ async def get_auth_context(request: Request) -> AuthContext:
 
         raise UnauthenticatedError(detail="Missing authentication credentials")
 
-    # When header/cookie is present, validation will happen in auth service (Phase 1.4)
-    # For now, if invalid or unsupported, raise 401
     raise UnauthenticatedError(detail="Invalid session or token")
 
 

@@ -69,3 +69,94 @@ def test_reconciler_detects_conflict_with_existing_sku():
     # Provenance for fields is marked ai_suggested
     field_sources = res["proposal_payload"]["field_sources"]
     assert field_sources["name"]["source"] == "ai_suggested"
+
+@pytest.mark.anyio
+async def test_photo_reads_image_bytes_from_disk_and_analyzes(tmp_path, monkeypatch):
+    from app.ai.interface import ModelClient
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "MEDIA_STORAGE_PATH", str(tmp_path))
+
+    rel_path = "uploads/2026/11/sample.png"
+    target_file = tmp_path / rel_path
+    target_file.parent.mkdir(parents=True, exist_ok=True)
+    sample_bytes = b"\x89PNG\r\n\x1a\nfake_image_content_12345"
+    target_file.write_bytes(sample_bytes)
+
+    received_bytes = []
+    received_mime = []
+
+    class SpyClient(ModelClient):
+        async def generate_structured(self, prompt, schema, system_prompt=None):
+            return {}
+        async def transcribe(self, audio_bytes, mime_type="audio/wav"):
+            return ""
+        async def generate_image(self, prompt):
+            return b""
+        async def analyze_image(self, image_bytes, mime_type, prompt="...", schema=None):
+            received_bytes.append(image_bytes)
+            received_mime.append(mime_type)
+            return {
+                "name": "Handmade Silk Scarf",
+                "description": "Pure silk handcrafted scarf.",
+                "color": "Red",
+                "category": "Accessories",
+                "material": "Silk",
+            }
+
+    monkeypatch.setattr("app.agents.nodes.node_04_extractor.get_model_client", lambda: SpyClient())
+
+    b_id = uuid4()
+    state: GraphState = {
+        "business_id": b_id,
+        "input_bundle": InputBundle(
+            kind="product_from_photo",
+            storage_keys=[rel_path],
+        ),
+        "model_calls": 0,
+        "max_model_calls": 2,
+    }
+
+    res = await extract_from_photo(state)
+    assert res["status"] == "running"
+    assert res["extracted_fields"]["name"] == "Handmade Silk Scarf"
+    assert res["extracted_fields"]["material"] == "Silk"
+    assert len(received_bytes) == 1
+    assert received_bytes[0] == sample_bytes
+    assert received_mime[0] == "image/png"
+
+
+@pytest.mark.anyio
+async def test_live_photo_extraction_blocks_when_uploaded_image_is_missing(tmp_path, monkeypatch):
+    from app.ai.interface import ModelClient
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "MEDIA_STORAGE_PATH", str(tmp_path))
+    monkeypatch.setattr(settings, "MODEL_MOCK_MODE", False)
+    monkeypatch.setattr(settings, "MODEL_PROVIDER", "live")
+
+    class SpyClient(ModelClient):
+        async def generate_structured(self, prompt, schema, system_prompt=None):
+            return {}
+        async def transcribe(self, audio_bytes, mime_type="audio/wav"):
+            return ""
+        async def generate_image(self, prompt):
+            return b""
+        async def analyze_image(self, image_bytes, mime_type, prompt="...", schema=None):
+            pytest.fail("Live image analysis must not receive placeholder bytes")
+
+    monkeypatch.setattr("app.agents.nodes.node_04_extractor.get_model_client", lambda: SpyClient())
+
+    state: GraphState = {
+        "business_id": uuid4(),
+        "input_bundle": InputBundle(
+            kind="product_from_photo",
+            storage_keys=["uploads/2026/11/missing.jpg"],
+        ),
+        "model_calls": 0,
+        "max_model_calls": 2,
+    }
+
+    res = await extract_from_photo(state)
+    assert res["status"] == "blocked"
+    assert res["error_code"] == "image_unavailable"

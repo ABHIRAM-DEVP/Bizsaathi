@@ -1,6 +1,9 @@
 """Unit tests for PII and secret redaction per docs/15 section 9 & 14."""
 
-from app.core.logging import mask_phone, redact_payload
+import json
+import logging
+
+from app.core.logging import StructuredJsonFormatter, mask_phone, redact_payload
 
 
 def test_phone_masking() -> None:
@@ -42,3 +45,26 @@ def test_payload_redaction() -> None:
     # Non-sensitive keys remain unchanged
     assert redacted["user"]["name"] == "Ramesh"
     assert redacted["items"][0]["product_name"] == "Saree"
+
+
+def test_structured_formatter_includes_safe_model_diagnostics_only() -> None:
+    record = logging.LogRecord(
+        name="bizsaathi.ai.live",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg="Live model stream completed",
+        args=(),
+        exc_info=None,
+    )
+    record.model_id = "test-model"
+    record.finish_reason = "stop"
+    record.output_chars = 150
+    record.content = "private generated text"
+
+    entry = json.loads(StructuredJsonFormatter().format(record))
+
+    assert entry["model_id"] == "test-model"
+    assert entry["finish_reason"] == "stop"
+    assert entry["output_chars"] == 150
+    assert "content" not in entry

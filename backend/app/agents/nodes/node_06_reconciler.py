@@ -64,6 +64,9 @@ def reconcile_catalog(state: GraphState) -> dict[str, Any]:
             "id": str(root_id),
             "version": 1,
             "proposal_type": "product_draft",
+            "fields": extracted,
+            "uncertainties": uncertainties,
+            "conflicts": conflicts,
         },
         "status": "awaiting_approval" if conflicts or uncertainties else "succeeded",
     }

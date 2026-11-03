@@ -66,7 +66,24 @@ class StructuredJsonFormatter(logging.Formatter):
         }
 
         # Contextual metadata injected via extra
-        for field in ("request_id", "business_id", "job_id", "node", "duration_ms", "error_code"):
+        for field in (
+            "request_id",
+            "business_id",
+            "job_id",
+            "node",
+            "duration_ms",
+            "error_code",
+            "model_id",
+            "latency_ms",
+            "first_token_ms",
+            "output_chars",
+            "attempt",
+            "status_code",
+            "finish_reason",
+            "done_received",
+            "json_error_position",
+            "recovered_complete_lines",
+        ):
             val = getattr(record, field, None)
             if val is not None:
                 log_entry[field] = val

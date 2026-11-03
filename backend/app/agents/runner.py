@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.agents.graph import build_bizsaathi_graph
 from app.agents.models import InputBundle
 from app.agents.state import GraphState
+from app.core.config import settings
 from app.models.domain import Job, JobEvent, ModelUsage, Proposal
 
 
@@ -109,11 +110,12 @@ class AgentJobRunner:
             # Record model usage if calls were made
             calls_made = final_state.get("model_calls", 0)
             if calls_made > 0:
+                is_mock = settings.MODEL_MOCK_MODE or settings.MODEL_PROVIDER == "mock"
                 self._record_model_usage(
                     job_id=job_id,
                     node="agent_pipeline",
-                    model_id="mock-model-v1",
-                    mode="mock",
+                    model_id="mock-model-v1" if is_mock else settings.MODEL_ID,
+                    mode="mock" if is_mock else "live",
                     latency_ms=duration_ms,
                 )
 

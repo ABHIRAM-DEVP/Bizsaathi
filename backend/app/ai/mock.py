@@ -1,5 +1,6 @@
 """Mock AI Model Adapter for deterministic, zero-cost development and testing."""
 
+import json
 import logging
 from typing import Any
 
@@ -40,6 +41,21 @@ class MockModelClient(ModelClient):
 
         properties = schema.get("properties", {})
         result: dict[str, Any] = {}
+        try:
+            prompt_data = json.loads(prompt)
+        except json.JSONDecodeError:
+            prompt_data = {}
+        language = prompt_data.get("language") if isinstance(prompt_data, dict) else None
+        localized_post_text = {
+            "en": "Make every playtime moment feel a little more magical.",
+            "hi": "हर खेल के पल को खुशियों से भरें।",
+            "mr": "खेळाचा प्रत्येक क्षण आनंदाने उजळवा.",
+        }
+        localized_second_line = {
+            "en": "Bring home a thoughtful touch for everyday smiles.",
+            "hi": "रोज़मर्रा की मुस्कान के लिए एक सुंदर चुनाव करें।",
+            "mr": "दररोजच्या हसण्यात माया भरणारी एक खास निवड घ्या.",
+        }
 
         for prop_name, prop_spec in properties.items():
             prop_type = prop_spec.get("type", "string")
@@ -47,6 +63,18 @@ class MockModelClient(ModelClient):
                 result["sku"] = "MOCK-SKU-001"
             elif prop_name == "name":
                 result["name"] = "Mock Handcrafted Cotton Shirt"
+            elif prop_name == "creative_hook":
+                result[prop_name] = localized_post_text.get(
+                    language, localized_post_text["en"]
+                )
+            elif prop_name == "creative_lines":
+                first_line = localized_post_text.get(language, localized_post_text["en"])
+                result[prop_name] = [
+                    first_line,
+                    localized_second_line.get(language, localized_second_line["en"]),
+                ]
+            elif prop_name == "text" and language in localized_post_text:
+                result[prop_name] = localized_post_text[language]
             elif prop_name == "price_inr":
                 result["price_inr"] = 499.00
             elif prop_name == "description":
@@ -102,3 +130,33 @@ class MockModelClient(ModelClient):
             },
         )
         return MOCK_PNG_BYTES
+
+    async def analyze_image(
+        self,
+        image_bytes: bytes,
+        mime_type: str,
+        prompt: str = "Analyze this product image and extract its attributes.",
+        schema: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Return deterministic structured product extraction from image bytes."""
+        logger.info(
+            "[MOCK] analyze_image invoked",
+            extra={
+                "model_id": self.model_id,
+                "is_mock": True,
+                "image_bytes_len": len(image_bytes),
+                "mime_type": mime_type,
+            },
+        )
+        extraction_schema = schema or {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "color": {"type": "string"},
+                "category": {"type": "string"},
+                "material": {"type": "string"},
+            },
+            "required": ["name"],
+        }
+        return await self.generate_structured(prompt, extraction_schema)

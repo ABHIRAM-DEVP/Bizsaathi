@@ -12,7 +12,7 @@ Fifteen logical stages, not fifteen model calls. Each node: typed input/output, 
 | 06 | Catalogue reconciliation | B | DET | - | candidates + DB -> proposed changes + conflict records | read-only; proposes only | MVP |
 | 07 | Content strategy | C | MIX | Spark | context -> content brief | none | MVP (light) |
 | 08 | Content production | C | LLM | Spark; Image (stretch) | brief + facts -> versioned drafts with claim list | none | MVP |
-| 09 | Customer intent and commerce | C | MIX | Spark | customer message -> answer with evidence or escalation; order draft | read-only product/stock/policy; order-draft tool | MVP-next |
+| 09 | Customer intent and commerce | C | MIX | Configured model via adapter | critical-request gate -> tenant context -> one structured intent plan -> deterministic grounded reply; customer message -> answer with evidence or seller escalation | read-only product/stock/policy; no order/payment action | MVP-next |
 | 10 | Evidence and claim verifier | D | DET + LLM assist | Spark (optional) | claims + records -> verdict per claim, evidence ids | read-only | MVP |
 | 11 | Independent multimodal critic | D | LLM | Spark (separate prompt/config) | image + caption + transcript + fields -> mismatches, severity | none | MVP (lite) |
 | 12 | Repair and recovery | D | MIX | Spark | failure + mismatch -> regenerate field / re-query / ask owner / stop; max 2 | none | MVP |
@@ -27,6 +27,8 @@ Fifteen logical stages, not fifteen model calls. Each node: typed input/output, 
 ## Routing
 - Seller product flow: 01 -> 02 -> 03 -> (04, 05) -> 06 -> 07 -> 08 -> 10 -> 11 -> 13 -> 14 -> 15. Failures go 10/11 -> 12 -> 10, cap 2, then blocked.
 - Customer flow: 09 -> 10 -> 13 (skips 02, 04-08).
+- Customer reply: deterministic critical-request gate -> tenant-scoped catalog/profile/policy retrieval -> one bounded structured intent plan -> deterministic writer -> evidence verifier; model output can select retrieved records and fields but cannot supply facts.
+- An escalated customer conversation remains available for follow-up replies. Escalation keeps the owner review signal; it does not disable safe catalog answers.
 - Order draft: 09 -> 13 -> 14 (payment confirmation is owner-confirmed or provider-backed; never model-written).
 
 ## Per-node definition of done

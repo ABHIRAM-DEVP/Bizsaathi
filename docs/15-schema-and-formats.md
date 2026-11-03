@@ -18,6 +18,7 @@ Authoritative for column types, enums, formats and envelopes. Supersedes the col
 | Quantity / stock | `integer` | `int` (`>= 0`; order qty `1..100`) | number | stock changes only via stock endpoint |
 | Version (concurrency) | `integer` from 1 | `int` | number; header `If-Match: 3` | increments on every confirmed change |
 | Phone | `text` CHECK `^\+[1-9][0-9]{7,14}$` | `str` (E.164) | string | normalize before storing; masked in responses by default |
+| Local development identity | `app_user.identity_type` CHECK `phone, local_dev` | string enum | not exposed as a credential | `local_dev` has a null phone and is available only in `ENV=dev` |
 | Slug | `text` CHECK `^[a-z0-9][a-z0-9-]{1,62}$`, unique on `lower()` | `str` | string | url-safe |
 | SKU | `text` CHECK `^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`, unique per business | `str` | string | seller-visible |
 | Language | `text` in `en, hi, mr` (extend deliberately) | `Literal["en","hi","mr"]` | string | BCP 47 primary subtag only |
@@ -35,6 +36,7 @@ Authoritative for column types, enums, formats and envelopes. Supersedes the col
 | Enum | Values |
 |---|---|
 | user.role | owner, operator |
+| app_user.identity_type | phone, local_dev |
 | business.status | active, suspended |
 | product.status | active, archived |
 | policy.kind | delivery, returns, discounts, payment, other |
@@ -54,7 +56,9 @@ Authoritative for column types, enums, formats and envelopes. Supersedes the col
 | evidence.source_kind | product, variant, policy, order, transcript, media |
 | public_session.status | open, escalated, closed, blocked |
 | conversation.status | open, escalated, closed |
-| message.role | customer, assistant, owner, system |
+| conversation.source | public, demo |
+| message.role (storage) | customer, assistant, owner, system |
+| inbox message sender (API) | customer, agent, owner, system |
 | order.status | DRAFT, AWAITING_PAYMENT, PAID, FULFILLED, CANCELLED, FAILED |
 | order.payment_method | cash, upi, bank, other |
 | audit.actor_type | user, agent, system, public |

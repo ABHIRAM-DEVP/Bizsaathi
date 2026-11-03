@@ -26,7 +26,7 @@ class ProductCreateRequest(BaseModel):
     sku: str | None = Field(default=None, description="Product SKU (generated if omitted)")
     name: str = Field(min_length=1, max_length=200, description="Product name")
     description: str | None = Field(default=None, max_length=5000)
-    price_inr: Decimal = Field(ge=0, description="Confirmed product price in INR")
+    price_inr: Decimal = Field(gt=0, description="Confirmed product price in INR")
     stock: int = Field(default=0, ge=0, description="Initial stock quantity")
     color: str | None = Field(default=None, max_length=60)
     size: str | None = Field(default=None, max_length=60)

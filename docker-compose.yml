@@ -1,36 +1,129 @@
-# Local development services only. Not production config. UNVERIFIED: not run during kit creation.
+# Local development stack. Verified locally; not a production deployment configuration.
 # Pin image versions after checking current tags (TODO). Credentials below are local dev placeholders.
 services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
-      POSTGRES_DB: bizsaathi
-    ports: ["5432:5432"]
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be configured in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be configured in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be configured in .env}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5433}:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d bizsaathi"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       retries: 10
+      start_period: 10s
 
   redis:
-    image: redis:7
-    ports: ["6379:6379"]
+    image: redis:7-alpine
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       retries: 10
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      APP_NAME: ${APP_NAME:?APP_NAME must be configured in .env}
+      APP_ENV: ${APP_ENV:?APP_ENV must be configured in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be configured in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be configured in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be configured in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be configured in .env}
+      MIGRATION_DATABASE_USER: ${MIGRATION_DATABASE_USER:-}
+      MIGRATION_DATABASE_PASSWORD: ${MIGRATION_DATABASE_PASSWORD:-}
+      POSTGRES_HOST: postgres
+      POSTGRES_INTERNAL_PORT: "5432"
+      REDIS_URL: redis://redis:6379/0
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS must be configured in .env}
+      DEV_BUSINESS_NAME: ${DEV_BUSINESS_NAME:?DEV_BUSINESS_NAME must be configured in .env}
+      DEV_BUSINESS_SLUG: ${DEV_BUSINESS_SLUG:?DEV_BUSINESS_SLUG must be configured in .env}
+      LOW_STOCK_THRESHOLD: ${LOW_STOCK_THRESHOLD:?LOW_STOCK_THRESHOLD must be configured in .env}
+      STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:?OBJECT_STORAGE_BUCKET must be configured in .env}
+      STORAGE_ENDPOINT: ${OBJECT_STORAGE_ENDPOINT:?OBJECT_STORAGE_ENDPOINT must be configured in .env}
+      STORAGE_REGION: ${OBJECT_STORAGE_REGION:?OBJECT_STORAGE_REGION must be configured in .env}
+      STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:?OBJECT_STORAGE_ACCESS_KEY must be configured in .env}
+      STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:?OBJECT_STORAGE_SECRET_KEY must be configured in .env}
+      MEDIA_STORAGE_PATH: /app/media
+      SIGNED_URL_TTL_SECONDS: ${SIGNED_URL_TTL_SECONDS:?SIGNED_URL_TTL_SECONDS must be configured in .env}
+      MODEL_MOCK_MODE: ${MODEL_MOCK_MODE:?MODEL_MOCK_MODE must be configured in .env}
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-mock}
+      REASONING_API_KEY: ${REASONING_API_KEY:-}
+      MODEL_API_BASE_URL: ${MODEL_API_BASE_URL:?MODEL_API_BASE_URL must be configured in .env}
+      REASONING_MODEL: ${REASONING_MODEL:?REASONING_MODEL must be configured in .env}
+      MODEL_REQUEST_TIMEOUT_SECONDS: ${MODEL_REQUEST_TIMEOUT_SECONDS:?MODEL_REQUEST_TIMEOUT_SECONDS must be configured in .env}
+      MODEL_MAX_RETRIES: ${MODEL_MAX_RETRIES:?MODEL_MAX_RETRIES must be configured in .env}
+    ports:
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+    volumes:
+      - media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/v1/health/ready', timeout=3).read()"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+        NEXT_PUBLIC_DEMO_ACCOUNT: ${NEXT_PUBLIC_DEMO_ACCOUNT:-demo-owner}
+        NEXT_PUBLIC_DEMO_BUSINESS_NAME: ${NEXT_PUBLIC_DEMO_BUSINESS_NAME:-Demo Store}
+        NEXT_PUBLIC_DEMO_OWNER_NAME: ${NEXT_PUBLIC_DEMO_OWNER_NAME:-Local owner}
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/login').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   minio:
-    image: minio/minio
+    profiles: ["storage"]
+    image: quay.io/minio/minio:latest
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports: ["9000:9000", "9001:9001"]
+      MINIO_ROOT_USER: ${OBJECT_STORAGE_ACCESS_KEY:?OBJECT_STORAGE_ACCESS_KEY must be configured in .env}
+      MINIO_ROOT_PASSWORD: ${OBJECT_STORAGE_SECRET_KEY:?OBJECT_STORAGE_SECRET_KEY must be configured in .env}
+      MINIO_REGION_NAME: ${OBJECT_STORAGE_REGION:?OBJECT_STORAGE_REGION must be configured in .env}
+    ports:
+      - "127.0.0.1:${MINIO_API_PORT:?MINIO_API_PORT must be configured in .env}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:?MINIO_CONSOLE_PORT must be configured in .env}:9001"
     volumes: ["miniodata:/data"]
 
 volumes:
   pgdata:
   miniodata:
+  media:

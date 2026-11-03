@@ -1,14 +1,19 @@
 """Posts router for social media content generation, claims, and revisions."""
 
+import asyncio
+import json
 from datetime import datetime, timezone
 from typing import Literal
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, status
+from fastapi import APIRouter, Depends, Header, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.errors import ConflictError, NotFoundError, StaleVersionError
+from app.core.errors import AppException, NotFoundError, StaleVersionError
+from app.core.errors import ValidationError as DomainValidationError
+from app.core.logging import logger
 from app.core.tenancy import AuthContext, require_owner_role, require_tenant
 from app.models.base import get_db
 from app.models.domain import Claim, Evidence, Post, PostRevision, Product
@@ -23,8 +28,58 @@ from app.schemas.posts import (
     PostResponse,
 )
 from app.services.claim_verifier import verify_claim
+from app.services.post_generation import create_generated_post, create_quick_generated_post
 
 router = APIRouter(prefix="/posts", tags=["posts"])
+
+
+def _sse_event(name: str, payload: dict[str, object]) -> str:
+    return f"event: {name}\ndata: {json.dumps(payload)}\n\n"
+
+
+def _claim_response(db: Session, claim: Claim) -> ClaimResponse:
+    evidence_ids = (
+        db.execute(
+            select(Evidence.id).where(
+                Evidence.business_id == claim.business_id,
+                Evidence.claim_id == claim.id,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return ClaimResponse(
+        id=claim.id,
+        text=claim.text,
+        kind=claim.kind,
+        verdict=claim.verdict,
+        severity=claim.severity,
+        repair_suggestion=claim.repair_suggestion,
+        evidence_ids=list(evidence_ids),
+    )
+
+
+@router.post(
+    "/generate/{product_id}/quick",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+    operation_id="generateQuickPost",
+    summary="Generate an instant local post template",
+)
+async def generate_quick_post(
+    product_id: UUID,
+    req: PostGenerateRequest,
+    auth: AuthContext = Depends(require_owner_role),
+    db: Session = Depends(get_db),
+) -> PostResponse:
+    """Save a clearly-labelled local template without calling an AI provider."""
+    return await create_quick_generated_post(
+        db,
+        auth=auth,
+        product_id=product_id,
+        channel=req.channel,
+        language=req.language,
+    )
 
 
 @router.post(
@@ -37,98 +92,94 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 async def generate_post(
     product_id: UUID,
     req: PostGenerateRequest,
+    request: Request,
     auth: AuthContext = Depends(require_owner_role),
     db: Session = Depends(get_db),
 ) -> PostResponse:
     """Generate social post copy from confirmed product facts."""
-    # Verify product is active and has confirmed name and price
-    stmt_p = select(Product).where(
-        Product.id == product_id,
-        Product.business_id == auth.business_id,
-    )
-    product = db.execute(stmt_p).scalar_one_or_none()
-    if not product:
-        raise NotFoundError(f"Product {product_id} not found.")
-
-    if product.status != "active":
-        raise ConflictError("Product must be active to generate posts.")
-
-    if product.price_inr is None or product.price_inr <= 0:
-        raise ConflictError("Product missing confirmed price.")
-
-    # Generate draft text with deterministic price
-    price_f = float(product.price_inr)
-    text = (
-        f"Elevate your wardrobe with our {product.name}! Handcrafted excellence designed for comfort. "
-        f"Get yours today for only ₹{price_f:.2f}."
-    )
-
-    post_id = uuid4()
-    provenance = {
-        "model_id": "mock-model-v1",
-        "prompt_version": 1,
-        "mode": "mock",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-    }
-
-    post = Post(
-        id=post_id,
-        business_id=auth.business_id,
+    return await create_generated_post(
+        db,
+        auth=auth,
         product_id=product_id,
         channel=req.channel,
         language=req.language,
-        text=text,
-        version=1,
-        status="draft",
-        provenance=provenance,
+        http_client=getattr(request.app.state, "model_http_client", None),
     )
-    db.add(post)
 
-    # Add initial revision
-    rev = PostRevision(
-        post_id=post_id,
-        business_id=auth.business_id,
-        version=1,
-        text=text,
-    )
-    db.add(rev)
 
-    # Add claims
-    claim1 = Claim(
-        business_id=auth.business_id,
-        post_id=post_id,
-        post_version=1,
-        text=f"Product price is ₹{price_f:.2f}",
-        kind="fact",
-        verdict="supported",
-    )
-    claim2 = Claim(
-        business_id=auth.business_id,
-        post_id=post_id,
-        post_version=1,
-        text=f"Product name is {product.name}",
-        kind="fact",
-        verdict="supported",
-    )
-    db.add_all([claim1, claim2])
-    db.flush()
+@router.post(
+    "/generate/{product_id}/stream",
+    status_code=status.HTTP_200_OK,
+    operation_id="streamGeneratePost",
+    summary="Stream a generated marketing post draft",
+    response_class=StreamingResponse,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Server-sent events: status, unverified creative-line updates, and the saved post.",
+            "content": {"text/event-stream": {"schema": {"type": "string"}}},
+        }
+    },
+)
+async def stream_generate_post(
+    product_id: UUID,
+    req: PostGenerateRequest,
+    request: Request,
+    auth: AuthContext = Depends(require_owner_role),
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    """Stream creative line updates and then the validated, persisted post."""
+    updates: asyncio.Queue[tuple[int, str]] = asyncio.Queue()
 
-    return PostResponse(
-        id=post.id,
-        business_id=post.business_id,
-        product_id=post.product_id,
-        channel=post.channel,
-        language=post.language,
-        text=post.text,
-        version=post.version,
-        status=post.status,
-        provenance=post.provenance,
-        claims=[
-            ClaimResponse(id=claim1.id, text=claim1.text, kind=claim1.kind, verdict=claim1.verdict),
-            ClaimResponse(id=claim2.id, text=claim2.text, kind=claim2.kind, verdict=claim2.verdict),
-        ],
-        created_at=post.created_at,
-        updated_at=post.updated_at,
+    def publish_token(line_index: int, text: str) -> None:
+        updates.put_nowait((line_index, text))
+
+    async def stream_events():
+        task = asyncio.create_task(
+            create_generated_post(
+                db,
+                auth=auth,
+                product_id=product_id,
+                channel=req.channel,
+                language=req.language,
+                http_client=getattr(request.app.state, "model_http_client", None),
+                on_token=publish_token,
+            )
+        )
+        try:
+            yield _sse_event("status", {"message": "Post generation started."})
+            while not task.done() or not updates.empty():
+                try:
+                    line_index, text = await asyncio.wait_for(updates.get(), timeout=15)
+                except TimeoutError:
+                    yield ": keep-alive\n\n"
+                    continue
+                yield _sse_event("token", {"line_index": line_index, "text": text})
+
+            post = await task
+            yield _sse_event("complete", {"post": post.model_dump(mode="json")})
+        except AppException as exc:
+            yield _sse_event("error", {"detail": exc.detail, "status": exc.status_code})
+        except Exception:
+            logger.exception(
+                "Unexpected error while streaming generated post",
+                extra={"request_id": getattr(request.state, "request_id", "req_unknown")},
+            )
+            yield _sse_event(
+                "error",
+                {"detail": "Post generation failed unexpectedly.", "status": 500},
+            )
+        finally:
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+
+    return StreamingResponse(
+        stream_events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 
@@ -149,7 +200,11 @@ async def list_posts(
 
     result = []
     for p in posts:
-        stmt_c = select(Claim).where(Claim.post_id == p.id, Claim.post_version == p.version)
+        stmt_c = select(Claim).where(
+            Claim.business_id == auth.business_id,
+            Claim.post_id == p.id,
+            Claim.post_version == p.version,
+        )
         claims = db.execute(stmt_c).scalars().all()
         result.append(
             PostResponse(
@@ -162,7 +217,7 @@ async def list_posts(
                 version=p.version,
                 status=p.status,
                 provenance=p.provenance,
-                claims=[ClaimResponse(id=c.id, text=c.text, kind=c.kind, verdict=c.verdict) for c in claims],
+                claims=[_claim_response(db, claim) for claim in claims],
                 created_at=p.created_at,
                 updated_at=p.updated_at,
             )
@@ -191,7 +246,11 @@ async def get_post(
     if not post:
         raise NotFoundError(f"Post {post_id} not found.")
 
-    stmt_c = select(Claim).where(Claim.post_id == post.id, Claim.post_version == post.version)
+    stmt_c = select(Claim).where(
+        Claim.business_id == auth.business_id,
+        Claim.post_id == post.id,
+        Claim.post_version == post.version,
+    )
     claims = db.execute(stmt_c).scalars().all()
 
     return PostResponse(
@@ -204,7 +263,7 @@ async def get_post(
         version=post.version,
         status=post.status,
         provenance=post.provenance,
-        claims=[ClaimResponse(id=c.id, text=c.text, kind=c.kind, verdict=c.verdict) for c in claims],
+        claims=[_claim_response(db, claim) for claim in claims],
         created_at=post.created_at,
         updated_at=post.updated_at,
     )
@@ -242,7 +301,7 @@ async def update_post(
                     f"Post has been modified. Expected version {expected_v}, current {post.version}."
                 )
         except ValueError:
-            pass
+            raise DomainValidationError(detail="If-Match must contain a numeric post version.") from None
 
     new_version = post.version + 1
     post.version = new_version
@@ -302,7 +361,15 @@ async def check_post_claims(
         raise NotFoundError("Confirmed product for post not found.")
 
     claims = (
-        db.execute(select(Claim).where(Claim.post_id == post.id, Claim.post_version == post.version)).scalars().all()
+        db.execute(
+            select(Claim).where(
+                Claim.business_id == auth.business_id,
+                Claim.post_id == post.id,
+                Claim.post_version == post.version,
+            )
+        )
+        .scalars()
+        .all()
     )
     checked: list[ClaimCheckItemResponse] = []
     summary = {"supported": 0, "contradicted": 0, "unverified": 0}
@@ -338,6 +405,7 @@ async def check_post_claims(
                 verdict=verdict,
                 severity=severity,
                 repair_suggestion=repair,
+                evidence_ids=[reference.id for reference in refs],
                 evidence=refs,
             )
         )
@@ -345,7 +413,7 @@ async def check_post_claims(
     overall: Literal["pass", "fail", "needs_owner"]
     if summary["contradicted"]:
         overall = "fail"
-    elif summary["unverified"]:
+    elif not checked or summary["unverified"]:
         overall = "needs_owner"
     else:
         overall = "pass"

@@ -9,6 +9,8 @@ Classes (MVP / MVP-next / STRETCH / FUTURE) are ASSUMPTIONS to confirm. Agent no
 | POST | /auth/otp/send | send OTP (dev: console/mock; real SMS FUTURE) | MVP (mock) |
 | POST | /auth/otp/verify | verify, issue session | MVP |
 | POST | /auth/refresh, /auth/logout | session lifecycle | MVP |
+| POST | /auth/local/register | create an isolated local-development owner and business | dev only |
+| POST | /auth/local/login | sign in to a local-development account | dev only |
 | GET, PATCH | /me | seller profile | MVP |
 | GET, PATCH | /business | shop profile, policies | MVP |
 | PUT | /business/payment-details | payout details with step-up auth | FUTURE |
@@ -29,7 +31,7 @@ Classes (MVP / MVP-next / STRETCH / FUTURE) are ASSUMPTIONS to confirm. Agent no
 ## C. Content and claim check
 | Method | Path | Purpose | Class |
 |---|---|---|---|
-| POST | /products/{id}/posts/generate | generate drafts | MVP |
+| POST | /posts/generate/{product_id} | generate a catalog-grounded draft | MVP |
 | GET | /posts, /posts/{id} | list, detail with provenance | MVP |
 | PATCH | /posts/{id} | edit draft | MVP |
 | POST | /posts/{id}/claim-check | claim, verdict, evidence ids, severity, repair suggestion | MVP |
@@ -45,13 +47,15 @@ Classes (MVP / MVP-next / STRETCH / FUTURE) are ASSUMPTIONS to confirm. Agent no
 | POST | /approvals/{id}/reject | reject | MVP |
 | POST | /approvals/{id}/edit | edit then revalidate | MVP |
 
-## E. Public store and chat (rate limited, opaque session ids, store scoping)
+## E. Public store and chat (rate limited, authenticated customer accounts, store scoping)
 | Method | Path | Purpose | Class |
 |---|---|---|---|
 | GET | /public/stores/{slug} | public store | MVP-next |
-| POST | /public/stores/{slug}/sessions | start session | MVP-next |
-| POST | /public/sessions/{id}/messages | customer message | MVP-next |
-| GET | /public/sessions/{id}/stream | replies and escalation status | MVP-next |
+| POST | /public/customer-accounts/register, /login, /logout | customer account and session | MVP |
+| GET | /public/customer-accounts/me | signed-in customer profile | MVP |
+| POST | /public/stores/{slug}/sessions | authenticated customer chat | MVP-next |
+| POST | /public/sessions/{id}/messages | authenticated customer message | MVP-next |
+| GET | /public/sessions/{id}/stream | authenticated replies and escalation status | MVP-next |
 | POST | /public/sessions/{id}/verify-phone/send, /verify | order-time OTP | FUTURE |
 | POST | /public/sessions/{id}/order | order draft | MVP-next |
 | GET | /widget.js | embeddable loader | STRETCH |
@@ -61,6 +65,8 @@ Classes (MVP / MVP-next / STRETCH / FUTURE) are ASSUMPTIONS to confirm. Agent no
 |---|---|---|
 | GET | /conversations, /conversations/{id} | MVP-next |
 | POST | /conversations/{id}/reply | MVP-next (owner-approved) |
+| POST | /conversations/demo/start, /conversations/demo/simulate | dev/test only |
+| GET | /businesses/me | MVP |
 | POST | /conversations/{id}/block | STRETCH |
 | GET | /customers/{id} | STRETCH (PII minimization) |
 

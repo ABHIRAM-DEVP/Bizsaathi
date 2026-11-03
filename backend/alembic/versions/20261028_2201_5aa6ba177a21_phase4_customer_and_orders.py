@@ -231,27 +231,18 @@ def upgrade() -> None:
         unique=False,
     )
 
-    # audit_event
-    op.create_table(
-        "audit_event",
-        sa.Column("id", sa.BigInteger(), autoincrement=True, nullable=False),
-        sa.Column("business_id", sa.Uuid(), nullable=False),
-        sa.Column("actor_type", sa.String(length=30), nullable=False),
-        sa.Column("actor_id", sa.String(length=200), nullable=True),
-        sa.Column("action", sa.String(length=100), nullable=False),
-        sa.Column("entity_type", sa.String(length=50), nullable=False),
-        sa.Column("entity_id", sa.String(length=200), nullable=True),
-        sa.Column("detail", postgresql.JSONB(astext_type=sa.Text()), server_default="{}", nullable=False),
-        sa.Column("request_id", sa.String(length=100), nullable=True),
-        sa.Column("at", sa.DateTime(timezone=True), nullable=False),
-        sa.CheckConstraint(
-            "actor_type IN ('user', 'agent', 'system', 'public')",
-            name=op.f("ck_audit_event_actor_type_check"),
-        ),
-        sa.ForeignKeyConstraint(
-            ["business_id"], ["business.id"], name=op.f("fk_audit_event_business_id_business")
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_audit_event")),
+    # audit_event is created by the initial revision; widen its audit actor and entity fields here.
+    op.alter_column(
+        "audit_event", "actor_type", existing_type=sa.String(length=20), type_=sa.String(length=30),
+        existing_nullable=False,
+    )
+    op.alter_column(
+        "audit_event", "actor_id", existing_type=sa.String(length=100), type_=sa.String(length=200),
+        existing_nullable=True,
+    )
+    op.alter_column(
+        "audit_event", "entity_id", existing_type=sa.String(length=100), type_=sa.String(length=200),
+        existing_nullable=True,
     )
     op.create_index(
         "audit_event_business_ix", "audit_event", ["business_id", sa.text("at DESC")], unique=False
@@ -300,7 +291,34 @@ def downgrade() -> None:
     # Drop tables in reverse dependency order
     op.drop_index("audit_event_entity_ix", table_name="audit_event")
     op.drop_index("audit_event_business_ix", table_name="audit_event")
-    op.drop_table("audit_event")
+    op.execute(
+        """
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM audit_event
+            WHERE char_length(actor_type) > 20
+               OR char_length(actor_id) > 100
+               OR char_length(entity_id) > 100
+          ) THEN
+            RAISE EXCEPTION 'Cannot downgrade audit_event fields without truncating data';
+          END IF;
+        END;
+        $$;
+        """
+    )
+    op.alter_column(
+        "audit_event", "entity_id", existing_type=sa.String(length=200), type_=sa.String(length=100),
+        existing_nullable=True,
+    )
+    op.alter_column(
+        "audit_event", "actor_id", existing_type=sa.String(length=200), type_=sa.String(length=100),
+        existing_nullable=True,
+    )
+    op.alter_column(
+        "audit_event", "actor_type", existing_type=sa.String(length=30), type_=sa.String(length=20),
+        existing_nullable=False,
+    )
 
     op.drop_index("order_status_history_ix", table_name="order_status_history")
     op.drop_table("order_status_history")

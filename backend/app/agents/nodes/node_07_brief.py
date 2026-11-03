@@ -12,6 +12,7 @@ def create_brief(state: GraphState) -> dict[str, Any]:
     product = products[0] if products else {}
 
     channel = state.get("extracted_fields", {}).get("channel", "instagram")
+    input_bundle = state.get("input_bundle")
 
     brief = {
         "channel": channel,
@@ -19,6 +20,7 @@ def create_brief(state: GraphState) -> dict[str, Any]:
         "price_inr": product.get("price_inr", 0.0),
         "description": product.get("description", ""),
         "policies": context_bundle.policies if context_bundle else [],
+        "language": input_bundle.language if input_bundle else "en",
     }
 
     return {

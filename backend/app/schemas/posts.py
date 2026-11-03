@@ -42,6 +42,7 @@ class ClaimResponse(BaseModel):
     verdict: str | None = None
     severity: str | None = None
     repair_suggestion: str | None = None
+    evidence_ids: list[UUID] = Field(default_factory=list)
 
 
 class ClaimCheckItemResponse(ClaimResponse):

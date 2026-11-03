@@ -5,9 +5,11 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+import httpx
 from fastapi import FastAPI, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.errors import (
@@ -19,9 +21,14 @@ from app.core.logging import logger, setup_logging
 from app.routers import (
     approvals,
     audit,
+    auth,
+    businesses,
+    conversations,
+    dashboard,
     evidence,
     health,
     jobs,
+    orders,
     posts,
     products,
     public_store,
@@ -37,7 +44,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         "BizSaathi API starting up",
         extra={"env": settings.ENV, "api_prefix": settings.API_PREFIX},
     )
-    yield
+    async with httpx.AsyncClient(
+        timeout=settings.MODEL_REQUEST_TIMEOUT_SECONDS,
+        limits=httpx.Limits(max_keepalive_connections=20, max_connections=100),
+    ) as model_http_client:
+        app.state.model_http_client = model_http_client
+        yield
     logger.info("BizSaathi API shutting down")
 
 
@@ -47,6 +59,26 @@ app = FastAPI(
     docs_url=f"{settings.API_PREFIX}/docs",
     openapi_url=f"{settings.API_PREFIX}/openapi.json",
     lifespan=lifespan,
+)
+cors_origins = [origin.strip() for origin in settings.CORS_ALLOWED_ORIGINS.split(",") if origin.strip()]
+if "*" in cors_origins:
+    raise ValueError("CORS_ALLOWED_ORIGINS must not contain a wildcard when credentials are enabled.")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Accept",
+        "Authorization",
+        "Content-Type",
+        "If-Match",
+        "Idempotency-Key",
+        "X-Demo-Account",
+        "X-Local-Account-Required",
+        "X-Customer-Request",
+        "X-Request-ID",
+    ],
 )
 
 
@@ -139,17 +171,17 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> Respo
 
 # Mount routers under /v1
 app.include_router(health.router, prefix=settings.API_PREFIX)
+app.include_router(auth.router, prefix=settings.API_PREFIX)
+app.include_router(businesses.router, prefix=settings.API_PREFIX)
 app.include_router(uploads.router, prefix=settings.API_PREFIX)
 app.include_router(jobs.router, prefix=settings.API_PREFIX)
 app.include_router(products.router, prefix=settings.API_PREFIX)
+app.include_router(orders.router, prefix=settings.API_PREFIX)
 app.include_router(approvals.router, prefix=settings.API_PREFIX)
 app.include_router(posts.router, prefix=settings.API_PREFIX)
+app.include_router(conversations.router, prefix=settings.API_PREFIX)
 app.include_router(evidence.router, prefix=settings.API_PREFIX)
 app.include_router(audit.router, prefix=settings.API_PREFIX)
 app.include_router(public_store.router, prefix=settings.API_PREFIX)
 
-# Import dashboard router
-from app.routers import dashboard
 app.include_router(dashboard.router, prefix=settings.API_PREFIX)
-
-

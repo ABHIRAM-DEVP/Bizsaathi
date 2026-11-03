@@ -17,8 +17,10 @@ from app.core.errors import (
     NotFoundError,
     StaleVersionError,
 )
+from app.core.errors import ValidationError as DomainValidationError
+from app.core.logging import logger
 from app.core.tenancy import AuthContext, require_owner_role, require_tenant
-from app.models.base import get_db
+from app.models.base import get_db, get_session
 from app.models.domain import Job, Media, Product, ProductVariant, Proposal
 from app.repositories.product import ProductRepository
 from app.repositories.variant import VariantRepository
@@ -34,10 +36,27 @@ from app.schemas.products import (
 router = APIRouter(prefix="/products", tags=["products"])
 
 
-async def _run_agent_bg(business_id: UUID, job_id: UUID, input_bundle: InputBundle, db: Session) -> None:
-    """Run agent workflow in background task."""
-    runner = AgentJobRunner(session=db, business_id=business_id)
-    await runner.run_job(job_id=job_id, input_bundle=input_bundle)
+async def _run_agent_bg(business_id: UUID, job_id: UUID, input_bundle: InputBundle) -> None:
+    """Run an agent job in its own transaction so request teardown cannot roll it back."""
+    db = get_session()
+    try:
+        runner = AgentJobRunner(session=db, business_id=business_id)
+        try:
+            await runner.run_job(job_id=job_id, input_bundle=input_bundle)
+        except Exception as exc:
+            db.commit()
+            logger.error(
+                "Background agent job failed",
+                extra={
+                    "business_id": str(business_id),
+                    "job_id": str(job_id),
+                    "error_code": type(exc).__name__,
+                },
+            )
+        else:
+            db.commit()
+    finally:
+        db.close()
 
 
 @router.post(
@@ -103,7 +122,8 @@ async def create_product_from_photo(
         media_ids=req.media_ids,
         storage_keys=storage_keys,
     )
-    background_tasks.add_task(_run_agent_bg, auth.business_id, job_id, input_bundle, db)
+    db.commit()
+    background_tasks.add_task(_run_agent_bg, auth.business_id, job_id, input_bundle)
 
     return {
         "job_id": str(job_id),
@@ -149,7 +169,8 @@ async def create_product_from_voice(
         storage_keys=[media.storage_key],
         mime_type=media.mime,
     )
-    background_tasks.add_task(_run_agent_bg, auth.business_id, job_id, input_bundle, db)
+    db.commit()
+    background_tasks.add_task(_run_agent_bg, auth.business_id, job_id, input_bundle)
 
     return {
         "job_id": str(job_id),
@@ -171,8 +192,12 @@ async def list_products(
     db: Session = Depends(get_db),
 ) -> list[ProductResponse]:
     """Retrieve catalog products strictly isolated to tenant."""
-    repo = ProductRepository(session=db, business_id=auth.business_id)
-    products = repo.list_active(limit=100)
+    if status_filter not in {"active", "archived", "all"}:
+        raise DomainValidationError(detail="status_filter must be active, archived, or all.")
+    stmt = select(Product).where(Product.business_id == auth.business_id)
+    if status_filter != "all":
+        stmt = stmt.where(Product.status == status_filter)
+    products = db.execute(stmt.order_by(Product.created_at.desc()).limit(100)).scalars().all()
 
     result = []
     for p in products:
@@ -342,11 +367,14 @@ async def update_product(
                     f"Product has been updated. Expected version {expected_v}, current {product.version}."
                 )
         except ValueError:
-            pass
+            raise DomainValidationError(detail="If-Match must contain a numeric product version.") from None
+
+    if not req.model_fields_set.intersection({"name", "description", "price_inr", "attributes"}):
+        raise DomainValidationError(detail="At least one product field must be provided.")
 
     if req.name is not None:
         product.name = req.name
-    if req.description is not None:
+    if "description" in req.model_fields_set:
         product.description = req.description
     if req.price_inr is not None:
         product.price_inr = req.price_inr

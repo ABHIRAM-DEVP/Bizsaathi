@@ -9,12 +9,13 @@ dependencies = [
     "pydantic>=2.10.0",
     "pydantic-settings>=2.6.0",
     "uvicorn>=0.32.0",
-    "sqlalchemy>=2.0.36",
+    "sqlalchemy[asyncio]>=2.0.36",
     "alembic>=1.14.0",
     "psycopg[binary]>=3.2.0",
     "python-dotenv>=1.0.1",
     "httpx>=0.28.0",
     "langgraph>=1.2.18",
+    "bcrypt>=5.0.0",
 ]
 
 [project.optional-dependencies]

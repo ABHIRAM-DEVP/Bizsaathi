@@ -1,20 +1,23 @@
 # BizSaathi - Quick Start Card
 
-**5-Minute Setup** | **Phase 4: Public Chat API** | **Updated: 2026-10-28**
+**5-Minute Setup** | **Docker Compose: full local stack**
 
 ---
 
 ## 🚀 Start Everything
 
+Copy `.env.example` to `.env`, set a fresh local `JWT_SECRET` and PostgreSQL password, then start the app:
+
 ```powershell
-# Terminal 1 - Infrastructure (PostgreSQL, Redis, MinIO)
-just up && just migrate
+docker compose up -d --build --wait
+```
 
-# Terminal 2 - Backend API (port 8000)
-just dev-api
+Compose starts PostgreSQL, Redis, the API, and the web app. Alembic migrations run before the API starts. Uploaded media is persisted in a Compose volume. MinIO remains optional (`--profile storage`) and is not required for local image uploads.
 
-# Terminal 3 - Frontend (port 3000)
-just dev-web
+Stop the stack without deleting its data:
+
+```powershell
+docker compose down
 ```
 
 ---
@@ -24,9 +27,9 @@ just dev-web
 | Service | URL | Purpose |
 |---------|-----|---------|
 | **Frontend** | http://localhost:3000 | Main web app |
-| **Backend API** | http://localhost:8000 | FastAPI backend |
-| **API Docs** | http://localhost:8000/docs | Interactive Swagger UI |
-| **Health Check** | http://localhost:8000/health | Server status |
+| **Backend API** | http://localhost:8080 | FastAPI backend |
+| **API Docs** | http://localhost:8080/v1/docs | Interactive Swagger UI |
+| **Health Check** | http://localhost:8080/v1/health/ready | Dependency readiness |
 
 ---
 
@@ -34,22 +37,22 @@ just dev-web
 
 ```powershell
 # 1. Check if a store exists
-curl http://localhost:8000/public/stores/my-shop
+curl http://localhost:8080/v1/public/stores/my-shop
 
 # 2. Create a chat session
-$response = curl -X POST http://localhost:8000/public/stores/my-shop/sessions `
+$response = curl -X POST http://localhost:8080/v1/public/stores/my-shop/sessions `
   -H "Content-Type: application/json" -d '{}' | ConvertFrom-Json
 $session_id = $response.session_id
 $token = $response.session_token
 
 # 3. Send a message
-curl -X POST "http://localhost:8000/public/sessions/$session_id/messages" `
+curl -X POST "http://localhost:8080/v1/public/sessions/$session_id/messages" `
   -H "X-Session-Token: $token" `
   -H "Content-Type: application/json" `
   -d '{"content": "Hello! What products do you have?"}'
 
 # 4. Stream responses (open in browser)
-# http://localhost:8000/public/sessions/{session_id}/stream?token={token}
+# http://localhost:8080/v1/public/sessions/{session_id}/stream?token={token}
 ```
 
 ---
@@ -60,7 +63,7 @@ curl -X POST "http://localhost:8000/public/sessions/$session_id/messages" `
 # Run all quality checks (linting, types, tests)
 just check-fast
 
-# Expected: EXIT CODE 0, 107/107 tests passing
+# Expected: EXIT CODE 0
 ```
 
 ---

@@ -15,8 +15,8 @@ BizSaathi: multimodal, evidence-grounded, human-supervised agentic co-pilot for 
 - Contract: contracts/openapi.json is the API/web source of truth
 
 ## Commands (standard recipes supported via just or python scripts/runner.py)
-- `just up` / `just down`: postgres, redis, minio via docker compose
-- `just dev-api`: cd backend && uv run uvicorn app.main:app --reload --port 8000
+- `just up` / `just down`: full local Compose stack (PostgreSQL, Redis, API, frontend; optional MinIO profile)
+- `just dev-api`: cd backend && uv run uvicorn app.main:app --reload --port 8080
 - `just dev-web`: cd frontend && npm run dev
 - `just guards`: secret scan + eval-dataset validation + docs consistency
 - `just check-fast`: guards + backend lint/types/unit tests + frontend lint/typecheck/tests

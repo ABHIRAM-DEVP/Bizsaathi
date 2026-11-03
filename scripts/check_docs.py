@@ -44,7 +44,13 @@ for i in sorted(set(re.findall(r"EP-[A-Z]\d{2}", read(phases)))):
 sql = read(DOCS / "schema" / "reference_schema.sql")
 sql_nocomment = re.sub(r"--[^\n]*", "", sql)
 tables = re.findall(r"CREATE TABLE (\w+)\s*\(", sql_nocomment)
-allow_no_tenant = {"business", "otp_challenge"}
+allow_no_tenant = {
+    "business",
+    "otp_challenge",
+    "customer_account",
+    "customer_auth_session",
+    "public_rate_limit_bucket",
+}
 for m in re.finditer(r"CREATE TABLE (\w+)\s*\((.*?)\n\);", sql_nocomment, re.S):
     name, body = m.group(1), m.group(2)
     if body.count("(") != body.count(")"):

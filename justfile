@@ -2,19 +2,19 @@
 # Tools needed: uv, npm, docker, python3. Recipes assume backend and frontend exist.
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
-api_url := env_var_or_default("API_URL", "http://localhost:8000")
+api_url := env_var_or_default("API_URL", "http://localhost:8080")
 
 default:
     @just --list
 
 up:
-    docker compose up -d postgres redis minio
+    docker compose up -d --build --wait
 
 down:
     docker compose down
 
 dev-api:
-    cd backend && uv run uvicorn app.main:app --reload --port 8000
+    cd backend && uv run uvicorn app.main:app --reload --port 8080
 
 dev-web:
     cd frontend && npm run dev
@@ -45,6 +45,9 @@ contract-check:
 
 migrate:
     cd backend && uv run alembic upgrade head
+
+demo-orders:
+    cd backend && uv run python -m app.seed_demo_orders
 
 new-migration msg:
     cd backend && uv run alembic revision --autogenerate -m "{{msg}}"

@@ -20,12 +20,20 @@ CREATE UNIQUE INDEX business_slug_uq ON business (lower(slug));
 CREATE TABLE app_user (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id   uuid NOT NULL REFERENCES business(id),
-  phone_e164    text NOT NULL CHECK (phone_e164 ~ '^\+[1-9][0-9]{7,14}$'),
+  phone_e164    text CHECK (phone_e164 IS NULL OR phone_e164 ~ '^\+[1-9][0-9]{7,14}$'),
+  local_email   text UNIQUE CHECK (char_length(local_email) <= 320),
+  local_password_hash bytea,
+  local_session_version integer NOT NULL DEFAULT 0 CHECK (local_session_version >= 0),
+  identity_type text NOT NULL DEFAULT 'phone' CHECK (identity_type IN ('phone','local_dev')),
   role          text NOT NULL CHECK (role IN ('owner','operator')),
   display_name  text CHECK (char_length(display_name) <= 120),
   language      text NOT NULL DEFAULT 'en' CHECK (language IN ('en','hi','mr')),
   created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT now()
+  updated_at    timestamptz NOT NULL DEFAULT now(),
+  CHECK ((identity_type = 'phone' AND phone_e164 IS NOT NULL AND local_email IS NULL AND local_password_hash IS NULL)
+      OR (identity_type = 'local_dev' AND phone_e164 IS NULL
+          AND ((local_email IS NULL AND local_password_hash IS NULL)
+            OR (local_email IS NOT NULL AND local_password_hash IS NOT NULL))))
 );
 CREATE UNIQUE INDEX app_user_phone_uq ON app_user (phone_e164);
 CREATE INDEX app_user_business_ix ON app_user (business_id);
@@ -242,7 +250,7 @@ CREATE TABLE evidence (
   business_id    uuid NOT NULL REFERENCES business(id),
   claim_id       uuid REFERENCES claim(id),
   message_id     uuid,                         -- set when evidence supports a chat answer (FK added below)
-  source_kind    text NOT NULL CHECK (source_kind IN ('product','variant','policy','order','transcript','media')),
+  source_kind    text NOT NULL CHECK (source_kind IN ('business','product','variant','policy','order','transcript','media')),
   source_id      uuid NOT NULL,
   source_version integer NOT NULL CHECK (source_version >= 1),
   snapshot       jsonb NOT NULL,               -- redacted copy of the cited fact at check time
@@ -250,10 +258,30 @@ CREATE TABLE evidence (
 );
 CREATE INDEX evidence_business_ix ON evidence (business_id, claim_id);
 
+CREATE TABLE customer_account (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email         text NOT NULL UNIQUE CHECK (char_length(email) BETWEEN 3 AND 320),
+  display_name  text NOT NULL CHECK (char_length(display_name) BETWEEN 1 AND 120),
+  password_hash bytea NOT NULL,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE customer_auth_session (
+  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  customer_account_id uuid NOT NULL REFERENCES customer_account(id) ON DELETE CASCADE,
+  token_hash          varchar(64) NOT NULL UNIQUE,
+  created_at          timestamptz NOT NULL DEFAULT now(),
+  expires_at          timestamptz NOT NULL,
+  revoked_at          timestamptz
+);
+CREATE INDEX customer_auth_session_account_ix ON customer_auth_session (customer_account_id, expires_at);
+
 CREATE TABLE public_session (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id   uuid NOT NULL REFERENCES business(id),
-  token_hash    bytea NOT NULL,
+  customer_account_id uuid REFERENCES customer_account(id) ON DELETE CASCADE,
+  token_hash    bytea,
   status        text NOT NULL DEFAULT 'open' CHECK (status IN ('open','escalated','closed','blocked')),
   ip_hash       text,                          -- salted hash, for rate limiting only
   created_at    timestamptz NOT NULL DEFAULT now(),
@@ -268,6 +296,8 @@ CREATE TABLE conversation (
   public_session_id  uuid NOT NULL REFERENCES public_session(id),
   status             text NOT NULL DEFAULT 'open' CHECK (status IN ('open','escalated','closed')),
   escalation_reason  text,
+  source             text NOT NULL DEFAULT 'public' CHECK (source IN ('public','demo')),
+  customer_label     text,
   created_at         timestamptz NOT NULL DEFAULT now(),
   updated_at         timestamptz NOT NULL DEFAULT now(),
   UNIQUE (public_session_id)
@@ -281,10 +311,18 @@ CREATE TABLE message (
   role             text NOT NULL CHECK (role IN ('customer','assistant','owner','system')),
   body             text NOT NULL CHECK (char_length(body) <= 4000),
   evidence_ids     uuid[] NOT NULL DEFAULT '{}',
+  read_by_owner_at timestamptz,
   created_at       timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX message_conversation_ix ON message (business_id, conversation_id, created_at);
 ALTER TABLE evidence ADD CONSTRAINT evidence_message_fk FOREIGN KEY (message_id) REFERENCES message(id);
+
+CREATE TABLE public_rate_limit_bucket (
+  key_hash     varchar(64) PRIMARY KEY,
+  window_start timestamptz NOT NULL,
+  request_count integer NOT NULL CHECK (request_count > 0)
+);
+CREATE INDEX public_rate_limit_window_ix ON public_rate_limit_bucket (window_start);
 
 CREATE TABLE customer_order (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),

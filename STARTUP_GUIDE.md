@@ -32,10 +32,15 @@ just --version
 
 ## Step 1: Start Infrastructure Services
 
-BizSaathi requires PostgreSQL, Redis, and MinIO running locally via Docker Compose.
+BizSaathi requires PostgreSQL and Redis running locally via Docker Compose. MinIO is optional.
 
 ```powershell
 # From project root (d:\PROJECTS\BizSaathi)
+
+# First time only: create a local, ignored configuration file and set unique credentials.
+Copy-Item .env.example .env
+# Edit .env; do not commit or share it. Use strong, unique values for database,
+# JWT, and object-storage secrets. MinIO is optional unless you enable its profile.
 
 # Start all infrastructure services
 just up
@@ -50,16 +55,16 @@ docker compose ps
 **Expected output:**
 ```
 NAME                    SERVICE      STATUS       PORTS
-bizsaathi-postgres-1    postgres     running      0.0.0.0:5432->5432/tcp
-bizsaathi-redis-1       redis        running      0.0.0.0:6379->6379/tcp
-bizsaathi-minio-1       minio        running      0.0.0.0:9000->9000/tcp, 0.0.0.0:9001->9001/tcp
+bizsaathi-postgres-1    postgres     running      127.0.0.1:5433->5432/tcp
+bizsaathi-redis-1       redis        running      127.0.0.1:6379->6379/tcp
 ```
+Host ports may differ if changed in `.env`. Compose binds development ports to loopback; do not change them to `0.0.0.0` on a network-accessible machine.
 
 **Service URLs (for debugging):**
-- PostgreSQL: `localhost:5432` (user: `postgres`, password: `postgres`, db: `bizsaathi`)
+- PostgreSQL: `localhost:5433` (username and password are the unique local values in `.env`)
 - Redis: `localhost:6379`
-- MinIO Console: http://localhost:9001 (user: `minioadmin`, password: `minioadmin`)
-- MinIO API: http://localhost:9000
+- MinIO Console: http://localhost:9001 (optional storage profile; credentials are configured in `.env`)
+- MinIO API: http://localhost:9000 (optional storage profile)
 
 ---
 
@@ -517,9 +522,9 @@ Now that your environment is running:
 | Frontend | http://localhost:3000 | (varies by seed data) |
 | Backend API | http://localhost:8000 | (JWT required for protected routes) |
 | API Docs | http://localhost:8000/docs | - |
-| PostgreSQL | localhost:5432 | postgres / postgres |
+| PostgreSQL | localhost:5433 | Unique credentials configured in ignored `.env` |
 | Redis | localhost:6379 | (no password) |
-| MinIO Console | http://localhost:9001 | minioadmin / minioadmin |
+| MinIO Console | http://localhost:9001 | Optional; unique credentials configured in ignored `.env` |
 
 ---
 

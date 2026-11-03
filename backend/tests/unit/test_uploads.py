@@ -1,10 +1,12 @@
 """Unit tests for upload validation, security, and endpoints."""
 
+from urllib.parse import parse_qs, urlsplit
 from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.config import settings
 from app.core.errors import PayloadTooLargeError, UnsupportedMediaError
 from app.main import app
 from app.models.base import get_db
@@ -90,8 +92,8 @@ def test_audio_size_exceeded_rejected():
     assert "exceeds" in str(exc_info.value).lower()
 
 
-def test_valid_jpeg_returns_signed_url_with_tenant_prefixed_key():
-    service = UploadService()
+def test_valid_jpeg_returns_signed_url_with_tenant_prefixed_key(mock_db_session):
+    service = UploadService(mock_db_session)
     b_id = uuid4()
     req = UploadRequest(
         kind="photo",
@@ -99,14 +101,24 @@ def test_valid_jpeg_returns_signed_url_with_tenant_prefixed_key():
         mime="image/jpeg",
         size_bytes=2 * 1024 * 1024,  # 2MB
     )
-    resp = service.create_upload_session(business_id=b_id, req=req)
+    resp = service.create_upload_session(
+        business_id=b_id,
+        req=req,
+        base_url="http://api.example.test",
+    )
 
     assert resp.media_id is not None
     assert resp.storage_key.startswith(f"{b_id}/uploads/")
     assert resp.storage_key.endswith(".jpg")
-    assert resp.upload_url.startswith("http")
+    parsed_url = urlsplit(resp.upload_url)
+    query = parse_qs(parsed_url.query)
+    assert parsed_url.scheme == "http"
+    assert parsed_url.netloc == "api.example.test"
+    assert parsed_url.path.endswith(f"/uploads/{resp.media_id}/content")
+    assert query["expires"][0].isdigit()
+    assert query["token"][0]
+    assert resp.expires_in_seconds > 0
     assert resp.method == "PUT"
-    assert resp.expires_in_seconds == 900
 
 
 def test_post_uploads_api_endpoint(client):
@@ -128,3 +140,19 @@ def test_post_uploads_api_endpoint(client):
     assert "upload_url" in data
     assert "media_id" in data
     assert data["storage_key"].startswith(f"{b_id}/uploads/")
+
+
+def test_upload_endpoint_allows_browser_put_preflight(client):
+    origin = settings.CORS_ALLOWED_ORIGINS.split(",")[0].strip()
+    response = client.options(
+        "/v1/uploads/example/content",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "PUT",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "PUT" in response.headers["access-control-allow-methods"]
+    assert response.headers["access-control-allow-origin"] == origin

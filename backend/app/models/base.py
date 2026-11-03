@@ -1,6 +1,7 @@
 """SQLAlchemy base and database engine configuration."""
 
 from datetime import datetime, timezone
+from functools import lru_cache
 
 from sqlalchemy import DateTime, MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
@@ -41,6 +42,7 @@ class TimestampMixin:
     )
 
 
+@lru_cache(maxsize=1)
 def get_sync_engine():
     """Create a synchronous engine from DATABASE_URL (converts async URL if needed)."""
     url = settings.DATABASE_URL
@@ -60,6 +62,14 @@ def get_db():
     """FastAPI dependency yielding a managed database session."""
     session = get_session()
     try:
+        if settings.ENV == "dev":
+            from app.core.tenancy import ensure_development_business
+
+            ensure_development_business(session)
         yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()

@@ -6,6 +6,7 @@ from app.schemas.approvals import (
     ApprovalResponse,
 )
 from app.schemas.jobs import JobResponse
+from app.schemas.orders import OrderItemResponse, OrderResponse
 from app.schemas.posts import (
     ClaimResponse,
     PostGenerateRequest,
@@ -26,6 +27,8 @@ __all__ = [
     "UploadRequest",
     "UploadResponse",
     "JobResponse",
+    "OrderItemResponse",
+    "OrderResponse",
     "ProductFromPhotoRequest",
     "ProductFromVoiceRequest",
     "ProductCreateRequest",
