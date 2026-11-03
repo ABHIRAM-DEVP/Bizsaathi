@@ -100,64 +100,6 @@ The backend is a modular monolith. PostgreSQL is the source of truth. Redis and 
 
 The [OpenAPI contract](contracts/openapi.json) is the API/web source of truth. Dependency versions and open assumptions are listed in [docs/12-assumptions-risks-deps.md](docs/12-assumptions-risks-deps.md).
 
-## Measured metrics and impact
-
-### Business and production outcomes
-
-| Outcome | Metric and calculation | Illustrative calculation only — not a BizSaathi result | BizSaathi status / evidence needed |
-|---|---|---|---|
-| Time saved | `(manual median minutes − assisted median minutes, including review) ÷ manual median minutes × 100` | 10 min manual vs. 7 min assisted = **30%** | **Not benchmarked**; collect matched timings for the same seller task |
-| Cost saved | `(baseline cost per completed task − assisted cost per completed task) ÷ baseline cost per completed task × 100` | ₹100 baseline vs. ₹70 assisted, including labor, actual model billing, and allocated hosting = **30%** | **Not benchmarked**; collect comparable end-to-end costs |
-| Production availability | `(scheduled observation minutes − unavailable minutes) ÷ scheduled observation minutes × 100` | 30 days with 3.6 hours unavailable = **99.5%** | **Not measured in production**; requires production monitoring and a stated observation window |
-| Production performance | Report request throughput and p50/p95 latency; compare p95 change as `(baseline p95 − observed p95) ÷ baseline p95 × 100` | p95 800 ms to 600 ms = **25% lower p95 latency** | **Not measured in production**; requires production traffic, workload, and telemetry |
-| Live-model quality | `(labelled outputs meeting a pre-defined acceptance criterion ÷ labelled outputs evaluated) × 100` | 18 of 20 labelled outputs pass = **90%** for that criterion and dataset | **Not evaluated**; requires approval, labelled cases, and recorded model/configuration |
-
-**Important:** The example figures above show how to calculate percentages; they are hypothetical, not measured results, targets, or forecasts for BizSaathi. Actual business and production outcomes remain unknown until the required measurements are collected. Live evaluation is not approved.
-
-### Verified quantitative evidence
-
-| Indicator | Measured result | Scope |
-|---|---:|---|
-| Backend unit-test pass rate | **100% (236/236)** | Local automated unit suite |
-| Backend integration-test pass rate | **100% (9/9 executed)** | Local integration suite; 3 additional full-stack tests are skipped and excluded from the denominator |
-| Integration scenarios currently executed | **75% (9/12)** | 9 pass; the remaining 3 (25%) are explicitly skipped full-stack scenarios |
-| Development mock-evaluation pass rate | **100% (12/12)** | Deterministic mock plumbing; not live-model quality |
-| Held-out mock-evaluation pass rate | **100% (4/4)** | Deterministic mock plumbing; not live-model quality |
-| Repository guards | **Pass** | Secret scan, 16-case dataset validation, and documentation consistency |
-| Backend lint / typing | **Pass** | Ruff and mypy; 141 source files checked |
-| Frontend lint / production build | **Pass** | ESLint and Next.js build; 18 pages generated |
-| OpenAPI contract | **49 paths / 52 operations** | Generated contract matches checked-in contract |
-
-The **75%** figure is the proportion of listed integration scenarios that execute; it is not code coverage or a product-quality score. Other percentages describe only the stated test/evaluation results. None measures seller time saved, cost reduction, production availability, or live-model quality. Do not present hypothetical percentage calculations as BizSaathi results.
-
-For client reporting, replace the illustrative calculations with measured data and include the sample size, observation window, workload, and methodology. Report live-model quality per pre-defined criterion and dataset; report production availability alongside throughput and p50/p95 latency.
-
-### What has been measured locally
-
-| Check or metric | Result | Interpretation |
-|---|---:|---|
-| Development mock evaluation | **12/12 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
-| Held-out mock evaluation | **4/4 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
-| Backend unit tests | **236 passed / 236 executed — 100% pass** | Local automated tests; see [Verification](#verification) |
-| Backend integration tests | **9 passed / 9 executed — 100% pass; 3 skipped** | Includes controlled fixtures; three full-stack tests are explicitly skipped |
-| Integration scenario execution | **9/12 — 75% executed; 25% skipped** | Test execution status, not code coverage |
-| Metrics aggregation | Tested with controlled database fixtures | Tenant isolation and percentile calculations; not production traffic |
-| Model tokens / estimated provider cost | **N/A — not collected** | No fabricated tokens, model prices, or dollar savings |
-
-The percentages above apply only to the listed tests or deterministic mock cases. They are not product accuracy, customer benefit, uptime, or production performance claims.
-
-The agent metrics API is `GET /v1/metrics/agents?days=30` (owner/operator; 1–90 days). It reports tenant-scoped job counts and status, success rate, workflow/node latency percentiles, node error events, and recorded model-call totals. Token counts and estimated cost remain `null` until actual usage and pricing data are collected.
-
-### Technical inventory
-
-| Inventory measure | Observed value |
-|---|---:|
-| OpenAPI contract | 49 paths / 52 HTTP operations |
-| Reference SQL schema | 32 tables (design reference, not a deployed-table count) |
-| Synthetic evaluation dataset | 16 cases (12 dev, 4 held-out) |
-| Logical nodes in architecture catalog | 15 (not all active in the runtime graph) |
-| Test coverage percentage | Not collected |
-
 ## Get started
 
 ### Prerequisites
@@ -236,6 +178,64 @@ uv run python -m app.evals.run --mode mock --split heldout
 ```
 
 Mock results are free, deterministic plumbing checks—not live-model quality. Do not run live evaluations unless explicitly approved and configured with server-side credentials.
+
+## Measured metrics and impact
+
+### Business and production outcomes
+
+| Outcome | Metric and calculation | Illustrative calculation only — not a BizSaathi result | BizSaathi status / evidence needed |
+|---|---|---|---|
+| Time saved | `(manual median minutes − assisted median minutes, including review) ÷ manual median minutes × 100` | 10 min manual vs. 7 min assisted = **30%** | **Not benchmarked**; collect matched timings for the same seller task |
+| Cost saved | `(baseline cost per completed task − assisted cost per completed task) ÷ baseline cost per completed task × 100` | ₹100 baseline vs. ₹70 assisted, including labor, actual model billing, and allocated hosting = **30%** | **Not benchmarked**; collect comparable end-to-end costs |
+| Production availability | `(scheduled observation minutes − unavailable minutes) ÷ scheduled observation minutes × 100` | 30 days with 3.6 hours unavailable = **99.5%** | **Not measured in production**; requires production monitoring and a stated observation window |
+| Production performance | Report request throughput and p50/p95 latency; compare p95 change as `(baseline p95 − observed p95) ÷ baseline p95 × 100` | p95 800 ms to 600 ms = **25% lower p95 latency** | **Not measured in production**; requires production traffic, workload, and telemetry |
+| Live-model quality | `(labelled outputs meeting a pre-defined acceptance criterion ÷ labelled outputs evaluated) × 100` | 18 of 20 labelled outputs pass = **90%** for that criterion and dataset | **Not evaluated**; requires approval, labelled cases, and recorded model/configuration |
+
+**Important:** The example figures above show how to calculate percentages; they are hypothetical, not measured results, targets, or forecasts for BizSaathi. Actual business and production outcomes remain unknown until the required measurements are collected. Live evaluation is not approved.
+
+### Verified quantitative evidence
+
+| Indicator | Measured result | Scope |
+|---|---:|---|
+| Backend unit-test pass rate | **100% (236/236)** | Local automated unit suite |
+| Backend integration-test pass rate | **100% (9/9 executed)** | Local integration suite; 3 additional full-stack tests are skipped and excluded from the denominator |
+| Integration scenarios currently executed | **75% (9/12)** | 9 pass; the remaining 3 (25%) are explicitly skipped full-stack scenarios |
+| Development mock-evaluation pass rate | **100% (12/12)** | Deterministic mock plumbing; not live-model quality |
+| Held-out mock-evaluation pass rate | **100% (4/4)** | Deterministic mock plumbing; not live-model quality |
+| Repository guards | **Pass** | Secret scan, 16-case dataset validation, and documentation consistency |
+| Backend lint / typing | **Pass** | Ruff and mypy; 141 source files checked |
+| Frontend lint / production build | **Pass** | ESLint and Next.js build; 18 pages generated |
+| OpenAPI contract | **49 paths / 52 operations** | Generated contract matches checked-in contract |
+
+The **75%** figure is the proportion of listed integration scenarios that execute; it is not code coverage or a product-quality score. Other percentages describe only the stated test/evaluation results. None measures seller time saved, cost reduction, production availability, or live-model quality. Do not present hypothetical percentage calculations as BizSaathi results.
+
+For client reporting, replace the illustrative calculations with measured data and include the sample size, observation window, workload, and methodology. Report live-model quality per pre-defined criterion and dataset; report production availability alongside throughput and p50/p95 latency.
+
+### What has been measured locally
+
+| Check or metric | Result | Interpretation |
+|---|---:|---|
+| Development mock evaluation | **12/12 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
+| Held-out mock evaluation | **4/4 — 100% pass** | Deterministic mock plumbing only; not live-model quality |
+| Backend unit tests | **236 passed / 236 executed — 100% pass** | Local automated tests; see [Verification](#verification) |
+| Backend integration tests | **9 passed / 9 executed — 100% pass; 3 skipped** | Includes controlled fixtures; three full-stack tests are explicitly skipped |
+| Integration scenario execution | **9/12 — 75% executed; 25% skipped** | Test execution status, not code coverage |
+| Metrics aggregation | Tested with controlled database fixtures | Tenant isolation and percentile calculations; not production traffic |
+| Model tokens / estimated provider cost | **N/A — not collected** | No fabricated tokens, model prices, or dollar savings |
+
+The percentages above apply only to the listed tests or deterministic mock cases. They are not product accuracy, customer benefit, uptime, or production performance claims.
+
+The agent metrics API is `GET /v1/metrics/agents?days=30` (owner/operator; 1–90 days). It reports tenant-scoped job counts and status, success rate, workflow/node latency percentiles, node error events, and recorded model-call totals. Token counts and estimated cost remain `null` until actual usage and pricing data are collected.
+
+### Technical inventory
+
+| Inventory measure | Observed value |
+|---|---:|
+| OpenAPI contract | 49 paths / 52 HTTP operations |
+| Reference SQL schema | 32 tables (design reference, not a deployed-table count) |
+| Synthetic evaluation dataset | 16 cases (12 dev, 4 held-out) |
+| Logical nodes in architecture catalog | 15 (not all active in the runtime graph) |
+| Test coverage percentage | Not collected |
 
 ## Verification
 
